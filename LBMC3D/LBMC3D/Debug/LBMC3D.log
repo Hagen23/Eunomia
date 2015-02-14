@@ -1,0 +1,45 @@
+﻿Build started 13/02/2015 06:33:03 p. m..
+     1>Project "D:\Octavio\Tesis\Codigo\Eunomia\LBMC3D\LBMC3D\LBMC3D.vcxproj" on node 2 (Build target(s)).
+     1>ClCompile:
+         C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\bin\CL.exe /c /ZI /nologo /W3 /WX- /Od /Oy- /D WIN32 /D _DEBUG /D _CONSOLE /D _UNICODE /D UNICODE /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"Debug\\" /Fd"Debug\vc110.pdb" /Gd /TP /analyze- /errorReport:prompt src\3dLB_C.cpp
+         3dLB_C.cpp
+     1>d:\octavio\tesis\codigo\eunomia\lbmc3d\lbmc3d\src\3dlb_c.cpp(90): warning C4305: '=' : truncation from 'double' to 'float'
+     1>d:\octavio\tesis\codigo\eunomia\lbmc3d\lbmc3d\src\3dlb_c.cpp(92): warning C4305: '=' : truncation from 'double' to 'float'
+     1>d:\octavio\tesis\codigo\eunomia\lbmc3d\lbmc3d\src\3dlb_c.cpp(163): warning C4996: 'fopen': This function or variable may be unsafe. Consider using fopen_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 c:\program files (x86)\microsoft visual studio 11.0\vc\include\stdio.h(218) : see declaration of 'fopen'
+     1>d:\octavio\tesis\codigo\eunomia\lbmc3d\lbmc3d\src\3dlb_c.cpp(169): warning C4996: 'fscanf': This function or variable may be unsafe. Consider using fscanf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 c:\program files (x86)\microsoft visual studio 11.0\vc\include\stdio.h(237) : see declaration of 'fscanf'
+     1>d:\octavio\tesis\codigo\eunomia\lbmc3d\lbmc3d\src\3dlb_c.cpp(173): warning C4996: 'fscanf': This function or variable may be unsafe. Consider using fscanf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 c:\program files (x86)\microsoft visual studio 11.0\vc\include\stdio.h(237) : see declaration of 'fscanf'
+     1>d:\octavio\tesis\codigo\eunomia\lbmc3d\lbmc3d\src\3dlb_c.cpp(504): warning C4305: '=' : truncation from 'double' to 'float'
+     1>d:\octavio\tesis\codigo\eunomia\lbmc3d\lbmc3d\src\3dlb_c.cpp(517): warning C4244: '=' : conversion from 'float' to 'int', possible loss of data
+     1>d:\octavio\tesis\codigo\eunomia\lbmc3d\lbmc3d\src\3dlb_c.cpp(537): warning C4244: 'argument' : conversion from 'int' to 'GLfloat', possible loss of data
+     1>d:\octavio\tesis\codigo\eunomia\lbmc3d\lbmc3d\src\3dlb_c.cpp(539): warning C4244: 'argument' : conversion from 'int' to 'GLfloat', possible loss of data
+     1>d:\octavio\tesis\codigo\eunomia\lbmc3d\lbmc3d\src\3dlb_c.cpp(541): warning C4244: 'argument' : conversion from 'int' to 'GLfloat', possible loss of data
+     1>d:\octavio\tesis\codigo\eunomia\lbmc3d\lbmc3d\src\3dlb_c.cpp(499): warning C4101: 'i1' : unreferenced local variable
+     1>d:\octavio\tesis\codigo\eunomia\lbmc3d\lbmc3d\src\3dlb_c.cpp(499): warning C4101: 'jp1' : unreferenced local variable
+     1>d:\octavio\tesis\codigo\eunomia\lbmc3d\lbmc3d\src\3dlb_c.cpp(499): warning C4101: 'i3' : unreferenced local variable
+     1>d:\octavio\tesis\codigo\eunomia\lbmc3d\lbmc3d\src\3dlb_c.cpp(499): warning C4101: 'i4' : unreferenced local variable
+     1>d:\octavio\tesis\codigo\eunomia\lbmc3d\lbmc3d\src\3dlb_c.cpp(499): warning C4101: 'i2' : unreferenced local variable
+     1>d:\octavio\tesis\codigo\eunomia\lbmc3d\lbmc3d\src\3dlb_c.cpp(499): warning C4101: 'ip1' : unreferenced local variable
+     1>d:\octavio\tesis\codigo\eunomia\lbmc3d\lbmc3d\src\3dlb_c.cpp(555): warning C4244: '=' : conversion from 'int' to 'float', possible loss of data
+     1>d:\octavio\tesis\codigo\eunomia\lbmc3d\lbmc3d\src\3dlb_c.cpp(556): warning C4244: '=' : conversion from 'int' to 'float', possible loss of data
+     1>d:\octavio\tesis\codigo\eunomia\lbmc3d\lbmc3d\src\3dlb_c.cpp(578): warning C4244: '=' : conversion from 'int' to 'float', possible loss of data
+     1>d:\octavio\tesis\codigo\eunomia\lbmc3d\lbmc3d\src\3dlb_c.cpp(579): warning C4244: '=' : conversion from 'int' to 'float', possible loss of data
+     1>d:\octavio\tesis\codigo\eunomia\lbmc3d\lbmc3d\src\3dlb_c.cpp(580): warning C4244: '=' : conversion from 'float' to 'int', possible loss of data
+     1>d:\octavio\tesis\codigo\eunomia\lbmc3d\lbmc3d\src\3dlb_c.cpp(581): warning C4244: '=' : conversion from 'float' to 'int', possible loss of data
+     1>d:\octavio\tesis\codigo\eunomia\lbmc3d\lbmc3d\src\3dlb_c.cpp(586): warning C4244: '=' : conversion from 'int' to 'float', possible loss of data
+     1>d:\octavio\tesis\codigo\eunomia\lbmc3d\lbmc3d\src\3dlb_c.cpp(587): warning C4244: '=' : conversion from 'int' to 'float', possible loss of data
+     1>d:\octavio\tesis\codigo\eunomia\lbmc3d\lbmc3d\src\3dlb_c.cpp(588): warning C4244: '=' : conversion from 'float' to 'int', possible loss of data
+     1>d:\octavio\tesis\codigo\eunomia\lbmc3d\lbmc3d\src\3dlb_c.cpp(589): warning C4244: '=' : conversion from 'float' to 'int', possible loss of data
+     1>d:\octavio\tesis\codigo\eunomia\lbmc3d\lbmc3d\src\3dlb_c.cpp(606): warning C4244: '=' : conversion from 'int' to 'float', possible loss of data
+     1>d:\octavio\tesis\codigo\eunomia\lbmc3d\lbmc3d\src\3dlb_c.cpp(607): warning C4244: '=' : conversion from 'int' to 'float', possible loss of data
+       Link:
+         C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"D:\Octavio\Tesis\Codigo\Eunomia\LBMC3D\Debug\LBMC3D.exe" /INCREMENTAL /NOLOGO freeglut.lib glew32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"D:\Octavio\Tesis\Codigo\Eunomia\LBMC3D\Debug\LBMC3D.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"D:\Octavio\Tesis\Codigo\Eunomia\LBMC3D\Debug\LBMC3D.lib" /MACHINE:X86 Debug\3dLB_C.obj
+         Debug\LB_3d.obj
+         LBMC3D.vcxproj -> D:\Octavio\Tesis\Codigo\Eunomia\LBMC3D\Debug\LBMC3D.exe
+     1>Done Building Project "D:\Octavio\Tesis\Codigo\Eunomia\LBMC3D\LBMC3D\LBMC3D.vcxproj" (Build target(s)).
+
+Build succeeded.
+
+Time Elapsed 00:00:00.80
