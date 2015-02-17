@@ -20,7 +20,7 @@
 #include <math.h>
 #include "../GL/glew.h"
 #include "../GL/glut.h"
-#include "dataTypes.h"
+#include "Lattice.h"
 
 //Function to linearly go over the arrays
 #define I2D(ni,i,j) (((ni)*(j)) + i)
@@ -40,7 +40,7 @@ unsigned int *cmap_rgba, *plot_rgba;  //rgba arrays for plotting
 
 // scalars //
 float tau,faceq1,faceq2,faceq3; 
-float vxin, roout;
+float vxin, vyin, roout;
 float width, height;
 int ni,nj;
 int ncol;
@@ -78,7 +78,7 @@ int main(int argc, char **argv)
     int array_size_2d,totpoints,i;
     float rcol,gcol,bcol;
 
-	lattice<float> _lattice(1,1,1,1);
+	latticed3q19 _lattice(1,1,1);
 	_lattice.printLattice();
     
 	FILE *fp_col;
@@ -87,8 +87,9 @@ int main(int argc, char **argv)
     // hard code them for the demo:
     ni=400; //Width
     nj=400; //Height
-    vxin=0.04;
-    roout=1.0;
+    vxin = 0.04;
+	vyin = 0.04;
+    roout=0.50;
     tau=1.51;
     // End of parameter list
 
@@ -154,6 +155,20 @@ int main(int argc, char **argv)
 	f7[i] = faceq3 * roout * (1.f - 3.f*vxin + 4.5f*vxin*vxin - 1.5f*vxin*vxin);
 	f8[i] = faceq3 * roout * (1.f + 3.f*vxin + 4.5f*vxin*vxin - 1.5f*vxin*vxin);
 	plotvar[i] = vxin;
+	solid[i] = 1;
+    }
+
+	for (i=0; i<totpoints; i++) {
+	f0[i] = faceq1 * roout * (1.f                             - 1.5f*(vxin + vyin)*(vxin + vyin));
+	f1[i] = faceq2 * roout * (1.f + 3.f*(vxin + vyin) + 4.5f*(vxin + vyin)*(vxin + vyin) - 1.5f*(vxin + vyin)*(vxin + vyin));
+	f2[i] = faceq2 * roout * (1.f                             - 1.5f*(vxin + vyin)*(vxin + vyin));
+	f3[i] = faceq2 * roout * (1.f - 3.f*(vxin + vyin) + 4.5f*(vxin + vyin)*(vxin + vyin) - 1.5f*(vxin + vyin)*(vxin + vyin));
+	f4[i] = faceq2 * roout * (1.f                             - 1.5f*(vxin + vyin)*(vxin + vyin));
+	f5[i] = faceq3 * roout * (1.f + 3.f*(vxin + vyin) + 4.5f*(vxin + vyin)*(vxin + vyin) - 1.5f*(vxin + vyin)*(vxin + vyin));
+	f6[i] = faceq3 * roout * (1.f - 3.f*(vxin + vyin) + 4.5f*(vxin + vyin)*(vxin + vyin) - 1.5f*(vxin + vyin)*(vxin + vyin));
+	f7[i] = faceq3 * roout * (1.f - 3.f*(vxin + vyin) + 4.5f*(vxin + vyin)*(vxin + vyin) - 1.5f*(vxin + vyin)*(vxin + vyin));
+	f8[i] = faceq3 * roout * (1.f + 3.f*(vxin + vyin) + 4.5f*(vxin + vyin)*(vxin + vyin) - 1.5f*(vxin + vyin)*(vxin + vyin));
+	plotvar[i] = (vxin + vyin);
 	solid[i] = 1;
     }
 

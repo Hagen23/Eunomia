@@ -12,10 +12,11 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\3dLB_C.cpp" />
+    <ClCompile Include="src\Lattice.cpp" />
     <ClCompile Include="src\LB_3d.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="src\dataTypes.h" />
+    <ClInclude Include="src\Lattice.h" />
     <ClInclude Include="src\LB_3d.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">

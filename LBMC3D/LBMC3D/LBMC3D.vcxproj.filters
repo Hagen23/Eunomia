@@ -21,12 +21,15 @@
     <ClCompile Include="src\LB_3d.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\Lattice.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\LB_3d.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\dataTypes.h">
+    <ClInclude Include="src\Lattice.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
