@@ -18,18 +18,18 @@
     <ClCompile Include="src\3dLB_C.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\LB_3d.cpp">
+    <ClCompile Include="src\Lattice.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\Lattice.cpp">
+    <ClCompile Include="src\LatticeElement.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="src\LB_3d.h">
+    <ClInclude Include="src\Lattice.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Lattice.h">
+    <ClInclude Include="src\LatticeElement.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

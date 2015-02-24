@@ -17,6 +17,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <iostream>
 #include <math.h>
 #include "../GL/glew.h"
 #include "../GL/glut.h"
@@ -37,6 +38,8 @@ float *tmpf0,*tmpf1,*tmpf2,*tmpf3,*tmpf4,*tmpf5,*tmpf6,*tmpf7,*tmpf8;
 float *cmap,*plotvar;
 int *solid;
 unsigned int *cmap_rgba, *plot_rgba;  //rgba arrays for plotting
+
+bool in_bc = true;
 
 // scalars //
 float tau,faceq1,faceq2,faceq3; 
@@ -78,7 +81,7 @@ int main(int argc, char **argv)
     int array_size_2d,totpoints,i;
     float rcol,gcol,bcol;
 
-	latticed3q19 _lattice(1,1,1);
+	latticed3q19 _lattice(1,1,1, 1.59);
 	_lattice.printLattice();
     
 	FILE *fp_col;
@@ -87,10 +90,10 @@ int main(int argc, char **argv)
     // hard code them for the demo:
     ni=400; //Width
     nj=400; //Height
-    vxin = 0.04;
-	vyin = 0.04;
-    roout=0.50;
-    tau=1.51;
+    vxin = 0.000004;
+	vyin = 0.1;
+    roout=1.50;
+    tau=1.59;
     // End of parameter list
 
     // Write parameters to screen
@@ -144,7 +147,7 @@ int main(int argc, char **argv)
     // Initialise f's by setting them to the f_equilibirum values assuming
     // that the whole domain is at velocity vx=vxin vy=0 and density ro=roout
     //
-    for (i=0; i<totpoints; i++) {
+   /* for (i=0; i<totpoints; i++) {
 	f0[i] = faceq1 * roout * (1.f                             - 1.5f*vxin*vxin);
 	f1[i] = faceq2 * roout * (1.f + 3.f*vxin + 4.5f*vxin*vxin - 1.5f*vxin*vxin);
 	f2[i] = faceq2 * roout * (1.f                             - 1.5f*vxin*vxin);
@@ -156,7 +159,21 @@ int main(int argc, char **argv)
 	f8[i] = faceq3 * roout * (1.f + 3.f*vxin + 4.5f*vxin*vxin - 1.5f*vxin*vxin);
 	plotvar[i] = vxin;
 	solid[i] = 1;
-    }
+    }*/
+
+	/*   for (i=0; i<totpoints; i++) {
+	f0[i] = faceq1 * roout * (1.f                             - 1.5f*vyin*vyin);
+	f1[i] = faceq2 * roout * (1.f + 3.f*vyin + 4.5f*vyin*vyin - 1.5f*vyin*vyin);
+	f2[i] = faceq2 * roout * (1.f                             - 1.5f*vyin*vyin);
+	f3[i] = faceq2 * roout * (1.f - 3.f*vyin + 4.5f*vyin*vyin - 1.5f*vyin*vyin);
+	f4[i] = faceq2 * roout * (1.f                             - 1.5f*vyin*vyin);
+	f5[i] = faceq3 * roout * (1.f + 3.f*vyin + 4.5f*vyin*vyin - 1.5f*vyin*vyin);
+	f6[i] = faceq3 * roout * (1.f - 3.f*vyin + 4.5f*vyin*vyin - 1.5f*vyin*vyin);
+	f7[i] = faceq3 * roout * (1.f - 3.f*vyin + 4.5f*vyin*vyin - 1.5f*vyin*vyin);
+	f8[i] = faceq3 * roout * (1.f + 3.f*vyin + 4.5f*vyin*vyin - 1.5f*vyin*vyin);
+	plotvar[i] = vyin;
+	solid[i] = 1;
+    }*/
 
 	for (i=0; i<totpoints; i++) {
 	f0[i] = faceq1 * roout * (1.f                             - 1.5f*(vxin + vyin)*(vxin + vyin));
@@ -171,7 +188,6 @@ int main(int argc, char **argv)
 	plotvar[i] = (vxin + vyin);
 	solid[i] = 1;
     }
-
     //
     // Read in colourmap data for OpenGL display 
     //
@@ -275,7 +291,7 @@ void stream(void)
 		if (j==0) jm1=0;
 		if (j==(nj-1)) jp1=nj-1;
 
-		for (i=1; i<ni; i++) 
+		for (i=0; i<ni; i++) 
 		{
 			i0  = I2D(ni,i,j);
 			im1 = i-1;
@@ -446,21 +462,35 @@ void in_BC(void)
 // ro=roout; vx=vxin; vy=0
 
 {
-    int i0, j;
-    float f1new, f5new, f8new, vx_term;
+	if(in_bc)
+	{
+		int i0, j, i;
+		float f1new, f5new, f8new, f7new, f4new, vx_term;
 
-    vx_term = 1.f + 3.f*vxin +3.f*vxin*vxin;
-    f1new = roout * faceq2 * vx_term;
-    f5new = roout * faceq3 * vx_term;
-    f8new = f5new;
+		vx_term = 1.f + 3.f*(vxin + vyin) +3.f*(vxin + vyin)*(vxin + vyin);
+		//vx_term = 1.f + 3.f*vxin +3.f*vxin*vxin;
+	
+		f1new = roout * faceq2 * vx_term;
+		f5new = roout * faceq3 * vx_term;
+		f8new = f5new;
 
-    for (j=0; j<nj; j++){
-      i0 = I2D(ni,0,j);
-      f1[i0] = f1new;
-      f5[i0] = f5new;
-      f8[i0] = f8new;
-    }
+		f4new = roout * faceq2 * (1.f - 3.f*vyin + 4.5f*vyin*vyin - 1.5*vyin*vyin);
+	    f7new = roout * faceq3 * (1.f + 3.f*( - vyin) + 4.5f*(- vyin)*(- vyin) - 1.5*vyin*vyin);
+	    f8new = roout * faceq3 * (1.f + 3.f*(- vyin) + 4.5f*(- vyin)*(- vyin) -  1.5*vyin*vyin);
+		/*for (j=0; j<nj; j++){
+		  i0 = I2D(ni,0,j);
+		  f1[i0] = f1new;
+		  f5[i0] = f5new;
+		  f8[i0] = f8new;
+		}*/
 
+		for (i=0; i<ni; i++){
+		  i0 = I2D(ni,i,0);
+		  f7[i0] = f7new;
+		  f4[i0] = f4new;
+		  f8[i0] = f8new;
+		}
+	}
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -597,11 +627,14 @@ void mouse(int button, int state, int x, int y)
     }
 
     if ((button == GLUT_RIGHT_BUTTON) && (state == GLUT_DOWN)) {
-        draw_solid_flag = 1;
+        /*draw_solid_flag = 1;
         xx=x;
         yy=y;
         ipos_old=xx/width*ni;
-        jpos_old=(height-yy)/height*nj;
+        jpos_old=(height-yy)/height*nj;*/
+		in_bc = !in_bc;
+		std::cout << "inbc " << in_bc << std::endl;
+		
     }
 }
 

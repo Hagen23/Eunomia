@@ -13,11 +13,11 @@
   <ItemGroup>
     <ClCompile Include="src\3dLB_C.cpp" />
     <ClCompile Include="src\Lattice.cpp" />
-    <ClCompile Include="src\LB_3d.cpp" />
+    <ClCompile Include="src\LatticeElement.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Lattice.h" />
-    <ClInclude Include="src\LB_3d.h" />
+    <ClInclude Include="src\LatticeElement.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{07D55FF5-BF78-40B1-9F71-26126715387A}</ProjectGuid>
