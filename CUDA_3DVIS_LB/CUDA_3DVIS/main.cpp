@@ -41,7 +41,7 @@
 using namespace std;
 
 // size of the window (1024x1024)
-#define     DIM    512
+#define DIM							512
 #define BUFFER_OFFSET( i )			((char *)NULL + ( i ))
 #define LOCATION_OFFSET				BUFFER_OFFSET(  0 )
 #define COLOR_OFFSET				BUFFER_OFFSET( 16 )
@@ -70,8 +70,8 @@ Vertex* devPtr;
 float dt = 0;
 
 unsigned int *cmap_rgba, *plot_rgba;  //rgba arrays for plotting
-int latticeWidth = 10, latticeHeight = 10, latticeDepth = 10, ncol;
-float latticeTau = 0.6;
+int latticeWidth = 25, latticeHeight = 25, latticeDepth = 25, ncol;
+float latticeTau = 0.7;
 latticed3q19 *lattice;
 
 // Entry point for CUDA Kernel execution
@@ -115,14 +115,16 @@ void idle(void)
 	//runCuda(&resource1, devPtr, DIM, dt);
 	lattice->step();
 	
+	float plot_rgba, minvar=0.0, maxvar=0.2;
+
 	glBindBuffer(GL_ARRAY_BUFFER, vbo);
 	Vertex *vert_data = (Vertex*)glMapBuffer(GL_ARRAY_BUFFER, GL_WRITE_ONLY);
 
 	for(int i = 0; i< lattice->getNumElements(); i++)
 	{
-		vert_data[i].color.x = lattice->latticeElements[i].velocityVector.x < 0.5 ? 0.5 : lattice->latticeElements[i].velocityVector.x > 1 ? 1 : lattice->latticeElements[i].velocityVector.x;
-		vert_data[i].color.y = lattice->latticeElements[i].velocityVector.y < 0.5 ? 0.5 : lattice->latticeElements[i].velocityVector.y > 1 ? 1 : lattice->latticeElements[i].velocityVector.y;
-		vert_data[i].color.z = lattice->latticeElements[i].velocityVector.z < 0.5 ? 0.5 : lattice->latticeElements[i].velocityVector.z > 1 ? 1 : lattice->latticeElements[i].velocityVector.z;
+		vert_data[i].color.x = lattice->latticeElements[i].velocityVector.x < minvar ? minvar : lattice->latticeElements[i].velocityVector.x > maxvar ? maxvar : lattice->latticeElements[i].velocityVector.x;
+		vert_data[i].color.y = lattice->latticeElements[i].velocityVector.y < minvar ? minvar : lattice->latticeElements[i].velocityVector.y > maxvar ? maxvar : lattice->latticeElements[i].velocityVector.y;
+		vert_data[i].color.z = 1;// lattice->latticeElements[i].velocityVector.z < 0.5 ? 0.5 : lattice->latticeElements[i].velocityVector.z > 1 ? 1 : lattice->latticeElements[i].velocityVector.z;
 		vert_data[i].color.w = 1.0;
 	}
 
@@ -260,8 +262,9 @@ int init(void)
     fclose(fp_col);
 
 	lattice = new latticed3q19(latticeWidth, latticeHeight, latticeDepth, latticeTau);
+
 	for(int i =0; i< lattice->getNumElements(); i++)
-		lattice->latticeElements[i].calculateInEquilibriumFunction(vector3d(0.04,0.1,0.0), 1.0);
+		lattice->latticeElements[i].calculateInEquilibriumFunction(vector3d(1.4,1.1,1.4), 1.5);
 }
 
 int main( int argc, const char **argv ) {

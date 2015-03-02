@@ -40,7 +40,7 @@ void latticed3q19::stream()
 						newJ = (int)( j + speedDirection[l].y );
 						newK = (int)( k + speedDirection[l].z );
 					
-						i1 = I3D(_width, _height, newI > 0?newI:0, newJ >0?newJ:0, newK>0?newK:0);
+						i1 = I3D(_width, _height, newI > 0 ? newI:0, newJ > 0 ? newJ:0, newK > 0 ? newK:0);
 
 						latticeElements[i1].ftemp[l] = latticeElements[i0].f[l];
 					}

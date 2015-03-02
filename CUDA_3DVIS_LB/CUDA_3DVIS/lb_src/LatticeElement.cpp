@@ -1,13 +1,5 @@
 #include "LatticeElement.h"
 
-void latticeElementd3q19::calculateRo(void)
-{
-	ro = 0; 
-	for(int i = 0; i<_vectorVelocitiesSize; i++)
-		ro += f[i];
-}
-
-
 latticeElementd3q19::latticeElementd3q19()
 {
 	_vectorVelocitiesSize = 19;
@@ -43,6 +35,13 @@ void latticeElementd3q19::printElement(void)
 		std::cout << "f[" << i << "]: " << f[i] << " vx: " << velocityVector.x << " vy: " << velocityVector.y << " vz: " << velocityVector.z << std::endl;
 }
 
+void latticeElementd3q19::calculateRo(void)
+{
+	ro = 0; 
+	for(int i = 0; i<_vectorVelocitiesSize; i++)
+		ro += f[i];
+}
+
 void latticeElementd3q19::calculateSpeedVector(void)
 {
 	calculateRo();
@@ -76,7 +75,7 @@ void latticeElementd3q19::calculateEquilibriumFunction()
 		if(i >=7 && i <=18) w = 1.0/36.0;
 
 		eiU = speedDirection[i].dotProduct(velocityVector);
-		eiU = eiU * eiU;
+		eiUsq = eiU * eiU;
 
 		feq[i] = w * ro * ( 1 + 3 * (eiU) + 4.5 * (eiUsq) -1.5 * (uSq));
 	}
@@ -100,7 +99,7 @@ void latticeElementd3q19::calculateInEquilibriumFunction(vector3d inVector, floa
 		if(i >=7 && i <=18) w = 1.0/36.0;
 
 		eiU = speedDirection[i].dotProduct(inVector);
-		eiU = eiU * eiU;
+		eiUsq = eiU * eiU;
 
 		f[i] = w * ro * ( 1 + 3 * (eiU) + 4.5 * (eiUsq) -1.5 * (uSq));
 	}

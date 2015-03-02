@@ -23,6 +23,11 @@ struct vector3d
 		x = xIn; y = yIn; z = zIn;
 	}
 
+	void printVector()
+	{
+		std::cout << x << " " << y << " " << z << std::endl;
+	}
+
 	double dotProduct(vector3d vectorIn)
 	{
 		return x*vectorIn.x + y*vectorIn.y + z * vectorIn.z;
