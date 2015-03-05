@@ -28,7 +28,7 @@ private:
 	void collide(void);
 
 public:
-	latticeElementd3q19 *latticeElements, *tempLatticeElements;
+	latticeElementd3q19 *latticeElements;
 	
 	latticed3q19(int width, int height, int depth, float tau);	
 	~latticed3q19();

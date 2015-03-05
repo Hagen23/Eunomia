@@ -8,9 +8,9 @@ latticeElementd3q19::latticeElementd3q19()
 	feq = new double[_vectorVelocitiesSize];
 	ftemp = new double[_vectorVelocitiesSize];
 
-	velocityVector.x = 1;
-	velocityVector.y = 1;
-	velocityVector.z = 1;
+	velocityVector.x = 0;
+	velocityVector.y = 0;
+	velocityVector.z = 0;
 		
 	isSolid = false;
 
@@ -54,15 +54,18 @@ void latticeElementd3q19::calculateSpeedVector(void)
 		rovz += f[i] * speedDirection[i].z;
 	}
 
-	velocityVector.x = rovx / ro;
-	velocityVector.y = rovy / ro;
-	velocityVector.z = rovz / ro;
+	// In order to check that ro is not NaN you check if it is equal to itself: if it is a Nan, the comparison is false
+	if(ro ==ro && ro != 0.0)
+	{
+		velocityVector.x = rovx / ro;
+		velocityVector.y = rovy / ro;
+		velocityVector.z = rovz / ro;
+	}
 }
 	
 void latticeElementd3q19::calculateEquilibriumFunction()
 {
 	double w;
-
 	double eiU = 0;	// Dot product between speed direction and velocity
 	double eiUsq = 0; // Dot product squared
 		
@@ -70,7 +73,7 @@ void latticeElementd3q19::calculateEquilibriumFunction()
 
 	for(int i=0; i<_vectorVelocitiesSize; i++)
 	{
-		if(i == 0) w = 1.0/3.0;
+		if(i == 0) w = 1.0/9.0;
 		if(i >=1 && i <=6) w = 1.0/18.0;
 		if(i >=7 && i <=18) w = 1.0/36.0;
 
@@ -94,7 +97,7 @@ void latticeElementd3q19::calculateInEquilibriumFunction(vector3d inVector, floa
 
 	for(int i=0; i<_vectorVelocitiesSize; i++)
 	{
-		if(i == 0) w = 1.0/3.0;
+		if(i == 0) w = 1.0/9.0;
 		if(i >=1 && i <=6) w = 1.0/18.0;
 		if(i >=7 && i <=18) w = 1.0/36.0;
 

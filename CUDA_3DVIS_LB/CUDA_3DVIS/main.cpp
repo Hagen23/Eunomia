@@ -70,9 +70,19 @@ Vertex* devPtr;
 float dt = 0;
 
 unsigned int *cmap_rgba, *plot_rgba;  //rgba arrays for plotting
-int latticeWidth = 25, latticeHeight = 25, latticeDepth = 25, ncol;
-float latticeTau = 0.7;
+int latticeWidth = 10, latticeHeight = 10, latticeDepth = 10, ncol;
+float latticeTau = 1.0;
 latticed3q19 *lattice;
+
+float cubeFaces[24][3] = 
+{
+	{0.0,0.0,0.0}, {1,0.0,0.0}, {1,1,0.0}, {0.0,1,0.0},
+	{0.0,0.0,0.0}, {1,0.0,0.0}, {1,0,1.0}, {0.0,0,1.0},
+	{0.0,0.0,0.0}, {0,1.0,0.0}, {0,1,1.0}, {0.0,0,1.0},
+	{0.0,1.0,0.0}, {1,1,0.0}, {1,1,1.0}, {0.0,1,1.0},
+	{1.0,0.0,0.0}, {1,1,0.0}, {1,1,1.0}, {1.0,0.0,1.0},
+	{0.0,0.0,1.0}, {0,1,1.0}, {1,1,1.0}, {1.0,0,1.0}
+};
 
 // Entry point for CUDA Kernel execution
 extern "C" void runCuda(cudaGraphicsResource** resource, Vertex* devPtr, int dim, float dt);
@@ -80,9 +90,15 @@ extern "C" void unregRes(cudaGraphicsResource** res);
 extern "C" void chooseDev(int ARGC, const char **ARGV);
 extern "C" void regBuffer(cudaGraphicsResource** res, unsigned int& vbo);
 
+float getValueFromRelation(float value, float minColorVar=0.01, float maxColorVar=1.0, float minVelVar = -100, float maxVelVar = 100);
+
 void display (void)
 {
 	glClear (GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+	int i0;
+
+	float x, y, z, posX, posY, posZ, vx, vy, vz, normMag;
 
 // set view matrix
     glLoadIdentity();
@@ -90,48 +106,120 @@ void display (void)
     glRotatef(rotate_x, 1.0, 0.0, 0.0);
     glRotatef(rotate_y, 0.0, 1.0, 0.0);
 	
-	glColor3f(0.0, 1.0, 0.0);
+	glPushMatrix();
+		glColor3f(1.0, 1.0, 1.0);
+		glLineWidth(2);
+		for(int i = 0; i< 6; i++)
+		{
+			glBegin(GL_LINE_LOOP);
+			for(int j = 0; j < 4; j++)
+				glVertex3f(cubeFaces[i*4+j][0], cubeFaces[i*4+j][1], cubeFaces[i*4+j][2]);
+			glEnd();
+		}
+	glPopMatrix();
 
-    // render from the vbo
-    glBindBuffer(GL_ARRAY_BUFFER, vbo);
-    glVertexPointer(4, GL_FLOAT, sizeof(Vertex), LOCATION_OFFSET);
+	glPushMatrix();
+		for(int k = 0; k  < latticeDepth; k++)
+		for(int j = 0; j < latticeHeight; j++)
+		for( int i = 0; i < latticeWidth; i++ )
+		{
+			i0 = I3D(latticeWidth, latticeHeight, i, j, k);
 
-	glColorPointer(4, GL_FLOAT, sizeof(Vertex), COLOR_OFFSET);
+			posX = i / (float)latticeWidth; posY =  j / (float)latticeHeight; posZ = k / (float)latticeDepth;
 
-    glEnableClientState(GL_VERTEX_ARRAY);
-	glEnableClientState(GL_COLOR_ARRAY);
-	    glDrawArrays(GL_POINTS, 0, DIM * DIM);
-	glDisableClientState(GL_COLOR_ARRAY);
-    glDisableClientState(GL_VERTEX_ARRAY);
+			if(!lattice->latticeElements[i0].isSolid)
+			{
+				x = getValueFromRelation(lattice->latticeElements[i0].velocityVector.x);
+				y = getValueFromRelation(lattice->latticeElements[i0].velocityVector.y);
+				z = getValueFromRelation(lattice->latticeElements[i0].velocityVector.z);
 
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
+				vx = lattice->latticeElements[i0].velocityVector.x;
+				vy = lattice->latticeElements[i0].velocityVector.y;
+				vz = lattice->latticeElements[i0].velocityVector.z;
+
+				glColor3f(x,y,z);
+				normMag = sqrtf(vx*vx + vy*vy + vz*vz)*8; 
+
+				glBegin(GL_LINES);
+					glVertex3f(posX, posY, posZ);
+					glVertex3f(posX + lattice->latticeElements[i0].velocityVector.x / normMag, posY+ lattice->latticeElements[i0].velocityVector.y / normMag, 
+						posZ+ lattice->latticeElements[i0].velocityVector.z / normMag);
+				glEnd();
+			}
+			else
+			{
+				glColor3f(1.0, 1.0, 0.0);
+				glPointSize(2);
+				glBegin(GL_POINTS);
+					glVertex3f(posX, posY, posZ);
+				glEnd();
+			}
+		}
+	glPopMatrix();
+		
+	// render from the vbo
+ //   glBindBuffer(GL_ARRAY_BUFFER, vbo);
+ //   glVertexPointer(4, GL_FLOAT, sizeof(Vertex), LOCATION_OFFSET);
+
+	//glColorPointer(4, GL_FLOAT, sizeof(Vertex), COLOR_OFFSET);
+
+ //   glEnableClientState(GL_VERTEX_ARRAY);
+	//glEnableClientState(GL_COLOR_ARRAY);
+	//    glDrawArrays(GL_POINTS, 0, DIM * DIM);
+	//glDisableClientState(GL_COLOR_ARRAY);
+ //   glDisableClientState(GL_VERTEX_ARRAY);
+
+	//glBindBuffer(GL_ARRAY_BUFFER, 0);
 	
 	glutSwapBuffers();
 }
 
+float getValueFromRelation(float value, float minColorVar, float maxColorVar, float minVelVar , float maxVelVar )
+{
+	float ratio = (value - minVelVar) / (maxVelVar - minVelVar);
+	return ratio * (maxColorVar -  minColorVar) + minColorVar;
+}
+
 void idle(void)
 {
-	dt += 0.01f;
-	//runCuda(&resource1, devPtr, DIM, dt);
+	//dt += 0.01f;
+	////runCuda(&resource1, devPtr, DIM, dt);
 	lattice->step();
-	
-	float plot_rgba, minvar=0.0, maxvar=0.2;
+	//
+	//float plot_rgba, minColorVar=0.2, maxColorVar=0.9, minVelVar = -1000, maxVelVar = 1000;
 
-	glBindBuffer(GL_ARRAY_BUFFER, vbo);
-	Vertex *vert_data = (Vertex*)glMapBuffer(GL_ARRAY_BUFFER, GL_WRITE_ONLY);
+	//glBindBuffer(GL_ARRAY_BUFFER, vbo);
+	//Vertex *vert_data = (Vertex*)glMapBuffer(GL_ARRAY_BUFFER, GL_WRITE_ONLY);
 
-	for(int i = 0; i< lattice->getNumElements(); i++)
-	{
-		vert_data[i].color.x = lattice->latticeElements[i].velocityVector.x < minvar ? minvar : lattice->latticeElements[i].velocityVector.x > maxvar ? maxvar : lattice->latticeElements[i].velocityVector.x;
-		vert_data[i].color.y = lattice->latticeElements[i].velocityVector.y < minvar ? minvar : lattice->latticeElements[i].velocityVector.y > maxvar ? maxvar : lattice->latticeElements[i].velocityVector.y;
-		vert_data[i].color.z = 1;// lattice->latticeElements[i].velocityVector.z < 0.5 ? 0.5 : lattice->latticeElements[i].velocityVector.z > 1 ? 1 : lattice->latticeElements[i].velocityVector.z;
-		vert_data[i].color.w = 1.0;
-	}
+	//for(int i = 0; i< lattice->getNumElements(); i++)
+	//{		
+	//	if(!(lattice->latticeElements[i].velocityVector.x == lattice->latticeElements[i].velocityVector.x ))
+	//	{
+	//		cout << endl;
+	//	}
 
-	glUnmapBuffer(GL_ARRAY_BUFFER);
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
-	
-//	delete[] vert_data;
+	//	if(lattice->latticeElements[i].isSolid)
+	//	{
+	//		vert_data[i].color.x = 1;
+	//		vert_data[i].color.y = 1;
+	//		vert_data[i].color.z = 0;//getValueFromRelation(lattice->latticeElements[i].velocityVector.z);
+	//		vert_data[i].color.w = 1.0;
+	//	}
+	//	else
+	//	{
+	//		//float x = getValueFromRelation(lattice->latticeElements[i].velocityVector.x);
+	//		//float y = getValueFromRelation(lattice->latticeElements[i].velocityVector.y);
+	//		//float z = getValueFromRelation(lattice->latticeElements[i].velocityVector.z);
+	//		
+	//		vert_data[i].color.x = lattice->latticeElements[i].velocityVector.x;
+	//		vert_data[i].color.y = lattice->latticeElements[i].velocityVector.y;
+	//		vert_data[i].color.z = lattice->latticeElements[i].velocityVector.z;
+	//		vert_data[i].color.w = 1.0;
+	//	}
+	//}
+
+	//glUnmapBuffer(GL_ARRAY_BUFFER);
+	//glBindBuffer(GL_ARRAY_BUFFER, 0);
 
 	glutPostRedisplay();
 }
@@ -186,7 +274,7 @@ void reshape (int w, int h)
 	glMatrixMode (GL_PROJECTION);
 	glLoadIdentity ();
 	
-	gluPerspective (45, w*1.0/h*1.0, 0.01, 10);
+	gluPerspective (45, w*1.0/h*1.0, 0.01, 400);
 	//glTranslatef (0,0,-5);
 	glMatrixMode (GL_MODELVIEW);
 	glLoadIdentity ();
@@ -238,33 +326,20 @@ void initCUDA (int ARGC, const char **ARGV)
 
 int init(void)
 {
-	FILE *fp_col;
-	float rcol,gcol,bcol;
-	//
-    // Read in colourmap data for OpenGL display 
-    //
-    fp_col = fopen("cmap.dat","r");
-    if (fp_col==NULL) {
-	printf("Error: can't open cmap.dat \n");
-	return -1;
-    }
-    // allocate memory for colourmap (stored as a linear array of int's)
-    fscanf (fp_col, "%d", &ncol);
-    cmap_rgba = (unsigned int *)malloc(ncol*sizeof(unsigned int));
-    // read colourmap and store as int's
-    for (int i=0;i<ncol;i++){
-	fscanf(fp_col, "%f%f%f", &rcol, &gcol, &bcol);
-	cmap_rgba[i]=((int)(255.0f) << 24) | // convert colourmap to int
-	    ((int)(bcol * 255.0f) << 16) |
-	    ((int)(gcol * 255.0f) <<  8) |
-	    ((int)(rcol * 255.0f) <<  0);
-    }
-    fclose(fp_col);
-
 	lattice = new latticed3q19(latticeWidth, latticeHeight, latticeDepth, latticeTau);
 
 	for(int i =0; i< lattice->getNumElements(); i++)
-		lattice->latticeElements[i].calculateInEquilibriumFunction(vector3d(1.4,1.1,1.4), 1.5);
+		lattice->latticeElements[i].calculateInEquilibriumFunction(vector3d(0.05,0.05,0.05), 1.5);
+
+	// Solid inside the cube
+	for(int k = latticeDepth/4; k < latticeDepth/2 + latticeDepth/4; k++)
+		for(int j = latticeHeight/4; j< latticeHeight/2 +latticeHeight/4; j++)
+			for(int i = latticeWidth/4; i< latticeWidth/2 + latticeWidth/4; i++)
+			{
+				int i0 = I3D(latticeWidth, latticeHeight, i, j, k);
+				lattice->latticeElements[i0].isSolid = true;
+			}
+	return 0;
 }
 
 int main( int argc, const char **argv ) {

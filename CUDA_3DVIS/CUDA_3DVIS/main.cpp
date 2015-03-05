@@ -236,7 +236,7 @@ int main( int argc, const char **argv ) {
     // calls, else we get a seg fault
 	glutInit(&argc, (char**)argv);
 	glutInitDisplayMode (GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
-	glutInitWindowSize (DIM, DIM); 
+	glutInitWindowSize (500, 500); 
 	glutInitWindowPosition (100, 100);
 	glutCreateWindow ("1048576 points");
 	glutReshapeFunc (reshape);

@@ -4,14 +4,12 @@ latticed3q19::latticed3q19(int width, int height, int depth, float tau)
 {
 	_width = width; _height = height; _depth = depth; _tau = tau;
 	_numberElements = _width*_height*_depth;
-	latticeElements = new latticeElementd3q19[_numberElements]; 
-	tempLatticeElements = new latticeElementd3q19[_numberElements]; 
+	latticeElements = new latticeElementd3q19[_numberElements];
 }
 	
 latticed3q19::~latticed3q19()
 {
 	delete[] latticeElements;
-	delete[] tempLatticeElements;
 }
 
 void latticed3q19::step(void)
@@ -39,8 +37,13 @@ void latticed3q19::stream()
 						newI = (int)( i + speedDirection[l].x );
 						newJ = (int)( j + speedDirection[l].y );
 						newK = (int)( k + speedDirection[l].z );
-					
-						i1 = I3D(_width, _height, newI > 0 ? newI:0, newJ > 0 ? newJ:0, newK > 0 ? newK:0);
+						
+						//Checking for exit boundaries
+						newI = (newI > _width - 1) ? 0 : (newI >= 0) ?  newI : _width -1;
+						newJ = (newJ > _height - 1) ? 0 : (newJ >= 0) ?  newJ : _height -1;
+						newK = (newK > _depth - 1) ? 0 : (newK >= 0) ?  newK : _depth -1;
+
+						i1 = I3D(_width, _height, newI, newJ , newK );
 
 						latticeElements[i1].ftemp[l] = latticeElements[i0].f[l];
 					}
@@ -68,6 +71,7 @@ void latticed3q19::collide(void)
 				{
 					for(int l = 0; l < 19; l++)
 						latticeElements[i0].f[l] = latticeElements[i0].ftemp[l] - ( latticeElements[i0].ftemp[l] - latticeElements[i0].feq[l] ) / _tau;
+						//latticeElements[i0].f[l] =(1-_tau)* latticeElements[i0].ftemp[l] + (1/_tau) * latticeElements[i0].feq[l];
 				}
 				else
 					solid_BC(i0);
@@ -80,7 +84,10 @@ void latticed3q19::solid_BC(int i0)
 {
 	double temp;
 
-	temp = latticeElements[i0].f[1]; latticeElements[i0].f[1] = latticeElements[i0].f[3]; latticeElements[i0].f[3] = temp;		// f1	<-> f3
+	temp = latticeElements[i0].f[1]; 
+	latticeElements[i0].f[1] = latticeElements[i0].f[3];
+	latticeElements[i0].f[3] = temp;		// f1	<-> f3
+
 	temp = latticeElements[i0].f[2]; latticeElements[i0].f[2] = latticeElements[i0].f[4]; latticeElements[i0].f[4] = temp;		// f2	<-> f4
 	temp = latticeElements[i0].f[5]; latticeElements[i0].f[5] = latticeElements[i0].f[6]; latticeElements[i0].f[6] = temp;		// f5	<-> f6
 	temp = latticeElements[i0].f[7]; latticeElements[i0].f[7] = latticeElements[i0].f[9]; latticeElements[i0].f[9] = temp;		// f7	<-> f9
