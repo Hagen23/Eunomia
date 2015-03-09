@@ -12,12 +12,13 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\3dLB_C.cpp" />
-    <ClCompile Include="src\Lattice.cpp" />
-    <ClCompile Include="src\LatticeElement.cpp" />
+    <ClCompile Include="src\3dLB_wClass.cpp" />
+    <ClCompile Include="src\lb_src\Lattice.cpp" />
+    <ClCompile Include="src\lb_src\LatticeElement.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="src\Lattice.h" />
-    <ClInclude Include="src\LatticeElement.h" />
+    <ClInclude Include="src\lb_src\Lattice.h" />
+    <ClInclude Include="src\lb_src\LatticeElement.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{07D55FF5-BF78-40B1-9F71-26126715387A}</ProjectGuid>

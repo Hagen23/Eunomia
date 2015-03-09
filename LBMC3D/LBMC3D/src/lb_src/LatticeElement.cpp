@@ -35,14 +35,8 @@ void latticeElementd2q9::printElement(void)
 		std::cout << "f[" << i << "]: " << f[i] << " vx: " << velocityVector.x << " vy: " << velocityVector.y << " vz: " << velocityVector.z << std::endl;
 }
 
-void latticeElementd2q9::calculateRo(void)
-{
-		
-}
-
 void latticeElementd2q9::calculateSpeedVector(void)
 {
-	//calculateRo();
 	ro = rovx = rovy = rovz = 0; 
 
 	//ro = f[0] + f[1] + f[2] + f[3] + f[4] + f[5] + f[6] + f[7] + f[8];
@@ -75,10 +69,22 @@ void latticeElementd2q9::calculateEquilibriumFunction()
 		
 	double uSq = velocityVector.dotProduct(velocityVector);	//Velocity squared
 
+	float vx = velocityVector.x, vy = velocityVector.y;
+	float v_sq_term = 1.5f*(vx*vx + vy*vy);
+
+	//feq[0] = ro * 4.0/9.0 * (1.f - v_sq_term);
+	//feq[1] = ro * 1.0/9.0 * (1.f + 3.f*vx + 4.5f*vx*vx - v_sq_term);
+	//feq[2] = ro * 1.0/9.0 * (1.f + 3.f*vy + 4.5f*vy*vy - v_sq_term);
+	//feq[3] = ro * 1.0/9.0 * (1.f - 3.f*vx + 4.5f*vx*vx - v_sq_term);
+	//feq[4] = ro * 1.0/9.0 * (1.f - 3.f*vy + 4.5f*vy*vy - v_sq_term);
+	//feq[5] = ro * 1.0/36.0 * (1.f + 3.f*(vx + vy) + 4.5f*(vx + vy)*(vx + vy) - v_sq_term);
+	//feq[6] = ro * 1.0/36.0 * (1.f + 3.f*(-vx + vy) + 4.5f*(-vx + vy)*(-vx + vy) - v_sq_term);
+	//feq[7] = ro * 1.0/36.0 * (1.f + 3.f*(-vx - vy) + 4.5f*(-vx - vy)*(-vx - vy) - v_sq_term);
+	//feq[8] = ro * 1.0/36.0 * (1.f + 3.f*(vx - vy) + 4.5f*(vx - vy)*(vx - vy) - v_sq_term);
 	for(int i=0; i<_vectorVelocitiesSize; i++)
 	{
-		if(i == 0) w = 4.0/9.0;
-		if(i >=1 && i <=4) w = 1.0/9.0;
+		if(i == 0) w = 4.0/9.0; else
+		if(i >=1 && i <=4) w = 1.0/9.0; else
 		if(i >=5 && i <=8) w = 1.0/36.0;
 
 		eiU = speedDirection[i].dotProduct(velocityVector);
@@ -108,6 +114,6 @@ void latticeElementd2q9::calculateInEquilibriumFunction(vector3d inVector, float
 		eiU = speedDirection[i].dotProduct(inVector);
 		eiUsq = eiU * eiU;
 
-		f[i] = w * ro * ( 1 + 3 * (eiU) + 4.5 * (eiUsq) -1.5 * (uSq));
+		ftemp[i] = f[i] = w * ro * ( 1 + 3 * (eiU) + 4.5 * (eiUsq) -1.5 * (uSq));
 	}
 }

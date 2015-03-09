@@ -99,6 +99,7 @@ void initLattice()
 	{
 		lattice->latticeElements[i].calculateInEquilibriumFunction(vectorIn, roout);
 		plotvar[i] = (vxin + vyin);
+		//plotvar[i] = sqrt(vectorIn.dotProduct(vectorIn));
 	}
 }
 
@@ -412,7 +413,7 @@ void display(void)
 
     // do one Lattice Boltzmann step: stream, BC, collide:
     stream();
-    apply_BCs();
+    //apply_BCs();
     collide();
 	
 	float vx, vy;
