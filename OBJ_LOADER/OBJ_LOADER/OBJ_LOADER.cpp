@@ -1,21 +1,22 @@
-#include "il.h"
+//OPENGL:
 #include "glew.h"
 #include "freeglut.h"
-
+//DevIL:
+#include "il.h"
+//Custom:
 #include "cStringUtils.h"
 #include "cShader.h"
 #include "cTextureManager.h"
-
-#include "Importer.hpp"
-#include "PostProcess.h"
-#include "Scene.h"
-
+#include "cAssimpManager.h"
+//GLM:
+#include "glm/glm.hpp"
+//Standard:
 #include <math.h>
-#include <fstream>
 #include <map>
 #include <string>
 #include <vector>
-
+//Custom objects:
+AssimpManager* assimp_manager;
 TextureManager* tex_manager;
 Shader* shader;
 
@@ -28,7 +29,7 @@ struct MyMesh
 	int numFaces;
 };
 
-std::vector<struct MyMesh> myMeshes;
+vector<struct MyMesh> myMeshes;
 
 // This is for a shader uniform block
 struct MyMaterial
@@ -45,7 +46,7 @@ struct MyMaterial
 float modelMatrix[16];
 
 // For push and pop matrix
-std::vector<float *> matrixStack;
+vector<float *> matrixStack;
 
 // Uniform Buffer for Matrices
 // this buffer will contain 3 matrices: projection, view and model
@@ -61,28 +62,14 @@ GLuint matricesUniBuffer;
 char *vertexFileName = "shaders/dirlightdiffambpix.vert";
 char *fragmentFileName = "shaders/dirlightdiffambpix.frag";
 
-// Create an instance of the Importer class
-Assimp::Importer importer;
-
-// the global Assimp scene object
-const aiScene* scene = NULL;
-
-// scale factor for the model to fit in the window
-float scaleFactor;
-
-// images / texture
-// map image filenames to textureIds
-// pointer to texture Array
-//std::map<std::string, GLuint> textureIdMap;
-
 // Replace the model name by your model's filename
-//static const std::string modelname = "assets/bench.obj";
-//static const std::string modelname = "assets/sphere.obj";
-//static const std::string modelname = "assets/sphere_notex.obj";
-//static const std::string modelname = "assets/spider.obj";
-//static const std::string modelname = "assets/testmixed.obj";
-//static const std::string modelname = "assets/WusonOBJ.obj";
-static const std::string modelname = "assets/arm.obj";
+//static const string modelname = "assets/bench.obj";
+//static const string modelname = "assets/sphere.obj";
+//static const string modelname = "assets/sphere_notex.obj";
+//static const string modelname = "assets/spider.obj";
+//static const string modelname = "assets/testmixed.obj";
+//static const string modelname = "assets/WusonOBJ.obj";
+static const string modelname = "assets/arm.obj";
 
 // Camera Position
 float camX = 0, camY = 0, camZ = 5;
@@ -294,8 +281,8 @@ void scale(float x, float y, float z)
 //
 // Computes the projection Matrix and stores it in the uniform buffer
 
-void buildProjectionMatrix(float fov, float ratio, float nearp, float farp) {
-
+void buildProjectionMatrix(float fov, float ratio, float nearp, float farp)
+{
 	float projMatrix[16];
 	float f = 1.0f / tan(fov * (M_PI / 360.0f));
 	setIdentityMatrix(projMatrix, 4);
@@ -370,77 +357,6 @@ void setCamera(float posX, float posY, float posZ, float lookAtX, float lookAtY,
 }
 
 // ----------------------------------------------------------------------------
-
-#define aisgl_min(x,y) (x<y?x:y)
-#define aisgl_max(x,y) (y>x?y:x)
-
-void get_bounding_box_for_node(const aiNode* nd, aiVector3D* min, aiVector3D* max)
-{
-	aiMatrix4x4 prev;
-	unsigned int n = 0, t;
-
-	for (; n < nd->mNumMeshes; ++n) {
-		const aiMesh* mesh = scene->mMeshes[nd->mMeshes[n]];
-		for (t = 0; t < mesh->mNumVertices; ++t) {
-
-			aiVector3D tmp = mesh->mVertices[t];
-
-			min->x = aisgl_min(min->x, tmp.x);
-			min->y = aisgl_min(min->y, tmp.y);
-			min->z = aisgl_min(min->z, tmp.z);
-
-			max->x = aisgl_max(max->x, tmp.x);
-			max->y = aisgl_max(max->y, tmp.y);
-			max->z = aisgl_max(max->z, tmp.z);
-		}
-	}
-
-	for (n = 0; n < nd->mNumChildren; ++n) {
-		get_bounding_box_for_node(nd->mChildren[n], min, max);
-	}
-}
-
-void get_bounding_box(aiVector3D* min, aiVector3D* max)
-{
-	min->x = min->y = min->z = 1e10f;
-	max->x = max->y = max->z = -1e10f;
-	get_bounding_box_for_node(scene->mRootNode, min, max);
-}
-
-bool Import3DFromFile(const std::string& pFile)
-{
-	//check if file exists
-	std::ifstream fin(pFile.c_str());
-	if (!fin.fail())
-	{
-		fin.close();
-	}
-	else
-	{
-		cout << "ERROR. COULD NOT OPEN FILE: '" << pFile.c_str() << "'. MESSAGE: '" << importer.GetErrorString() << "'" << endl;
-		return false;
-	}
-	scene = importer.ReadFile(pFile, aiProcessPreset_TargetRealtime_Quality);
-	// If the import failed, report it
-	if (!scene)
-	{
-		cout << "ERROR IMPORTING SCENE. MESSAGE: '" << importer.GetErrorString() << "'" << endl;
-		return false;
-	}
-	// Now we can access the file's contents.
-	cout << "IMPORT OF SCENE '" << pFile.c_str() << "' SUCCESSFUL." << endl;
-
-	aiVector3D scene_min, scene_max, scene_center;
-	get_bounding_box(&scene_min, &scene_max);
-	float tmp;
-	tmp = scene_max.x - scene_min.x;
-	tmp = scene_max.y - scene_min.y > tmp ? scene_max.y - scene_min.y : tmp;
-	tmp = scene_max.z - scene_min.z > tmp ? scene_max.z - scene_min.z : tmp;
-	scaleFactor = 1.f / tmp;
-
-	// We're done. Everything will be cleaned up by the importer destructor
-	return true;
-}
 
 void set_float4(float f[4], float a, float b, float c, float d)
 {
@@ -623,7 +539,8 @@ void recursive_render(const aiScene *sc, const aiNode* nd)
 	setModelMatrix();
 
 	// draw all meshes assigned to this node
-	for (unsigned int n = 0; n < nd->mNumMeshes; ++n){
+	for (unsigned int n = 0; n < nd->mNumMeshes; ++n)
+	{
 		// bind material uniform
 		glBindBufferRange(GL_UNIFORM_BUFFER, shader->getMaterialUniLoc(), myMeshes[nd->mMeshes[n]].uniformBlockIndex, 0, sizeof(struct MyMaterial));
 		// bind texture
@@ -632,11 +549,11 @@ void recursive_render(const aiScene *sc, const aiNode* nd)
 		glBindVertexArray(myMeshes[nd->mMeshes[n]].vao);
 		// draw
 		glDrawElements(GL_TRIANGLES, myMeshes[nd->mMeshes[n]].numFaces * 3, GL_UNSIGNED_INT, 0);
-
 	}
 
 	// draw all children
-	for (unsigned int n = 0; n < nd->mNumChildren; ++n){
+	for (unsigned int n = 0; n < nd->mNumChildren; ++n)
+	{
 		recursive_render(sc, nd->mChildren[n]);
 	}
 	popMatrix();
@@ -656,7 +573,7 @@ void renderScene(void)
 	setIdentityMatrix(modelMatrix, 4);
 
 	// sets the model matrix to a scale matrix so that the model fits in the window
-	scale(scaleFactor, scaleFactor, scaleFactor);
+	scale(assimp_manager->getScaleFactor(), assimp_manager->getScaleFactor(), assimp_manager->getScaleFactor());
 
 	// keep rotating the model
 	rotate(step, 0.0f, 1.0f, 0.0f);
@@ -670,7 +587,7 @@ void renderScene(void)
 	// so we have set this uniform separately
 	glUniform1i(shader->getTexUnit(), 0);
 
-	recursive_render(scene, scene->mRootNode);
+	recursive_render(assimp_manager->getScene(), assimp_manager->getScene()->mRootNode);
 
 	// FPS computation and display
 	frame++;
@@ -693,23 +610,28 @@ void renderScene(void)
 //
 void processKeys(unsigned char key, int xx, int yy)
 {
-	switch (key) {
-
+	switch (key)
+	{
 	case 27:
-
 		glutLeaveMainLoop();
 		break;
-
-	case 'z': r -= 0.1f; break;
-	case 'x': r += 0.1f; break;
-	case 'm': glEnable(GL_MULTISAMPLE); break;
-	case 'n': glDisable(GL_MULTISAMPLE); break;
+	case 'z':
+		r -= 0.1f;
+		break;
+	case 'x':
+		r += 0.1f;
+		break;
+	case 'm':
+		glEnable(GL_MULTISAMPLE);
+		break;
+	case 'n':
+		glDisable(GL_MULTISAMPLE);
+		break;
 	}
 	camX = r * sin(alpha * 3.14f / 180.0f) * cos(beta * 3.14f / 180.0f);
 	camZ = r * cos(alpha * 3.14f / 180.0f) * cos(beta * 3.14f / 180.0f);
 	camY = r *   						     sin(beta * 3.14f / 180.0f);
 }
-
 
 // ------------------------------------------------------------
 //
@@ -795,14 +717,15 @@ void mouseWheel(int wheel, int direction, int x, int y)
 int init()
 {
 	shader					= new Shader(string(vertexFileName), string(fragmentFileName));
-	std::string basepath	= StringUtils::getBasePath(modelname);
+	string basepath			= StringUtils::getBasePath(modelname);
 	tex_manager				= new TextureManager(basepath);
+	assimp_manager			= new AssimpManager(modelname);
 
-	if( !Import3DFromFile(modelname) )
+	if( !assimp_manager->Import3DFromFile() )
 	{
 		return 3;
 	}
-	if( !tex_manager->LoadGLTextures(scene) )
+	if( !tex_manager->LoadGLTextures(assimp_manager->getScene()) )
 	{
 		return 4;
 	}
@@ -815,7 +738,7 @@ int init()
 	glDeleteVertexArrays	= (PFNGLDELETEVERTEXARRAYSPROC)glutGetProcAddress("glDeleteVertexArrays");
 
 	shader->compile();
-	genVAOsAndUniformBuffer(scene);
+	genVAOsAndUniformBuffer(assimp_manager->getScene());
 
 	glEnable(GL_DEPTH_TEST);
 	glClearColor(1.0f, 1.0f, 1.0f, 0.0f);
@@ -858,6 +781,12 @@ void cleanup(void)
 	glDeleteBuffers(1, &matricesUniBuffer);
 	cout << "DONE." << endl;
 
+	// Delete Assimp manager:
+	cout << "DELETING ASSIMP MANAGER..." << endl;
+	delete assimp_manager;
+	assimp_manager = NULL;
+	cout << "DONE." << endl;
+
 	// Delete shaders:
 	cout << "DELETING SHADERS..." << endl;
 	delete shader;
@@ -873,7 +802,7 @@ void cleanup(void)
 //
 // Main function
 //
-int main(int argc, char **argv)
+int main(int argc, char* argv[])
 {
 	// GLUT initialization:
 	glutInit(&argc, argv);
