@@ -1,0 +1,22 @@
+newmtl lambert2SG
+illum 4
+Kd 0.00 0.00 0.00
+Ka 0.00 0.00 0.00
+Tf 1.00 1.00 1.00
+map_Kd bones_texture2469.jpg
+Ni 1.00
+newmtl lambert4SG
+illum 4
+Kd 0.00 0.00 0.00
+Ka 0.00 0.00 0.00
+Tf 1.00 1.00 1.00
+map_Kd 1390732.jpg
+bump -s 0.1 0.1 muscle-texture2.jpg -bm 0.299145
+Ni 1.00
+newmtl lambert5SG
+illum 4
+Kd 0.00 0.00 0.00
+Ka 0.00 0.00 0.00
+Tf 1.00 1.00 1.00
+map_Kd tendon.jpg
+Ni 1.00
