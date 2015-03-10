@@ -1,37 +1,24 @@
-﻿Build started 2/16/2015 6:53:04 PM.
-     1>Project "C:\Users\Alienware2\Desktop\SERGIO\CUDA_3DVIS\CUDA_3DVIS\CUDA_3DVIS.vcxproj" on node 2 (Rebuild target(s)).
-     1>CudaClean:
-         cmd.exe /C "C:\Users\Alienware2\AppData\Local\Temp\tmpc10c8f555a4a4b8cbfcc6387e2dd4637.cmd"
-         "C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v6.5\bin\nvcc.exe" -ccbin "C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\bin"  -I"C:\ProgramData\NVIDIA Corporation\CUDA Samples\v6.5\common\inc" -I"C:\ProgramData\NVIDIA Corporation\CUDA Samples\v6.5\common\inc" -I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v6.5\include" -I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v6.5\include"  -G   --keep-dir Debug -maxrregcount=0  --machine 32 --compile   -g   -DWIN32 -D_DEBUG -D_CONSOLE -D_MBCS -Xcompiler "/EHsc /W3 /nologo /Od /Zi /RTC1 /MDd  " -o Debug\simpleKernelVBO.cu.obj "C:\Users\Alienware2\Desktop\SERGIO\CUDA_3DVIS\CUDA_3DVIS\simpleKernelVBO.cu" -clean
-         
-         C:\Users\Alienware2\Desktop\SERGIO\CUDA_3DVIS\CUDA_3DVIS>"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v6.5\bin\nvcc.exe" -ccbin "C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\bin"  -I"C:\ProgramData\NVIDIA Corporation\CUDA Samples\v6.5\common\inc" -I"C:\ProgramData\NVIDIA Corporation\CUDA Samples\v6.5\common\inc" -I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v6.5\include" -I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v6.5\include"  -G   --keep-dir Debug -maxrregcount=0  --machine 32 --compile   -g   -DWIN32 -D_DEBUG -D_CONSOLE -D_MBCS -Xcompiler "/EHsc /W3 /nologo /Od /Zi /RTC1 /MDd  " -o Debug\simpleKernelVBO.cu.obj "C:\Users\Alienware2\Desktop\SERGIO\CUDA_3DVIS\CUDA_3DVIS\simpleKernelVBO.cu" -clean 
-         simpleKernelVBO.cu
-       AddCudaCompileDeps:
-         C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\bin\cl.exe /E /nologo /showIncludes /TP /D__CUDACC__ /DWIN32 /D_DEBUG /D_CONSOLE /D_MBCS /I"C:\ProgramData\NVIDIA Corporation\CUDA Samples\v6.5\common\inc" /I"C:\ProgramData\NVIDIA Corporation\CUDA Samples\v6.5\common\inc" /I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v6.5\include" /I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v6.5\bin" /I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v6.5\include" /I. /FIcuda_runtime.h /c C:\Users\Alienware2\Desktop\SERGIO\CUDA_3DVIS\CUDA_3DVIS\simpleKernelVBO.cu 
-       CudaBuild:
-         Compiling CUDA source file simpleKernelVBO.cu...
-         cmd.exe /C "C:\Users\Alienware2\AppData\Local\Temp\tmp296d8ee1a24a4ce1bedbd54a3f6685b9.cmd"
-         "C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v6.5\bin\nvcc.exe" -gencode=arch=compute_20,code=\"sm_20,compute_20\" --use-local-env --cl-version 2012 -ccbin "C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\bin"  -I"C:\ProgramData\NVIDIA Corporation\CUDA Samples\v6.5\common\inc" -I"C:\ProgramData\NVIDIA Corporation\CUDA Samples\v6.5\common\inc" -I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v6.5\include" -I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v6.5\include"  -G   --keep-dir Debug -maxrregcount=0  --machine 32 --compile -cudart static  -g   -DWIN32 -D_DEBUG -D_CONSOLE -D_MBCS -Xcompiler "/EHsc /W3 /nologo /Od /Zi /RTC1 /MDd  " -o Debug\simpleKernelVBO.cu.obj "C:\Users\Alienware2\Desktop\SERGIO\CUDA_3DVIS\CUDA_3DVIS\simpleKernelVBO.cu"
-         
-         C:\Users\Alienware2\Desktop\SERGIO\CUDA_3DVIS\CUDA_3DVIS>"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v6.5\bin\nvcc.exe" -gencode=arch=compute_20,code=\"sm_20,compute_20\" --use-local-env --cl-version 2012 -ccbin "C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\bin"  -I"C:\ProgramData\NVIDIA Corporation\CUDA Samples\v6.5\common\inc" -I"C:\ProgramData\NVIDIA Corporation\CUDA Samples\v6.5\common\inc" -I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v6.5\include" -I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v6.5\include"  -G   --keep-dir Debug -maxrregcount=0  --machine 32 --compile -cudart static  -g   -DWIN32 -D_DEBUG -D_CONSOLE -D_MBCS -Xcompiler "/EHsc /W3 /nologo /Od /Zi /RTC1 /MDd  " -o Debug\simpleKernelVBO.cu.obj "C:\Users\Alienware2\Desktop\SERGIO\CUDA_3DVIS\CUDA_3DVIS\simpleKernelVBO.cu" 
-         simpleKernelVBO.cu
-       ClCompile:
+﻿Build started 09/03/2015 12:51:40 p. m..
+     1>Project "D:\Octavio\Tesis\Codigo\Eunomia\CUDA_3DVIS\CUDA_3DVIS\CUDA_3DVIS.vcxproj" on node 2 (Build target(s)).
+     1>ClCompile:
          C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\bin\CL.exe /c /I"C:\ProgramData\NVIDIA Corporation\CUDA Samples\v6.5\common\inc" /I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v6.5\include" /ZI /nologo /W3 /WX- /Od /Oy- /D WIN32 /D _DEBUG /D _CONSOLE /D _MBCS /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"Debug\\" /Fd"Debug\vc110.pdb" /Gd /TP /analyze- /errorReport:prompt main.cpp
          main.cpp
        Link:
-         C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"C:\Users\Alienware2\Desktop\SERGIO\CUDA_3DVIS\Debug\CUDA_3DVIS.exe" /INCREMENTAL /NOLOGO /LIBPATH:"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v6.5\lib\Win32" cudart.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib glew32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"C:\Users\Alienware2\Desktop\SERGIO\CUDA_3DVIS\Debug\CUDA_3DVIS.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:\Users\Alienware2\Desktop\SERGIO\CUDA_3DVIS\Debug\CUDA_3DVIS.lib" /MACHINE:X86 Debug\simpleKernelVBO.cu.obj
+         C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"D:\Octavio\Tesis\Codigo\Eunomia\CUDA_3DVIS\Debug\CUDA_3DVIS.exe" /INCREMENTAL /NOLOGO /LIBPATH:"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v6.5\lib\Win32" cudart.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib glew32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"D:\Octavio\Tesis\Codigo\Eunomia\CUDA_3DVIS\Debug\CUDA_3DVIS.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"D:\Octavio\Tesis\Codigo\Eunomia\CUDA_3DVIS\Debug\CUDA_3DVIS.lib" /MACHINE:X86 Debug\simpleKernelVBO.cu.obj
          Debug\main.obj
-         CUDA_3DVIS.vcxproj -> C:\Users\Alienware2\Desktop\SERGIO\CUDA_3DVIS\Debug\CUDA_3DVIS.exe
+         LINK : D:\Octavio\Tesis\Codigo\Eunomia\CUDA_3DVIS\Debug\CUDA_3DVIS.exe not found or not built by the last incremental link; performing full link
+     1>simpleKernelVBO.cu.obj : warning LNK4099: PDB 'vc110.pdb' was not found with 'simpleKernelVBO.cu.obj' or at 'D:\Octavio\Tesis\Codigo\Eunomia\CUDA_3DVIS\Debug\vc110.pdb'; linking object as if no debug info
+         CUDA_3DVIS.vcxproj -> D:\Octavio\Tesis\Codigo\Eunomia\CUDA_3DVIS\Debug\CUDA_3DVIS.exe
        PostBuildEvent:
-         echo copy "C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v6.5\bin\cudart*.dll" "C:\Users\Alienware2\Desktop\SERGIO\CUDA_3DVIS\Debug\"
-         copy "C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v6.5\bin\cudart*.dll" "C:\Users\Alienware2\Desktop\SERGIO\CUDA_3DVIS\Debug\"
+         echo copy "C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v6.5\bin\cudart*.dll" "D:\Octavio\Tesis\Codigo\Eunomia\CUDA_3DVIS\Debug\"
+         copy "C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v6.5\bin\cudart*.dll" "D:\Octavio\Tesis\Codigo\Eunomia\CUDA_3DVIS\Debug\"
          :VCEnd
-         copy "C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v6.5\bin\cudart*.dll" "C:\Users\Alienware2\Desktop\SERGIO\CUDA_3DVIS\Debug\"
+         copy "C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v6.5\bin\cudart*.dll" "D:\Octavio\Tesis\Codigo\Eunomia\CUDA_3DVIS\Debug\"
          C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v6.5\bin\cudart32_65.dll
          C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v6.5\bin\cudart64_65.dll
-                 2 archivo(s) copiado(s).
-     1>Done Building Project "C:\Users\Alienware2\Desktop\SERGIO\CUDA_3DVIS\CUDA_3DVIS\CUDA_3DVIS.vcxproj" (Rebuild target(s)).
+                 2 file(s) copied.
+     1>Done Building Project "D:\Octavio\Tesis\Codigo\Eunomia\CUDA_3DVIS\CUDA_3DVIS\CUDA_3DVIS.vcxproj" (Build target(s)).
 
 Build succeeded.
 
-Time Elapsed 00:00:10.45
+Time Elapsed 00:00:01.32

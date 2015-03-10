@@ -42,6 +42,8 @@ float *cmap,*plotvar;
 int *solid;
 unsigned int *cmap_rgba, *plot_rgba;  //rgba arrays for plotting
 
+bool withSolid = false, keypressed = false;
+
 bool in_bc = false;
 bool leftDown = false;
 
@@ -411,6 +413,32 @@ void display(void)
     minvar=0.0;
     maxvar=0.2;
 
+	if(keypressed)
+	{
+		if(withSolid)
+		{
+			for(int j = nj/4; j < nj/2 + nj/4; j++)
+				for(int i = ni /4; i < ni/2 +  ni/4; i++)
+				{
+					int i0 = I2D(ni, i, j);
+					lattice->latticeElements[i0].isSolid = true;
+				}
+
+			keypressed = false;
+		}
+		else 
+		{
+			for(int j = nj/4; j < nj/2 + nj/4; j++)
+				for(int i = ni /4; i < ni/2 +  ni/4; i++)
+				{
+					int i0 = I2D(ni, i, j);
+					lattice->latticeElements[i0].isSolid = false;
+				}
+
+			keypressed = false;
+		}
+	}
+
     // do one Lattice Boltzmann step: stream, BC, collide:
     stream();
     //apply_BCs();
@@ -487,6 +515,10 @@ void keyboard (unsigned char key, int x, int y)
 	switch (key) {
 		case 27:
             exit(0);
+			break;
+		case 'a':
+			keypressed = true;
+			withSolid = !withSolid;
 			break;
 	}
 }

@@ -107,8 +107,8 @@ void latticeElementd2q9::calculateInEquilibriumFunction(vector3d inVector, float
 
 	for(int i=0; i<_vectorVelocitiesSize; i++)
 	{
-		if(i == 0) w = 4.0/9.0;
-		if(i >=1 && i <=4) w = 1.0/9.0;
+		if(i == 0) w = 4.0/9.0; else
+		if(i >=1 && i <=4) w = 1.0/9.0; else
 		if(i >=5 && i <=8) w = 1.0/36.0;
 
 		eiU = speedDirection[i].dotProduct(inVector);

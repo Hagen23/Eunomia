@@ -40,11 +40,12 @@
 
 using namespace std;
 
-// size of the window (1024x1024)
+// size of the window (102.04x102.04)
 #define DIM							512
 #define BUFFER_OFFSET( i )			((char *)NULL + ( i ))
 #define LOCATION_OFFSET				BUFFER_OFFSET(  0 )
 #define COLOR_OFFSET				BUFFER_OFFSET( 16 )
+#define LATTICE_DIM					20
 
 // global variables that will store handles to the data we
 // intend to share between OpenGL and CUDA calculated data.
@@ -70,18 +71,20 @@ Vertex* devPtr;
 float dt = 0;
 
 unsigned int *cmap_rgba, *plot_rgba;  //rgba arrays for plotting
-int latticeWidth = 10, latticeHeight = 10, latticeDepth = 10, ncol;
-float latticeTau = 1.0;
+int latticeWidth = LATTICE_DIM, latticeHeight = LATTICE_DIM, latticeDepth = LATTICE_DIM, ncol;
+double latticeTau = 4.0, roIn = 1.0;
+bool withSolid = false, keypressed = false;
+vector3d vectorIn(0.05, 0.01, 0.03);
 latticed3q19 *lattice;
 
 float cubeFaces[24][3] = 
 {
-	{0.0,0.0,0.0}, {1,0.0,0.0}, {1,1,0.0}, {0.0,1,0.0},
-	{0.0,0.0,0.0}, {1,0.0,0.0}, {1,0,1.0}, {0.0,0,1.0},
-	{0.0,0.0,0.0}, {0,1.0,0.0}, {0,1,1.0}, {0.0,0,1.0},
-	{0.0,1.0,0.0}, {1,1,0.0}, {1,1,1.0}, {0.0,1,1.0},
-	{1.0,0.0,0.0}, {1,1,0.0}, {1,1,1.0}, {1.0,0.0,1.0},
-	{0.0,0.0,1.0}, {0,1,1.0}, {1,1,1.0}, {1.0,0,1.0}
+	{0.0,0.0,0.0}, {1.0,0.0,0.0}, {1.0,1.0,0.0}, {0.0,1.0,0.0},
+	{0.0,0.0,0.0}, {1.0,0.0,0.0}, {1.0,0,1.0}, {0.0,0,1.0},
+	{0.0,0.0,0.0}, {0,1.0,0.0}, {0,1.0,1.0}, {0.0,0,1.0},
+	{0.0,1.0,0.0}, {1.0,1.0,0.0}, {1.0,1.0,1.0}, {0.0,1.0,1.0},
+	{1.0,0.0,0.0}, {1.0,1.0,0.0}, {1.0,1.0,1.0}, {1.0,0.0,1.0},
+	{0.0,0.0,1.0}, {0,1.0,1.0}, {1.0,1.0,1.0}, {1.0,0,1.0}
 };
 
 // Entry point for CUDA Kernel execution
@@ -90,7 +93,7 @@ extern "C" void unregRes(cudaGraphicsResource** res);
 extern "C" void chooseDev(int ARGC, const char **ARGV);
 extern "C" void regBuffer(cudaGraphicsResource** res, unsigned int& vbo);
 
-float getValueFromRelation(float value, float minColorVar=0.01, float maxColorVar=1.0, float minVelVar = -100, float maxVelVar = 100);
+float getValueFromRelation(float value, float minColorVar=0.01, float maxColorVar=1.0, float minVelVar = -1.0, float maxVelVar = 1.0);
 
 void display (void)
 {
@@ -108,7 +111,7 @@ void display (void)
 	
 	glPushMatrix();
 		glColor3f(1.0, 1.0, 1.0);
-		glLineWidth(2);
+		glLineWidth(2.0);
 		for(int i = 0; i< 6; i++)
 		{
 			glBegin(GL_LINE_LOOP);
@@ -138,7 +141,7 @@ void display (void)
 				vz = lattice->latticeElements[i0].velocityVector.z;
 
 				glColor3f(x,y,z);
-				normMag = sqrtf(vx*vx + vy*vy + vz*vz)*8; 
+				normMag = sqrtf(vx*vx + vy*vy + vz*vz)*10; 
 
 				glBegin(GL_LINES);
 					glVertex3f(posX, posY, posZ);
@@ -149,7 +152,7 @@ void display (void)
 			else
 			{
 				glColor3f(1.0, 1.0, 0.0);
-				glPointSize(2);
+				glPointSize(2.0);
 				glBegin(GL_POINTS);
 					glVertex3f(posX, posY, posZ);
 				glEnd();
@@ -186,7 +189,7 @@ void idle(void)
 	////runCuda(&resource1, devPtr, DIM, dt);
 	lattice->step();
 	//
-	//float plot_rgba, minColorVar=0.2, maxColorVar=0.9, minVelVar = -1000, maxVelVar = 1000;
+	//float plot_rgba, minColorVar=0.2.0, maxColorVar=0.9, minVelVar = -1000, maxVelVar = 1000;
 
 	//glBindBuffer(GL_ARRAY_BUFFER, vbo);
 	//Vertex *vert_data = (Vertex*)glMapBuffer(GL_ARRAY_BUFFER, GL_WRITE_ONLY);
@@ -221,6 +224,35 @@ void idle(void)
 	//glUnmapBuffer(GL_ARRAY_BUFFER);
 	//glBindBuffer(GL_ARRAY_BUFFER, 0);
 
+	if(keypressed)
+	{
+		if(withSolid)
+		{
+				// Solid inside the cube
+			for(int k = latticeDepth/4; k < latticeDepth/2.0 + latticeDepth/4; k++)
+				for(int j = latticeHeight/4; j< latticeHeight/2.0 +latticeHeight/4; j++)
+					for(int i = latticeWidth/4; i< latticeWidth/2.0 + latticeWidth/4; i++)
+					{
+						int i0 = I3D(latticeWidth, latticeHeight, i, j, k);
+						lattice->latticeElements[i0].isSolid = true;
+					}
+
+			keypressed = false;
+		}
+		else 
+		{
+				// Solid inside the cube
+			for(int k = latticeDepth/4; k < latticeDepth/2.0 + latticeDepth/4; k++)
+				for(int j = latticeHeight/4; j< latticeHeight/2.0 +latticeHeight/4; j++)
+					for(int i = latticeWidth/4; i< latticeWidth/2.0 + latticeWidth/4; i++)
+					{
+						int i0 = I3D(latticeWidth, latticeHeight, i, j, k);
+						lattice->latticeElements[i0].isSolid = false;
+					}
+
+			keypressed = false;
+		}
+	}
 	glutPostRedisplay();
 }
 
@@ -263,6 +295,10 @@ void keys (unsigned char key, int x, int y)
             unregRes( &resource1 );
             glDeleteBuffers( 1, &vbo );
             exit(0);
+			break;
+		case 'a':
+			keypressed = true;
+			withSolid = !withSolid;
 			break;
 	}
 }
@@ -313,6 +349,7 @@ void initCUDA (int ARGC, const char **ARGV)
 		float cr = (float)(rand()%(DIM-10))+10.0f;
 		float cg = (float)(rand()%(DIM-10))+10.0f;
 		float cb = (float)(rand()%(DIM-10))+10.0f;
+
 		vert_data[i0].color.x = cr / (float)DIM;
 		vert_data[i0].color.y = cg / (float)DIM;
 		vert_data[i0].color.z = cb / (float)DIM;
@@ -329,16 +366,16 @@ int init(void)
 	lattice = new latticed3q19(latticeWidth, latticeHeight, latticeDepth, latticeTau);
 
 	for(int i =0; i< lattice->getNumElements(); i++)
-		lattice->latticeElements[i].calculateInEquilibriumFunction(vector3d(0.05,0.05,0.05), 1.5);
+		lattice->latticeElements[i].calculateInEquilibriumFunction(vectorIn, roIn);
 
-	// Solid inside the cube
-	for(int k = latticeDepth/4; k < latticeDepth/2 + latticeDepth/4; k++)
-		for(int j = latticeHeight/4; j< latticeHeight/2 +latticeHeight/4; j++)
-			for(int i = latticeWidth/4; i< latticeWidth/2 + latticeWidth/4; i++)
-			{
-				int i0 = I3D(latticeWidth, latticeHeight, i, j, k);
-				lattice->latticeElements[i0].isSolid = true;
-			}
+	//for(int k = latticeDepth/4; k < latticeDepth/2.0 + latticeDepth/4; k++)
+	//	for(int j = latticeHeight/4; j< latticeHeight/2.0 +latticeHeight/4; j++)
+	//		for(int i = latticeWidth/4; i< latticeWidth/2.0 + latticeWidth/4; i++)
+	//		{
+	//			int i0 = I3D(latticeWidth, latticeHeight, i, j, k);
+	//			lattice->latticeElements[i0].isSolid = true;
+	//		}
+
 	return 0;
 }
 

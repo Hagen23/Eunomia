@@ -34,21 +34,24 @@ void latticeElementd3q19::printElement(void)
 	for(int i =0; i<_vectorVelocitiesSize; i++)
 		std::cout << "f[" << i << "]: " << f[i] << " vx: " << velocityVector.x << " vy: " << velocityVector.y << " vz: " << velocityVector.z << std::endl;
 }
-
-void latticeElementd3q19::calculateRo(void)
-{
-	ro = 0; 
-	for(int i = 0; i<_vectorVelocitiesSize; i++)
-		ro += f[i];
-}
+//
+//void latticeElementd3q19::calculateRo(void)
+//{
+//	ro = 0; 
+//	for(int i = 0; i<_vectorVelocitiesSize; i++)
+//		ro += f[i];
+//}
 
 void latticeElementd3q19::calculateSpeedVector(void)
 {
-	calculateRo();
-	rovx = rovy = rovz = 0; 
+	//calculateRo();
+	//rovx = rovy = rovz = 0; 
+
+	ro = rovx = rovy = rovz = 0; 
 
 	for(int i=0; i<_vectorVelocitiesSize; i++)
 	{
+		ro += f[i];
 		rovx += f[i] * speedDirection[i].x;
 		rovy += f[i] * speedDirection[i].y;
 		rovz += f[i] * speedDirection[i].z;
@@ -60,6 +63,12 @@ void latticeElementd3q19::calculateSpeedVector(void)
 		velocityVector.x = rovx / ro;
 		velocityVector.y = rovy / ro;
 		velocityVector.z = rovz / ro;
+	}
+	else
+	{
+		velocityVector.x = 0;
+		velocityVector.y = 0;
+		velocityVector.z = 0;
 	}
 }
 	
@@ -73,14 +82,14 @@ void latticeElementd3q19::calculateEquilibriumFunction()
 
 	for(int i=0; i<_vectorVelocitiesSize; i++)
 	{
-		if(i == 0) w = 1.0/9.0;
-		if(i >=1 && i <=6) w = 1.0/18.0;
+		if(i == 0) w = 1.0/9.0; else
+		if(i >=1 && i <=6) w = 1.0/18.0; else
 		if(i >=7 && i <=18) w = 1.0/36.0;
 
 		eiU = speedDirection[i].dotProduct(velocityVector);
 		eiUsq = eiU * eiU;
 
-		feq[i] = w * ro * ( 1 + 3 * (eiU) + 4.5 * (eiUsq) -1.5 * (uSq));
+		feq[i] = w * ro * ( 1.f + 3.f * (eiU) + 4.5 * (eiUsq) -1.5 * (uSq));
 	}
 }
 
@@ -97,13 +106,13 @@ void latticeElementd3q19::calculateInEquilibriumFunction(vector3d inVector, floa
 
 	for(int i=0; i<_vectorVelocitiesSize; i++)
 	{
-		if(i == 0) w = 1.0/9.0;
-		if(i >=1 && i <=6) w = 1.0/18.0;
+		if(i == 0) w = 1.0/9.0; else
+		if(i >=1 && i <=6) w = 1.0/18.0; else
 		if(i >=7 && i <=18) w = 1.0/36.0;
 
 		eiU = speedDirection[i].dotProduct(inVector);
 		eiUsq = eiU * eiU;
 
-		f[i] = w * ro * ( 1 + 3 * (eiU) + 4.5 * (eiUsq) -1.5 * (uSq));
+		ftemp[i] = f[i] = w * ro * ( 1 + 3 * (eiU) + 4.5 * (eiUsq) -1.5 * (uSq));
 	}
 }
