@@ -17,6 +17,8 @@ private:
 	// Solid Boundary: This is the boundary condition for a solid node. All the f's are reversed - this is known as "bounce-back"
 	void solid_BC(int i0);
 
+	void in_BC(vector3d inVector);
+
 	// Move the f values one grid spacing in the directions that they are pointing
 	// i.e. f1 is copied one location to the right, etc.
 	void stream(void);

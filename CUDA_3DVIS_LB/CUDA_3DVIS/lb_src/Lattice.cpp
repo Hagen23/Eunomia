@@ -70,30 +70,41 @@ void latticed3q19::stream()
 
 void latticed3q19::collide(void)
 {
-	int i0;
-
-	for(int k =0; k<_depth; k++)
+	for (int i0 = 0; i0 < _numberElements; i0++)
 	{
-		for(int j = 0; j < _height; j++)
+		if (!latticeElements[i0].isSolid)
 		{
-			for(int i = 0; i<_width; i++)
+			latticeElements[i0].calculateSpeedVector();
+			latticeElements[i0].calculateEquilibriumFunction();
+
+			for (int l = 0; l < 19; l++)
+				latticeElements[i0].f[l] = latticeElements[i0].f[l] - (latticeElements[i0].f[l] - latticeElements[i0].feq[l]) / _tau;
+			//latticeElements[i0].f[l] =(1-_tau)* latticeElements[i0].ftemp[l] + (1/_tau) * latticeElements[i0].feq[l];
+		}
+		else
+			solid_BC(i0);
+	}
+}
+
+void latticed3q19::in_BC(vector3d inVector)
+{
+
+	for (int k = 0; k < _depth; k++)
+	{
+		for (int j = 0; j < _height; j++)
+		{
+			for (int i = 0; i < _width; i++)
 			{
-				i0 = I3D(_width, _height, i, j, k);
-
-				latticeElements[i0].calculateSpeedVector();
-				latticeElements[i0].calculateEquilibriumFunction();
-
-				if(!latticeElements[i0].isSolid)
-				{
-					for(int l = 0; l < 19; l++)
-						latticeElements[i0].f[l] = latticeElements[i0].f[l] - ( latticeElements[i0].f[l] - latticeElements[i0].feq[l] ) / _tau;
-						//latticeElements[i0].f[l] =(1-_tau)* latticeElements[i0].ftemp[l] + (1/_tau) * latticeElements[i0].feq[l];
-				}
-				else
-					solid_BC(i0);
+				int i0 = I3D(_width, _height, i, j, k);
+				latticeElements[i0].isSolid = true;
 			}
 		}
 	}
+}
+
+void latticed3q19::applyBoundaryConditions()
+{
+	in_BC(vector3d(0.3,0.3,0.3));
 }
 
 void latticed3q19::solid_BC(int i0)
@@ -109,7 +120,6 @@ void latticed3q19::solid_BC(int i0)
 	temp = latticeElements[i0].f[12];	latticeElements[i0].f[12] = latticeElements[i0].f[14];	latticeElements[i0].f[14] = temp;		// f12	<-> f14
 	temp = latticeElements[i0].f[15];	latticeElements[i0].f[15] = latticeElements[i0].f[18];	latticeElements[i0].f[18] = temp;		// f15	<-> f18
 	temp = latticeElements[i0].f[16];	latticeElements[i0].f[16] = latticeElements[i0].f[17];	latticeElements[i0].f[17] = temp;		// f16	<-> f17
-
 }
 
 void latticed3q19::printLattice(void)

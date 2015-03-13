@@ -45,7 +45,7 @@ using namespace std;
 #define BUFFER_OFFSET( i )			((char *)NULL + ( i ))
 #define LOCATION_OFFSET				BUFFER_OFFSET(  0 )
 #define COLOR_OFFSET				BUFFER_OFFSET( 16 )
-#define LATTICE_DIM					20
+#define LATTICE_DIM					15
 
 // global variables that will store handles to the data we
 // intend to share between OpenGL and CUDA calculated data.
@@ -72,10 +72,10 @@ float dt = 0;
 
 unsigned int *cmap_rgba, *plot_rgba;  //rgba arrays for plotting
 int latticeWidth = LATTICE_DIM, latticeHeight = LATTICE_DIM, latticeDepth = LATTICE_DIM, ncol;
-double latticeTau = 4.0, roIn = 1.0;
+double latticeTau = 1.5, roIn = 1.0;
 bool withSolid = false, keypressed = false;
-vector3d vectorIn(0.05, 0.01, 0.03);
-latticed3q19 *lattice;
+vector3d vectorIn(0.5, 0.5, 0.05);
+latticed3q19 *lattice; 
 
 float cubeFaces[24][3] = 
 {
@@ -151,11 +151,11 @@ void display (void)
 			}
 			else
 			{
-				glColor3f(1.0, 1.0, 0.0);
+				/*glColor3f(1.0, 1.0, 0.0);
 				glPointSize(2.0);
 				glBegin(GL_POINTS);
 					glVertex3f(posX, posY, posZ);
-				glEnd();
+				glEnd();*/
 			}
 		}
 	glPopMatrix();
@@ -376,6 +376,20 @@ int init(void)
 	//			lattice->latticeElements[i0].isSolid = true;
 	//		}
 
+	for (int k = 0; k < latticeDepth; k++)
+	{
+		for (int j = 0; j < latticeHeight; j++)
+		{
+			for (int i = 0; i < latticeWidth; i++)
+			{
+				if (k == 0 || k == (latticeDepth -1) || i == 0 || i == latticeWidth -1 || j == 0 || j == latticeHeight -1)
+				{
+					int i0 = I3D(latticeWidth, latticeHeight, i, j, k);
+					lattice->latticeElements[i0].isSolid = true;
+				}
+			}
+		}
+	}
 	return 0;
 }
 

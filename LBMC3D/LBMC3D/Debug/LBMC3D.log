@@ -1,16 +1,16 @@
-﻿Build started 09/03/2015 01:51:38 p. m..
+﻿Build started 13/03/2015 11:37:44 a. m..
      1>Project "D:\Octavio\Tesis\Codigo\Eunomia\LBMC3D\LBMC3D\LBMC3D.vcxproj" on node 2 (Build target(s)).
      1>ClCompile:
-         C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\bin\CL.exe /c /ZI /nologo /W3 /WX- /Od /Oy- /D WIN32 /D _DEBUG /D _CONSOLE /D _UNICODE /D UNICODE /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"Debug\\" /Fd"Debug\vc110.pdb" /Gd /TP /analyze- /errorReport:prompt src\3dLB_wClass.cpp
+         C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\CL.exe /c /ZI /nologo /W3 /WX- /Od /Oy- /D WIN32 /D _DEBUG /D _CONSOLE /D _UNICODE /D UNICODE /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"Debug\\" /Fd"Debug\vc120.pdb" /Gd /TP /analyze- /errorReport:prompt src\3dLB_wClass.cpp
          3dLB_wClass.cpp
      1>d:\octavio\tesis\codigo\eunomia\lbmc3d\lbmc3d\src\3dlb_wclass.cpp(119): warning C4305: '=' : truncation from 'double' to 'float'
      1>d:\octavio\tesis\codigo\eunomia\lbmc3d\lbmc3d\src\3dlb_wclass.cpp(120): warning C4305: '=' : truncation from 'double' to 'float'
      1>d:\octavio\tesis\codigo\eunomia\lbmc3d\lbmc3d\src\3dlb_wclass.cpp(146): warning C4996: 'fopen': This function or variable may be unsafe. Consider using fopen_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
-                 c:\program files (x86)\microsoft visual studio 11.0\vc\include\stdio.h(218) : see declaration of 'fopen'
+                 c:\program files (x86)\microsoft visual studio 12.0\vc\include\stdio.h(211) : see declaration of 'fopen'
      1>d:\octavio\tesis\codigo\eunomia\lbmc3d\lbmc3d\src\3dlb_wclass.cpp(152): warning C4996: 'fscanf': This function or variable may be unsafe. Consider using fscanf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
-                 c:\program files (x86)\microsoft visual studio 11.0\vc\include\stdio.h(237) : see declaration of 'fscanf'
+                 c:\program files (x86)\microsoft visual studio 12.0\vc\include\stdio.h(230) : see declaration of 'fscanf'
      1>d:\octavio\tesis\codigo\eunomia\lbmc3d\lbmc3d\src\3dlb_wclass.cpp(156): warning C4996: 'fscanf': This function or variable may be unsafe. Consider using fscanf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
-                 c:\program files (x86)\microsoft visual studio 11.0\vc\include\stdio.h(237) : see declaration of 'fscanf'
+                 c:\program files (x86)\microsoft visual studio 12.0\vc\include\stdio.h(230) : see declaration of 'fscanf'
      1>d:\octavio\tesis\codigo\eunomia\lbmc3d\lbmc3d\src\3dlb_wclass.cpp(319): warning C4244: '=' : conversion from 'double' to 'float', possible loss of data
      1>d:\octavio\tesis\codigo\eunomia\lbmc3d\lbmc3d\src\3dlb_wclass.cpp(330): warning C4244: '=' : conversion from 'double' to 'float', possible loss of data
      1>d:\octavio\tesis\codigo\eunomia\lbmc3d\lbmc3d\src\3dlb_wclass.cpp(331): warning C4244: '=' : conversion from 'double' to 'float', possible loss of data
@@ -38,7 +38,7 @@
      1>d:\octavio\tesis\codigo\eunomia\lbmc3d\lbmc3d\src\3dlb_wclass.cpp(576): warning C4244: '=' : conversion from 'int' to 'float', possible loss of data
      1>d:\octavio\tesis\codigo\eunomia\lbmc3d\lbmc3d\src\3dlb_wclass.cpp(574): warning C4101: 'j' : unreferenced local variable
        Link:
-         C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"D:\Octavio\Tesis\Codigo\Eunomia\LBMC3D\Debug\LBMC3D.exe" /INCREMENTAL /NOLOGO freeglut.lib glew32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"D:\Octavio\Tesis\Codigo\Eunomia\LBMC3D\Debug\LBMC3D.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"D:\Octavio\Tesis\Codigo\Eunomia\LBMC3D\Debug\LBMC3D.lib" /MACHINE:X86 Debug\3dLB_C.obj
+         C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"D:\Octavio\Tesis\Codigo\Eunomia\LBMC3D\Debug\LBMC3D.exe" /INCREMENTAL /NOLOGO freeglut.lib glew32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"D:\Octavio\Tesis\Codigo\Eunomia\LBMC3D\Debug\LBMC3D.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"D:\Octavio\Tesis\Codigo\Eunomia\LBMC3D\Debug\LBMC3D.lib" /MACHINE:X86 Debug\3dLB_C.obj
          Debug\3dLB_wClass.obj
          Debug\Lattice.obj
          Debug\LatticeElement.obj
@@ -47,4 +47,4 @@
 
 Build succeeded.
 
-Time Elapsed 00:00:00.80
+Time Elapsed 00:00:00.79

@@ -114,8 +114,8 @@ int main(int argc, char **argv)
 
     // The following parameters are usually read from a file, but
     // hard code them for the demo:
-	ni = latticeWidth =400; //Width
-    nj = latticeHeight = 400; //Height
+	ni = latticeWidth =200; //Width
+    nj = latticeHeight = 200; //Height
     vxin = 0.05;
 	vyin = 0.05;
 	vzin = 0.0;

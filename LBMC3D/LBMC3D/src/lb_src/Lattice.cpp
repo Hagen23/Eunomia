@@ -110,11 +110,11 @@ void latticed2q9::collide(void)
 		{
 			i0 = I2D(_width, i, j);
 
-			latticeElements[i0].calculateSpeedVector();
-			latticeElements[i0].calculateEquilibriumFunction();
-
 			if(!latticeElements[i0].isSolid)
 			{
+				latticeElements[i0].calculateSpeedVector();
+				latticeElements[i0].calculateEquilibriumFunction();
+
 				for(int l = 0; l < 9; l++)
 					latticeElements[i0].f[l] = latticeElements[i0].f[l] - ( latticeElements[i0].f[l] - latticeElements[i0].feq[l] ) / _tau;
 					//latticeElements[i0].f[l] = rtau1 * latticeElements[i0].f[l] + rtau * latticeElements[i0].feq[l];

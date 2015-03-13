@@ -1,7 +1,42 @@
-﻿Build started 13/02/2015 11:42:28 a. m..
+﻿Build started 13/03/2015 11:37:20 a. m..
      1>Project "D:\Octavio\Tesis\Codigo\Eunomia\LBMC2D\LBMC2D\LBMC2D.vcxproj" on node 2 (Build target(s)).
-     1>Link:
-         C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"D:\Octavio\Tesis\Codigo\Eunomia\LBMC2D\Release\LBMC2D.exe" /INCREMENTAL:NO /NOLOGO freeglut.lib glew32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"D:\Octavio\Tesis\Codigo\Eunomia\LBMC2D\Release\LBMC2D.pdb" /SUBSYSTEM:CONSOLE /OPT:REF /OPT:ICF /LTCG /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"D:\Octavio\Tesis\Codigo\Eunomia\LBMC2D\Release\LBMC2D.lib" /MACHINE:X86 /SAFESEH Release\2dLB_C.obj
+     1>ClCompile:
+         C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\CL.exe /c /Zi /nologo /W3 /WX- /O2 /Oi /Oy- /GL /D WIN32 /D NDEBUG /D _CONSOLE /D _UNICODE /D UNICODE /Gm- /EHsc /MD /GS /Gy /fp:precise /Zc:wchar_t /Zc:forScope /Fo"Release\\" /Fd"Release\vc120.pdb" /Gd /TC /analyze- /errorReport:prompt 2dLB_C.c
+         2dLB_C.c
+     1>2dLB_C.c(85): warning C4305: '=' : truncation from 'double' to 'float'
+     1>2dLB_C.c(87): warning C4305: '=' : truncation from 'double' to 'float'
+     1>2dLB_C.c(158): warning C4996: 'fopen': This function or variable may be unsafe. Consider using fopen_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\include\stdio.h(211) : see declaration of 'fopen'
+     1>2dLB_C.c(164): warning C4996: 'fscanf': This function or variable may be unsafe. Consider using fscanf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\include\stdio.h(230) : see declaration of 'fscanf'
+     1>2dLB_C.c(168): warning C4996: 'fscanf': This function or variable may be unsafe. Consider using fscanf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\include\stdio.h(230) : see declaration of 'fscanf'
+     1>2dLB_C.c(323): warning C4244: '=' : conversion from 'double' to 'float', possible loss of data
+     1>2dLB_C.c(492): warning C4305: '=' : truncation from 'double' to 'float'
+     1>2dLB_C.c(505): warning C4244: '=' : conversion from 'float' to 'int', possible loss of data
+     1>2dLB_C.c(525): warning C4244: 'function' : conversion from 'int' to 'GLfloat', possible loss of data
+     1>2dLB_C.c(527): warning C4244: 'function' : conversion from 'int' to 'GLfloat', possible loss of data
+     1>2dLB_C.c(529): warning C4244: 'function' : conversion from 'int' to 'GLfloat', possible loss of data
+     1>2dLB_C.c(487): warning C4101: 'i1' : unreferenced local variable
+     1>2dLB_C.c(487): warning C4101: 'jp1' : unreferenced local variable
+     1>2dLB_C.c(487): warning C4101: 'i3' : unreferenced local variable
+     1>2dLB_C.c(487): warning C4101: 'i4' : unreferenced local variable
+     1>2dLB_C.c(487): warning C4101: 'i2' : unreferenced local variable
+     1>2dLB_C.c(487): warning C4101: 'ip1' : unreferenced local variable
+     1>2dLB_C.c(543): warning C4244: '=' : conversion from 'int' to 'float', possible loss of data
+     1>2dLB_C.c(544): warning C4244: '=' : conversion from 'int' to 'float', possible loss of data
+     1>2dLB_C.c(566): warning C4244: '=' : conversion from 'int' to 'float', possible loss of data
+     1>2dLB_C.c(567): warning C4244: '=' : conversion from 'int' to 'float', possible loss of data
+     1>2dLB_C.c(568): warning C4244: '=' : conversion from 'float' to 'int', possible loss of data
+     1>2dLB_C.c(569): warning C4244: '=' : conversion from 'float' to 'int', possible loss of data
+     1>2dLB_C.c(574): warning C4244: '=' : conversion from 'int' to 'float', possible loss of data
+     1>2dLB_C.c(575): warning C4244: '=' : conversion from 'int' to 'float', possible loss of data
+     1>2dLB_C.c(576): warning C4244: '=' : conversion from 'float' to 'int', possible loss of data
+     1>2dLB_C.c(577): warning C4244: '=' : conversion from 'float' to 'int', possible loss of data
+     1>2dLB_C.c(594): warning C4244: '=' : conversion from 'int' to 'float', possible loss of data
+     1>2dLB_C.c(595): warning C4244: '=' : conversion from 'int' to 'float', possible loss of data
+       Link:
+         C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"D:\Octavio\Tesis\Codigo\Eunomia\LBMC2D\Release\LBMC2D.exe" /INCREMENTAL:NO /NOLOGO freeglut.lib glew32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"D:\Octavio\Tesis\Codigo\Eunomia\LBMC2D\Release\LBMC2D.pdb" /SUBSYSTEM:CONSOLE /OPT:REF /OPT:ICF /LTCG /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"D:\Octavio\Tesis\Codigo\Eunomia\LBMC2D\Release\LBMC2D.lib" /MACHINE:X86 /SAFESEH Release\2dLB_C.obj
          Generating code
          Finished generating code
          LBMC2D.vcxproj -> D:\Octavio\Tesis\Codigo\Eunomia\LBMC2D\Release\LBMC2D.exe
@@ -9,4 +44,4 @@
 
 Build succeeded.
 
-Time Elapsed 00:00:00.26
+Time Elapsed 00:00:01.05
