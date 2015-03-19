@@ -1,17 +1,17 @@
 #pragma once
+#include "glew.h"
 
 #include <iostream>
 #include <fstream>
 #include <string>
 
-using namespace std;
-
 #include "Importer.hpp"
 #include "PostProcess.h"
 #include "Scene.h"
 
-#define aisgl_min(x,y) (x<y?x:y)
-#define aisgl_max(x,y) (y>x?y:x)
+#include "cMacros.h"
+
+using namespace std;
 
 #ifndef __ASSIMP_MANAGER
 #define __ASSIMP_MANAGER

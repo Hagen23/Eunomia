@@ -11,15 +11,16 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{01E8BCA1-0F66-4C66-962E-FA19D449BA4C}</ProjectGuid>
+    <ProjectGuid>{B3E9998A-5E5D-4890-9ECE-FA12E48F2E3E}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
-    <RootNamespace>OBJ_LOADER</RootNamespace>
+    <RootNamespace>PCL_TEST1</RootNamespace>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v120</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
@@ -40,6 +41,7 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
+    <ExecutablePath>$(ExecutablePath)</ExecutablePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
@@ -51,13 +53,14 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(ProjectDir)/header;$(ProjectDir)/header/GL;$(ProjectDir)/header/assimp;$(ProjectDir)/header/glm;$(ProjectDir)/header/IL</AdditionalIncludeDirectories>
-      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <AdditionalIncludeDirectories>C:\Program Files (x86)\PCL\include\pcl-1.8;C:\boost\include\boost-1_57;C:\Program Files (x86)\Eigen\include</AdditionalIncludeDirectories>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>glew32.lib;freeglut.lib;DevIL.lib;ILU.lib;ILUT.lib;assimpd.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>C:\Program Files %28x86%29\PCL\lib</AdditionalLibraryDirectories>
+      <AdditionalDependencies>pcl_octree_debug.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -69,35 +72,20 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>C:\Program Files (x86)\PCL 1.6.0\3rdParty\Boost\include;C:\Program Files (x86)\Eigen\include;C:\Program Files (x86)\PCL 1.6.0\include\pcl-1.6;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
+      <AdditionalLibraryDirectories>C:\Program Files (x86)\PCL 1.6.0\lib</AdditionalLibraryDirectories>
+      <AdditionalDependencies>pcl_octree_debug.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="OBJ_LOADER.cpp" />
-    <ClCompile Include="source\cAssimpManager.cpp" />
-    <ClCompile Include="source\cShader.cpp" />
-    <ClCompile Include="source\cStringUtils.cpp" />
-    <ClCompile Include="source\cTextIO.cpp" />
-    <ClCompile Include="source\cTextureManager.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="header\cAssimpManager.h" />
-    <ClInclude Include="header\cGlobals.h" />
-    <ClInclude Include="header\cMacros.h" />
-    <ClInclude Include="header\cPeripherals.h" />
-    <ClInclude Include="header\cShader.h" />
-    <ClInclude Include="header\cStringUtils.h" />
-    <ClInclude Include="header\cTextIO.h" />
-    <ClInclude Include="header\cTextureManager.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="shaders\dirlightdiffambpix.frag" />
-    <None Include="shaders\dirlightdiffambpix.vert" />
+    <ClCompile Include="octree_search.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -1,97 +1,23 @@
-//OPENGL:
+#include "cMacros.h"
+//OPENGL_INCLUDES:
 #include "glew.h"
 #include "freeglut.h"
-//DevIL:
+//DevIL_INCLUDES:
 #include "il.h"
-//Custom:
+//CUSTOM_INCLUDES:
 #include "cStringUtils.h"
 #include "cShader.h"
 #include "cTextureManager.h"
 #include "cAssimpManager.h"
-//GLM:
+//GLM_INCLUDES:
 #include "glm/glm.hpp"
-//Standard:
-#include <math.h>
+//STL_INCLUDES:
 #include <map>
 #include <string>
 #include <vector>
-//Custom objects:
-AssimpManager* assimp_manager;
-TextureManager* tex_manager;
-Shader* shader;
-
-// Information to render each assimp node
-struct MyMesh
-{
-	GLuint vao;
-	GLuint texIndex;
-	GLuint uniformBlockIndex;
-	int numFaces;
-};
-
-vector<struct MyMesh> myMeshes;
-
-// This is for a shader uniform block
-struct MyMaterial
-{
-	float diffuse[4];
-	float ambient[4];
-	float specular[4];
-	float emissive[4];
-	float shininess;
-	int texCount;
-};
-
-// Model Matrix (part of the OpenGL Model View Matrix)
-float modelMatrix[16];
-
-// For push and pop matrix
-vector<float *> matrixStack;
-
-// Uniform Buffer for Matrices
-// this buffer will contain 3 matrices: projection, view and model
-// each matrix is a float array with 16 components
-GLuint matricesUniBuffer;
-#define MatricesUniBufferSize sizeof(float) * 16 * 3
-#define ProjMatrixOffset 0
-#define ViewMatrixOffset sizeof(float) * 16
-#define ModelMatrixOffset sizeof(float) * 16 * 2
-#define MatrixSize sizeof(float) * 16
-
-// Shader Names
-char *vertexFileName = "shaders/dirlightdiffambpix.vert";
-char *fragmentFileName = "shaders/dirlightdiffambpix.frag";
-
-// Replace the model name by your model's filename
-//static const string modelname = "assets/bench.obj";
-//static const string modelname = "assets/sphere.obj";
-//static const string modelname = "assets/sphere_notex.obj";
-//static const string modelname = "assets/spider.obj";
-//static const string modelname = "assets/testmixed.obj";
-//static const string modelname = "assets/WusonOBJ.obj";
-static const string modelname = "assets/arm.obj";
-
-// Camera Position
-float camX = 0, camY = 0, camZ = 5;
-
-// Mouse Tracking Variables
-int startX, startY, tracking = 0;
-
-// Camera Spherical Coordinates
-float alpha = 0.0f, beta = 0.0f;
-float r = 5.0f;
-
-#define M_PI       3.14159265358979323846f
-
-static inline float
-DegToRad(float degrees)
-{
-	return (float)(degrees * (M_PI / 180.0f));
-};
-
-// Frame counting and FPS computation
-long time, timebase = 0, frame = 0;
-char s[32];
+//GLOBAL_VARIABLES:
+#include "cGlobals.h"
+#include "cPeripherals.h"
 
 //-----------------------------------------------------------------
 // Print for OpenGL errors
@@ -208,7 +134,7 @@ void setScaleMatrix(float *mat, float sx, float sy, float sz)
 // angle alpha and a rotation axis (x,y,z)
 void setRotationMatrix(float *mat, float angle, float x, float y, float z)
 {
-	float radAngle = DegToRad(angle);
+	float radAngle = (float)DEG2RAD * angle;
 	float co = cos(radAngle);
 	float si = sin(radAngle);
 	float x2 = x*x;
@@ -284,7 +210,7 @@ void scale(float x, float y, float z)
 void buildProjectionMatrix(float fov, float ratio, float nearp, float farp)
 {
 	float projMatrix[16];
-	float f = 1.0f / tan(fov * (M_PI / 360.0f));
+	float f = 1.0f / tanf(fov * ((float)M_PI / 360.0f));
 	setIdentityMatrix(projMatrix, 4);
 
 	projMatrix[0] = f / ratio;
@@ -376,8 +302,8 @@ void color4_to_float4(const aiColor4D *c, float f[4])
 
 void genVAOsAndUniformBuffer(const aiScene* sc)
 {
-	struct MyMesh aMesh;
-	struct MyMaterial aMat;
+	struct AssimpMesh		aMesh;
+	struct ShaderMaterial	aMat;
 	GLuint buffer;
 
 	// For each mesh
@@ -391,7 +317,8 @@ void genVAOsAndUniformBuffer(const aiScene* sc)
 		faceArray = (unsigned int *)malloc(sizeof(unsigned int) * mesh->mNumFaces * 3);
 		unsigned int faceIndex = 0;
 
-		for (unsigned int t = 0; t < mesh->mNumFaces; ++t) {
+		for (unsigned int t = 0; t < mesh->mNumFaces; ++t)
+		{
 			const aiFace* face = &mesh->mFaces[t];
 
 			memcpy(&faceArray[faceIndex], face->mIndices, 3 * sizeof(unsigned int));
@@ -409,7 +336,8 @@ void genVAOsAndUniformBuffer(const aiScene* sc)
 		glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * mesh->mNumFaces * 3, faceArray, GL_STATIC_DRAW);
 
 		// buffer for vertex positions
-		if (mesh->HasPositions()) {
+		if (mesh->HasPositions())
+		{
 			glGenBuffers(1, &buffer);
 			glBindBuffer(GL_ARRAY_BUFFER, buffer);
 			glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 3 * mesh->mNumVertices, mesh->mVertices, GL_STATIC_DRAW);
@@ -418,7 +346,8 @@ void genVAOsAndUniformBuffer(const aiScene* sc)
 		}
 
 		// buffer for vertex normals
-		if (mesh->HasNormals()) {
+		if (mesh->HasNormals())
+		{
 			glGenBuffers(1, &buffer);
 			glBindBuffer(GL_ARRAY_BUFFER, buffer);
 			glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 3 * mesh->mNumVertices, mesh->mNormals, GL_STATIC_DRAW);
@@ -427,13 +356,14 @@ void genVAOsAndUniformBuffer(const aiScene* sc)
 		}
 
 		// buffer for vertex texture coordinates
-		if (mesh->HasTextureCoords(0)) {
+		if (mesh->HasTextureCoords(0))
+		{
 			float *texCoords = (float *)malloc(sizeof(float) * 2 * mesh->mNumVertices);
-			for (unsigned int k = 0; k < mesh->mNumVertices; ++k) {
+			for (unsigned int k = 0; k < mesh->mNumVertices; ++k)
+			{
 
 				texCoords[k * 2] = mesh->mTextureCoords[0][k].x;
 				texCoords[k * 2 + 1] = mesh->mTextureCoords[0][k].y;
-
 			}
 			glGenBuffers(1, &buffer);
 			glBindBuffer(GL_ARRAY_BUFFER, buffer);
@@ -451,7 +381,8 @@ void genVAOsAndUniformBuffer(const aiScene* sc)
 		aiMaterial *mtl = sc->mMaterials[mesh->mMaterialIndex];
 
 		aiString texPath;	//contains filename of texture
-		if (AI_SUCCESS == mtl->GetTexture(aiTextureType_DIFFUSE, 0, &texPath)){
+		if (AI_SUCCESS == mtl->GetTexture(aiTextureType_DIFFUSE, 0, &texPath))
+		{
 			// Bind texture:
 			unsigned int texId = tex_manager->textureIdMap[texPath.data];
 			aMesh.texIndex = texId;
@@ -542,7 +473,7 @@ void recursive_render(const aiScene *sc, const aiNode* nd)
 	for (unsigned int n = 0; n < nd->mNumMeshes; ++n)
 	{
 		// bind material uniform
-		glBindBufferRange(GL_UNIFORM_BUFFER, shader->getMaterialUniLoc(), myMeshes[nd->mMeshes[n]].uniformBlockIndex, 0, sizeof(struct MyMaterial));
+		glBindBufferRange(GL_UNIFORM_BUFFER, shader->getMaterialUniLoc(), myMeshes[nd->mMeshes[n]].uniformBlockIndex, 0, sizeof(struct ShaderMaterial));
 		// bind texture
 		glBindTexture(GL_TEXTURE_2D, myMeshes[nd->mMeshes[n]].texIndex);
 		// bind VAO
@@ -563,151 +494,34 @@ void recursive_render(const aiScene *sc, const aiNode* nd)
 void renderScene(void)
 {
 	static float step = 0.0f;
-
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-	// set camera matrix
+	// Set camera matrix:
 	setCamera(camX, camY, camZ, 0, 0, 0);
-
-	// set the model matrix to the identity Matrix
+	// Set the model matrix to the identity Matrix:
 	setIdentityMatrix(modelMatrix, 4);
-
-	// sets the model matrix to a scale matrix so that the model fits in the window
+	// Sets the model matrix to a scale matrix so that the model fits in the window:
 	scale(assimp_manager->getScaleFactor(), assimp_manager->getScaleFactor(), assimp_manager->getScaleFactor());
-
-	// keep rotating the model
+	// Keep rotating the model:
 	rotate(step, 0.0f, 1.0f, 0.0f);
-
-	// use our shader
-	//glUseProgram(program);
+	// Use our shader:
 	glUseProgram(shader->getProgram());
-
-	// we are only going to use texture unit 0
-	// unfortunately samplers can't reside in uniform blocks
-	// so we have set this uniform separately
+	// We are only going to use texture unit 0.
+	// Unfortunately samplers can't reside in uniform blocks
+	// so we have set this uniform separately:
 	glUniform1i(shader->getTexUnit(), 0);
-
 	recursive_render(assimp_manager->getScene(), assimp_manager->getScene()->mRootNode);
-
-	// FPS computation and display
+	// FPS computation and display:
 	frame++;
 	time = glutGet(GLUT_ELAPSED_TIME);
-	if (time - timebase > 1000) {
-		sprintf_s(s, "FPS:%4.2f",
-			frame*1000.0 / (time - timebase));
+	if (time - timebase > 1000)
+	{
+		sprintf_s(s, "FPS:%4.2f", frame*1000.0 / (time - timebase));
 		timebase = time;
 		frame = 0;
 		glutSetWindowTitle(s);
 	}
-
-	// swap buffers
+	// Swap buffers:
 	glutSwapBuffers();
-}
-
-// ------------------------------------------------------------
-//
-// Events from the Keyboard
-//
-void processKeys(unsigned char key, int xx, int yy)
-{
-	switch (key)
-	{
-	case 27:
-		glutLeaveMainLoop();
-		break;
-	case 'z':
-		r -= 0.1f;
-		break;
-	case 'x':
-		r += 0.1f;
-		break;
-	case 'm':
-		glEnable(GL_MULTISAMPLE);
-		break;
-	case 'n':
-		glDisable(GL_MULTISAMPLE);
-		break;
-	}
-	camX = r * sin(alpha * 3.14f / 180.0f) * cos(beta * 3.14f / 180.0f);
-	camZ = r * cos(alpha * 3.14f / 180.0f) * cos(beta * 3.14f / 180.0f);
-	camY = r *   						     sin(beta * 3.14f / 180.0f);
-}
-
-// ------------------------------------------------------------
-//
-// Mouse Events
-//
-void processMouseButtons(int button, int state, int xx, int yy)
-{
-	// start tracking the mouse
-	if (state == GLUT_DOWN)  {
-		startX = xx;
-		startY = yy;
-		if (button == GLUT_LEFT_BUTTON)
-			tracking = 1;
-		else if (button == GLUT_RIGHT_BUTTON)
-			tracking = 2;
-	}
-
-	//stop tracking the mouse
-	else if (state == GLUT_UP) {
-		if (tracking == 1) {
-			alpha += (startX - xx);
-			beta += (yy - startY);
-		}
-		else if (tracking == 2) {
-			r += (yy - startY) * 0.01f;
-		}
-		tracking = 0;
-	}
-}
-
-// Track mouse motion while buttons are pressed
-void processMouseMotion(int xx, int yy)
-{
-	int deltaX, deltaY;
-	float alphaAux, betaAux;
-	float rAux;
-
-	deltaX = startX - xx;
-	deltaY = yy - startY;
-
-	// left mouse button: move camera
-	if (tracking == 1) 
-	{
-		alphaAux = alpha + deltaX;
-		betaAux = beta + deltaY;
-
-		if (betaAux > 85.0f)
-			betaAux = 85.0f;
-		else if (betaAux < -85.0f)
-			betaAux = -85.0f;
-
-		rAux = r;
-
-		camX = rAux * cos(betaAux * 3.14f / 180.0f) * sin(alphaAux * 3.14f / 180.0f);
-		camZ = rAux * cos(betaAux * 3.14f / 180.0f) * cos(alphaAux * 3.14f / 180.0f);
-		camY = rAux * sin(betaAux * 3.14f / 180.0f);
-	}
-	// right mouse button: zoom
-	else if (tracking == 2)
-	{
-		alphaAux = alpha;
-		betaAux = beta;
-		rAux = r + (deltaY * 0.01f);
-
-		camX = rAux * cos(betaAux * 3.14f / 180.0f) * sin(alphaAux * 3.14f / 180.0f);
-		camZ = rAux * cos(betaAux * 3.14f / 180.0f) * cos(alphaAux * 3.14f / 180.0f);
-		camY = rAux * sin(betaAux * 3.14f / 180.0f);
-	}
-}
-
-void mouseWheel(int wheel, int direction, int x, int y)
-{
-	r += direction * 0.1f;
-	camX = r * sin(alpha * 3.14f / 180.0f) * cos(beta * 3.14f / 180.0f);
-	camZ = r * cos(alpha * 3.14f / 180.0f) * cos(beta * 3.14f / 180.0f);
-	camY = r *   						     sin(beta * 3.14f / 180.0f);
 }
 
 // ------------------------------------------------------------

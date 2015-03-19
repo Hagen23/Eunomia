@@ -13,9 +13,6 @@ Shader::Shader( string vfn, string ffn )
 	matricesUniLoc		= 1;
 	materialUniLoc		= 2;
 
-	// The sampler uniform for textured models
-	// we are assuming a single texture so this will
-	//always be texture unit 0
 	texUnit				= 0;
 
 	vertexFileName		= vfn;
