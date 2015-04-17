@@ -379,7 +379,7 @@ void genVAOsAndUniformBuffer(const aiScene* sc)
 
 		// create material uniform buffer
 		aiMaterial *mtl = sc->mMaterials[mesh->mMaterialIndex];
-
+		
 		aiString texPath;	//contains filename of texture
 		if (AI_SUCCESS == mtl->GetTexture(aiTextureType_DIFFUSE, 0, &texPath))
 		{
@@ -396,6 +396,7 @@ void genVAOsAndUniformBuffer(const aiScene* sc)
 		aiColor4D diffuse;
 		if (AI_SUCCESS == aiGetMaterialColor(mtl, AI_MATKEY_COLOR_DIFFUSE, &diffuse))
 			color4_to_float4(&diffuse, c);
+		if (AI_SUCCESS == aiGetMaterialColor(mtl, AI_MATKEY_COLOR_TRANSPARENT), &)
 		memcpy(aMat.diffuse, c, sizeof(c));
 
 		set_float4(c, 0.2f, 0.2f, 0.2f, 1.0f);
