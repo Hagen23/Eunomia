@@ -72,9 +72,9 @@ float dt = 0;
 
 unsigned int *cmap_rgba, *plot_rgba;  //rgba arrays for plotting
 int latticeWidth = LATTICE_DIM, latticeHeight = LATTICE_DIM, latticeDepth = LATTICE_DIM, ncol;
-double latticeTau = 1.5, roIn = 1.0;
+double latticeTau = 1.5, roIn = 0.1;
 bool withSolid = false, keypressed = false;
-vector3d vectorIn(0.5, 0.5, 0.05);
+vector3d vectorIn(0.f, 0.f, 0.f);
 latticed3q19 *lattice; 
 
 float cubeFaces[24][3] = 
@@ -323,7 +323,16 @@ void initGL ()
 	if (GLEW_OK != err) 
 		return;
 	cout << "Status: Using GLEW " << glewGetString(GLEW_VERSION) << endl;
-	
+	const GLubyte* renderer;
+	const GLubyte* version;
+	const GLubyte* glslVersion;
+
+	renderer = glGetString(GL_RENDERER); /* get renderer string */
+	version = glGetString(GL_VERSION); /* version as a string */
+	glslVersion = glGetString(GL_SHADING_LANGUAGE_VERSION);
+	printf("Renderer: %s\n", renderer);
+	printf("OpenGL version supported %s\n", version);
+	printf("GLSL version supported %s\n", glslVersion);
 }
 
 void initCUDA (int ARGC, const char **ARGV)

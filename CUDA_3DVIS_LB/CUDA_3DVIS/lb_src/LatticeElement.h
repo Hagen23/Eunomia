@@ -1,5 +1,6 @@
 #include <iostream>
 #include <vector>
+#include <cmath>
 
 # ifndef LATTICE_ELEMENT
 # define LATTICE_ELEMENT
@@ -34,15 +35,33 @@ struct vector3d
 	}
 };
 
+static float latticeWeights[19] = 
+{
+	1.f / 9.f, 
+	1.f / 18.f, 1.f / 18.f, 1.f / 18.f, 1.f / 18.f, 1.f / 18.f, 1.f / 18.f,
+	1.f / 36.f, 1.f / 36.f, 1.f / 36.f, 1.f / 36.f, 1.f / 36.f, 1.f / 36.f,
+	1.f / 36.f, 1.f / 36.f, 1.f / 36.f, 1.f / 36.f, 1.f / 36.f, 1.f / 36.f
+};
+
 static vector3d speedDirection[19] =
 {
-	vector3d(0,0,0),
-	vector3d(1,0,0),	vector3d(0,1,0),	vector3d(-1,0,0),	vector3d(0,-1,0), 	
-	vector3d(0,0,-1),	vector3d(0,0,1),	vector3d(1,1,0),	vector3d(-1,1,0),	
-	vector3d(-1,-1,0),	vector3d(1,-1,0),	vector3d(1,0,-1),	vector3d(-1,0,-1),	
-	vector3d(-1,0,1),	vector3d(1,0,1),	vector3d(0,1,-1),	vector3d(0,1,1),	
-	vector3d(0,-1,-1),	vector3d(0,-1,1)
+	vector3d(0, 0, 0),
+	vector3d(1, 0, 0), vector3d(-1, 0, 0), vector3d(0, 1, 0), vector3d(0, -1, 0),
+	vector3d(0, 0, 1), vector3d(0, 0, -1), vector3d(1, 1, 0), vector3d(1, -1, 0),
+	vector3d(1, 0, 1), vector3d(1, 0, -1), vector3d(-1, 1, 0), vector3d(-1, -1, 0),
+	vector3d(-1, 0, 1), vector3d(-1, 0, -1), vector3d(0, 1, 1), vector3d(0, 1, -1),
+	vector3d(0, -1, 1), vector3d(0, -1, -1)
 };
+
+//static vector3d speedDirection[19] =
+//{
+//	vector3d(0,0,0),
+//	vector3d(1,0,0),	vector3d(0,1,0),	vector3d(-1,0,0),	vector3d(0,-1,0), 	
+//	vector3d(0,0,-1),	vector3d(0,0,1),	vector3d(1,1,0),	vector3d(-1,1,0),	
+//	vector3d(-1,-1,0),	vector3d(1,-1,0),	vector3d(1,0,-1),	vector3d(-1,0,-1),	
+//	vector3d(-1,0,1),	vector3d(1,0,1),	vector3d(0,1,-1),	vector3d(0,1,1),	
+//	vector3d(0,-1,-1),	vector3d(0,-1,1)
+//};
 
 class latticeElementd3q19
 {
@@ -50,12 +69,15 @@ private:
 	int _vectorVelocitiesSize;
 	double ro, rovx, rovy, rovz, v_sq_term; //v_sq_term is the 1.5 u^2 term of the equilibrium distribution function
 
+	
 	void calculateRo(void);
 
 public:
 	double *f, *feq;	// Arrays to store the f values, and feq values
 	double *ftemp;	//Temporal array to store the f values
 	
+	double c; // Speed of sound of the lattice
+
 	bool isSolid;
 
 	vector3d velocityVector;
@@ -71,6 +93,11 @@ public:
 	void calculateEquilibriumFunction();
 
 	void calculateInEquilibriumFunction(vector3d inVector, float inRo);
+
+	float getRo(void)
+	{
+		return ro;
+	}
 };
 
 #endif

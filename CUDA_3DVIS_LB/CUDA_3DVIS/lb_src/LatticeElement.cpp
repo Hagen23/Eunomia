@@ -4,6 +4,7 @@ latticeElementd3q19::latticeElementd3q19()
 {
 	_vectorVelocitiesSize = 19;
 		
+	c = 1.0 / sqrt(3.0);
 	f = new double[_vectorVelocitiesSize];
 	feq = new double[_vectorVelocitiesSize];
 	ftemp = new double[_vectorVelocitiesSize];
@@ -77,19 +78,16 @@ void latticeElementd3q19::calculateEquilibriumFunction()
 	double w;
 	double eiU = 0;	// Dot product between speed direction and velocity
 	double eiUsq = 0; // Dot product squared
-		
 	double uSq = velocityVector.dotProduct(velocityVector);	//Velocity squared
 
 	for(int i=0; i<_vectorVelocitiesSize; i++)
 	{
-		if(i == 0) w = 1.0/9.0; else
-		if(i >=1 && i <=6) w = 1.0/18.0; else
-		if(i >=7 && i <=18) w = 1.0/36.0;
-
+		w = latticeWeights[i];
 		eiU = speedDirection[i].dotProduct(velocityVector);
 		eiUsq = eiU * eiU;
 
-		feq[i] = w * ro * ( 1.f + 3.f * (eiU) + 4.5 * (eiUsq) -1.5 * (uSq));
+		//feq[i] = w * ro * ( 1.f + 3.f * (eiU) + 4.5 * (eiUsq) -1.5 * (uSq));
+		feq[i] = w * ro * (1.f + (eiU) / (c*c) + (eiUsq) / (2 * c * c * c * c) - (uSq) / (2 * c * c));
 	}
 }
 
@@ -106,13 +104,11 @@ void latticeElementd3q19::calculateInEquilibriumFunction(vector3d inVector, floa
 
 	for(int i=0; i<_vectorVelocitiesSize; i++)
 	{
-		if(i == 0) w = 1.0/9.0; else
-		if(i >=1 && i <=6) w = 1.0/18.0; else
-		if(i >=7 && i <=18) w = 1.0/36.0;
-
+		w = latticeWeights[i];
 		eiU = speedDirection[i].dotProduct(inVector);
 		eiUsq = eiU * eiU;
 
-		ftemp[i] = f[i] = w * ro * ( 1 + 3 * (eiU) + 4.5 * (eiUsq) -1.5 * (uSq));
+		//ftemp[i] = f[i] = w * ro * ( 1 + 3 * (eiU) + 4.5 * (eiUsq) -1.5 * (uSq));
+		ftemp[i] = f[i] = w * ro * (1.f + (eiU) / (c*c) + (eiUsq) / (2 * c * c * c * c) - (uSq) / (2 * c * c));
 	}
 }

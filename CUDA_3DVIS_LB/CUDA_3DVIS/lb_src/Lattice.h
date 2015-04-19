@@ -13,7 +13,16 @@ class latticed3q19
 private:
 	int _width, _height, _depth, _numberElements;
 	float _tau;
+
+	double c;
 	
+	// Dirichlet and Neumann Boundary Conditions
+	void boundary_BC(vector3d inVector);
+
+	void top_bottom_boundary(void);
+	void left_right_boundary(void);
+	void front_back_boundary(void);
+
 	// Solid Boundary: This is the boundary condition for a solid node. All the f's are reversed - this is known as "bounce-back"
 	void solid_BC(int i0);
 
