@@ -16,7 +16,7 @@ public:
 
 	virtual void update(float t) = 0;
 
-	virtual void render(int rotX, int rotY, int rotZ) = 0;
+	virtual void render(int rotModelX, int rotModelY, int rotModelZ, int posCamX, int posCamY, int posCamZ, int fovY) = 0;
 
 	virtual void resize(int width, int height) = 0;
 

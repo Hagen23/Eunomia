@@ -10,6 +10,9 @@
 #include <QObject>
 #include <QOpenGLContext>
 
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+
 #include "cAssimpMesh.h"
 #include "cAssimpManager.h"
 #include "cTextureManager.h"
@@ -23,7 +26,7 @@ public:
 
     virtual int initialize();
     virtual void update(float t);
-    virtual void render(int rotX, int rotY, int rotZ);
+    virtual void render(int rotModelX, int rotModelY, int rotModelZ, int posCamX, int posCamY, int posCamZ, int fovY);
     virtual void resize(int width, int height);
 
 private:
@@ -33,23 +36,17 @@ private:
 	void genVAOsAndUniformBuffer(const aiScene* sc);
 	void set_float4(float f[4], float a, float b, float c, float d);
 	void color4_to_float4(const aiColor4D* c, float f[4]);
-	void crossProduct(float* a, float* b, float* res);
-	void normalize(float* a);
 	void recursive_render(const aiScene* sc, const aiNode* nd);
 	void pushMatrix();
 	void popMatrix();
-	void setIdentityMatrix(float* mat, int size);
-	void multMatrix(float* a, float* b);
-	void setTranslationMatrix(float* mat, float x, float y, float z);
-	void setScaleMatrix(float* mat, float sx, float sy, float sz);
-	void setRotationMatrix(float* mat, float angle, float x, float y, float z);
+	void setRotationMatrix(glm::mat4& mat, float angle, float x, float y, float z);
 	void setModelMatrix();
 	void translate(float x, float y, float z);
 	void rotate(float angle, float x, float y, float z);
 	void scale(float x, float y, float z);
 	void buildProjectionMatrix(float fov, float ratio, float nearp, float farp);
 	void setCamera(float posX, float posY, float posZ, float lookAtX, float lookAtY, float lookAtZ);
-	void renderScene(int rotX, int rotY, int rotZ);
+	void renderScene(int rotModelX, int rotModelY, int rotModelZ, int posCamX, int posCamY, int posCamZ, int fovY);
 
     QOpenGLShaderProgram mShaderProgram;
 
@@ -58,19 +55,24 @@ private:
 	TextureManager*		tex_manager;
 	vector<AssimpMesh>	myMeshes;
 
-	// Model Matrix (part of the OpenGL Model View Matrix)
-	float modelMatrix[16];
-	float projMatrix[16];
-	float viewMatrix[16];
+	glm::mat4 modelMatrix;
+	glm::mat4 viewMatrix;
+	glm::mat4 projMatrix;
 
 	// For push and pop matrix
-	vector<float*> matrixStack;
+	vector<glm::mat4> matrixStack;
 
 	// Replace the model name by your model's filename
 	string modelname;
 
 	// Camera Position
-	float camX = 0, camY = 0, camZ = 10;
+	float camX;
+	float camY;
+	float camZ;
+	float ratio;
+	float fovY;
+	float nearP;
+	float farP;
 
 	// Mouse Tracking Variables
 	int startX, startY, tracking = 0;

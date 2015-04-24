@@ -27,9 +27,13 @@ private:
 
 	QOpenGLContext *mContext;
 	QScopedPointer<AbstractScene> mScene;
-	int xRot;
-	int yRot;
-	int zRot;
+	int xModelRot;
+	int yModelRot;
+	int zModelRot;
+	int xCamPos;
+	int yCamPos;
+	int zCamPos;
+	int fovY;
 	QPoint lastPos;
 
 protected:
@@ -41,15 +45,27 @@ protected slots :
 	void paintGl();
 	void updateScene();
 
-public slots: // slots for xyz-rotation slider 
-	void setXRotation(int angle);
-	void setYRotation(int angle);
-	void setZRotation(int angle);
+public slots:
+	void setXModelRotation(int angle);
+	void setYModelRotation(int angle);
+	void setZModelRotation(int angle);
 
-signals: // signaling rotation from mouse movement 
-	void xRotationChanged(int angle);
-	void yRotationChanged(int angle);
-	void zRotationChanged(int angle);
+	void setXCamPosition(int pos);
+	void setYCamPosition(int pos);
+	void setZCamPosition(int pos);
+
+	void setFovY(int angle);
+
+signals:
+	void xModelRotationChanged(int angle);
+	void yModelRotationChanged(int angle);
+	void zModelRotationChanged(int angle);
+
+	void xCamPositionChanged(int pos);
+	void yCamPositionChanged(int pos);
+	void zCamPositionChanged(int pos);
+
+	void fovYChanged(int angle);
 };
 
 #endif // CUSTOMGLVAOWIDGET_H

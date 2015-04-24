@@ -3,7 +3,13 @@
 
 QtOpenGLScene::QtOpenGLScene() : mShaderProgram()
 {
-
+	camX = 0.0f;
+	camY = 0.0f;
+	camZ = 4.0f;
+	fovY = 53.13f;
+	nearP = 0.09f;
+	farP = 100.0f;
+	ratio = 4 / 3.0f;
 }
 
 int QtOpenGLScene::initialize()
@@ -40,23 +46,22 @@ void QtOpenGLScene::update(float t)
     Q_UNUSED(t);
 }
 
-void QtOpenGLScene::render(int rotX, int rotY, int rotZ)
+void QtOpenGLScene::render(int rotModelX, int rotModelY, int rotModelZ, int posCamX, int posCamY, int posCamZ, int fovY)
 {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
-	renderScene(rotX, rotY, rotZ);
+	renderScene(rotModelX, rotModelY, rotModelZ, posCamX, posCamY, posCamZ, fovY);
 }
 
 void QtOpenGLScene::resize(int width, int height)
 {
-	float ratio;
 	// Prevent a divide by zero, when window is too short
 	// (you cant make a window of zero width).
 	if (height == 0) height = 1;
 	// Set the viewport to be the entire window
 	glAssert(glViewport(0, 0, width, height));
 	ratio = (1.0f * width) / height;
-	buildProjectionMatrix(53.13f, ratio, 0.1f, 100.0f);
+	buildProjectionMatrix(fovY, ratio, nearP, farP);
 	glCheckError();
 	qDebug() << "RESIZED TO " << width << "X" << height << "\n";
 }
@@ -228,200 +233,65 @@ void QtOpenGLScene::genVAOsAndUniformBuffer(const aiScene* sc)
 	glCheckError();
 }
 
-void QtOpenGLScene::crossProduct(float* a, float* b, float* res)
-{
-	res[0] = a[1] * b[2] - b[1] * a[2];
-	res[1] = a[2] * b[0] - b[2] * a[0];
-	res[2] = a[0] * b[1] - b[0] * a[1];
-}
-
-void QtOpenGLScene::normalize(float* a)
-{
-	float mag = sqrt(a[0] * a[0] + a[1] * a[1] + a[2] * a[2]);
-	a[0] /= mag;
-	a[1] /= mag;
-	a[2] /= mag;
-}
-
 void QtOpenGLScene::pushMatrix()
 {
-	float *aux = (float *)malloc(sizeof(float) * 16);
-	memcpy(aux, modelMatrix, sizeof(float) * 16);
+	glm::mat4 aux = modelMatrix;
 	matrixStack.push_back(aux);
 }
 
 void QtOpenGLScene::popMatrix()
 {
-	float *m = matrixStack[matrixStack.size() - 1];
-	memcpy(modelMatrix, m, sizeof(float) * 16);
+	glm::mat4 m = matrixStack[matrixStack.size() - 1];
+	modelMatrix = m;
 	matrixStack.pop_back();
-	free(m);
-}
-
-void QtOpenGLScene::setIdentityMatrix(float* mat, int size)
-{
-	// fill matrix with 0s
-	for (int i = 0; i < size * size; ++i)
-		mat[i] = 0.0f;
-	// fill diagonal with 1s
-	for (int i = 0; i < size; ++i)
-		mat[i + i * size] = 1.0f;
-}
-
-void QtOpenGLScene::multMatrix(float* a, float* b)
-{
-	float res[16];
-	for (int i = 0; i < 4; ++i)
-	{
-		for (int j = 0; j < 4; ++j)
-		{
-			res[j * 4 + i] = 0.0f;
-			for (int k = 0; k < 4; ++k)
-			{
-				res[j * 4 + i] += a[k * 4 + i] * b[j * 4 + k];
-			}
-		}
-	}
-	memcpy(a, res, 16 * sizeof(float));
-}
-
-void QtOpenGLScene::setTranslationMatrix(float* mat, float x, float y, float z)
-{
-	setIdentityMatrix(mat, 4);
-	mat[12] = x;
-	mat[13] = y;
-	mat[14] = z;
-}
-
-void QtOpenGLScene::setScaleMatrix(float* mat, float sx, float sy, float sz)
-{
-	setIdentityMatrix(mat, 4);
-	mat[0] = sx;
-	mat[5] = sy;
-	mat[10] = sz;
-}
-
-void QtOpenGLScene::setRotationMatrix(float* mat, float angle, float x, float y, float z)
-{
-	float radAngle = (float)DEG2RAD * angle;
-	float co = cos(radAngle);
-	float si = sin(radAngle);
-	float x2 = x*x;
-	float y2 = y*y;
-	float z2 = z*z;
-
-	mat[0] = x2 + (y2 + z2) * co;
-	mat[4] = x * y * (1 - co) - z * si;
-	mat[8] = x * z * (1 - co) + y * si;
-	mat[12] = 0.0f;
-
-	mat[1] = x * y * (1 - co) + z * si;
-	mat[5] = y2 + (x2 + z2) * co;
-	mat[9] = y * z * (1 - co) - x * si;
-	mat[13] = 0.0f;
-
-	mat[2] = x * z * (1 - co) - y * si;
-	mat[6] = y * z * (1 - co) + x * si;
-	mat[10] = z2 + (x2 + y2) * co;
-	mat[14] = 0.0f;
-
-	mat[3] = 0.0f;
-	mat[7] = 0.0f;
-	mat[11] = 0.0f;
-	mat[15] = 1.0f;
 }
 
 void QtOpenGLScene::setModelMatrix()
 {
+	QMatrix4x4 mm = QMatrix4x4(&modelMatrix[0][0]);
+	//qDebug() << "NEW MODEL MATRIX:";
+	//qDebug() << mm;
 	mShaderProgram.bind();
-	mShaderProgram.setUniformValue("modelMatrix", QMatrix4x4(modelMatrix));
+	mShaderProgram.setUniformValue("modelMatrix", mm.transposed());
 }
 
 void QtOpenGLScene::translate(float x, float y, float z)
 {
-	float aux[16];
-	setTranslationMatrix(aux, x, y, z);
-	multMatrix(modelMatrix, aux);
+	modelMatrix = glm::translate(modelMatrix, glm::vec3(x, y, z));
 	setModelMatrix();
 }
 
 void QtOpenGLScene::rotate(float angle, float x, float y, float z)
 {
-	float aux[16];
-	setRotationMatrix(aux, angle, x, y, z);
-	multMatrix(modelMatrix, aux);
+	modelMatrix = glm::rotate(modelMatrix, (float)DEG2RAD*angle, glm::vec3(x, y, z));
 	setModelMatrix();
 }
 
 void QtOpenGLScene::scale(float x, float y, float z)
 {
-	float aux[16];
-	setScaleMatrix(aux, x, y, z);
-	multMatrix(modelMatrix, aux);
+	modelMatrix = glm::scale(modelMatrix, glm::vec3(x,y,z));
 	setModelMatrix();
 }
 
 void QtOpenGLScene::buildProjectionMatrix(float fov, float ratio, float nearp, float farp)
 {
-	float f = 1.0f / tanf(fov * ((float)M_PI / 360.0f));
-	setIdentityMatrix(projMatrix, 4);
+	projMatrix = glm::perspective(fov, ratio, nearp, farp);
 
-	projMatrix[0] = f / ratio;
-	projMatrix[1 * 4 + 1] = f;
-	projMatrix[2 * 4 + 2] = (farp + nearp) / (nearp - farp);
-	projMatrix[3 * 4 + 2] = (2.0f * farp * nearp) / (nearp - farp);
-	projMatrix[2 * 4 + 3] = -1.0f;
-	projMatrix[3 * 4 + 3] = 0.0f;
-
+	QMatrix4x4 pm = QMatrix4x4(&projMatrix[0][0]);
+	//pm = pm.transposed();
+	//qDebug() << "NEW PROJECTION MATRIX. FOV=" << fov << " RATIO=" << ratio << " NEAR=" << nearp << " FAR=" << farp;
+	//qDebug() << pm;
 	mShaderProgram.bind();
-	mShaderProgram.setUniformValue("projMatrix", QMatrix4x4(projMatrix));
+	mShaderProgram.setUniformValue("projMatrix", pm.transposed());
 	glCheckError();
 }
 
 void QtOpenGLScene::setCamera(float posX, float posY, float posZ, float lookAtX, float lookAtY, float lookAtZ)
 {
-	float dir[3], right[3], up[3];
-	up[0] = 0.0f;	up[1] = 1.0f;	up[2] = 0.0f;
-
-	dir[0] = (lookAtX - posX);
-	dir[1] = (lookAtY - posY);
-	dir[2] = (lookAtZ - posZ);
-	normalize(dir);
-
-	crossProduct(dir, up, right);
-	normalize(right);
-
-	crossProduct(right, dir, up);
-	normalize(up);
-
-	float aux[16];
-
-	viewMatrix[0] = right[0];
-	viewMatrix[4] = right[1];
-	viewMatrix[8] = right[2];
-	viewMatrix[12] = 0.0f;
-
-	viewMatrix[1] = up[0];
-	viewMatrix[5] = up[1];
-	viewMatrix[9] = up[2];
-	viewMatrix[13] = 0.0f;
-
-	viewMatrix[2] = -dir[0];
-	viewMatrix[6] = -dir[1];
-	viewMatrix[10] = -dir[2];
-	viewMatrix[14] = 0.0f;
-
-	viewMatrix[3] = 0.0f;
-	viewMatrix[7] = 0.0f;
-	viewMatrix[11] = 0.0f;
-	viewMatrix[15] = 1.0f;
-
-	setTranslationMatrix(aux, -posX, -posY, -posZ);
-
-	multMatrix(viewMatrix, aux);
-
+	viewMatrix = glm::lookAt(glm::vec3(posX, posY, posZ), glm::vec3(lookAtX, lookAtY, lookAtZ), glm::vec3(0.0f, 1.0f, 0.0f));
+	QMatrix4x4 vm = QMatrix4x4(&viewMatrix[0][0]);
 	mShaderProgram.bind();
-	mShaderProgram.setUniformValue("viewMatrix", QMatrix4x4(viewMatrix));
+	mShaderProgram.setUniformValue("viewMatrix", vm.transposed());
 }
 
 void QtOpenGLScene::recursive_render(const aiScene *sc, const aiNode* nd)
@@ -432,10 +302,8 @@ void QtOpenGLScene::recursive_render(const aiScene *sc, const aiNode* nd)
 	m.Transpose();
 	// save model matrix and apply node transformation
 	pushMatrix();
-
-	float aux[16];
-	memcpy(aux, &m, sizeof(float) * 16);
-	multMatrix(modelMatrix, aux);
+	glm::mat4 aux(m[0][0]);
+	modelMatrix *= aux;
 	setModelMatrix();
 
 	// draw all meshes assigned to this node
@@ -463,20 +331,25 @@ void QtOpenGLScene::recursive_render(const aiScene *sc, const aiNode* nd)
 	popMatrix();
 }
 
-void QtOpenGLScene::renderScene(int rotX, int rotY, int rotZ)
+void QtOpenGLScene::renderScene(int rotModelX, int rotModelY, int rotModelZ, int posCamX, int posCamY, int posCamZ, int _fovY)
 {
 	// Use our shader:
 	mShaderProgram.bind();
 	// Set camera matrix:
+	camX = (float)posCamX;
+	camY = (float)posCamY;
+	camZ = (float)posCamZ;
+	fovY = (float)_fovY;
+	buildProjectionMatrix(fovY, ratio, nearP, farP);
 	setCamera(camX, camY, camZ, 0, 0, 0);
 	// Set the model matrix to the identity Matrix:
-	setIdentityMatrix(modelMatrix, 4);
+	modelMatrix = glm::mat4(1.0);
 	// Sets the model matrix to a scale matrix so that the model fits in the window:
 	scale(assimp_manager->getScaleFactor(), assimp_manager->getScaleFactor(), assimp_manager->getScaleFactor());
 	// Rotate the model:
-	rotate((float)rotX, 1.0f, 0.0f, 0.0f);
-	rotate((float)rotY, 0.0f, 1.0f, 0.0f);
-	rotate((float)rotZ, 0.0f, 0.0f, 1.0f);
+	rotate((float)rotModelX, 1.0f, 0.0f, 0.0f);
+	rotate((float)rotModelY, 0.0f, 1.0f, 0.0f);
+	rotate((float)rotModelZ, 0.0f, 0.0f, 1.0f);
 	// We are only going to use texture unit 0.
 	// Unfortunately samplers can't reside in uniform blocks
 	// so we have set this uniform separately:

@@ -18,9 +18,15 @@ static void infoGL()
 
 CustomGLVAOWidget::CustomGLVAOWidget(QScreen *screen) : QWindow(screen), mScene(new QtOpenGLScene())
 {
-	xRot = 0;
-	yRot = 0;
-	zRot = 0;
+	xModelRot = 0;
+	yModelRot = 0;
+	zModelRot = 0;
+
+	xCamPos = 0;
+	yCamPos = 0;
+	zCamPos = 0;
+
+	fovY = 0;
 
 	this->setSurfaceType(OpenGLSurface);
 
@@ -46,7 +52,7 @@ CustomGLVAOWidget::CustomGLVAOWidget(QScreen *screen) : QWindow(screen), mScene(
 
 	connect(this, SIGNAL(widthChanged(int)), this, SLOT(resizeGl()));
 	connect(this, SIGNAL(heightChanged(int)), this, SLOT(resizeGl()));
-	resize(QSize(320, 240));
+	resize(QSize(800, 600));
 
 	QTimer *timer = new QTimer(this);
 	connect(timer, SIGNAL(timeout()), this, SLOT(updateScene()));
@@ -81,6 +87,8 @@ void CustomGLVAOWidget::initializeGl()
 	mContext->makeCurrent(this);
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_TEXTURE_2D);
+	glEnable(GL_CULL_FACE);
+	glCullFace(GL_BACK);
 	mScene->initialize();
 	glCheckError();
 }
@@ -89,7 +97,7 @@ void CustomGLVAOWidget::paintGl()
 {
 	if (!isExposed()) return;
 	mContext->makeCurrent(this);
-	mScene->render(xRot, yRot, zRot);
+	mScene->render(xModelRot, yModelRot, zModelRot, xCamPos, yCamPos, zCamPos, fovY);
 	mContext->swapBuffers(this);
 	mContext->doneCurrent();
 }
@@ -111,35 +119,75 @@ static void qNormalizeAngle(int& angle)
 	angle = angle % 181;
 }
 
-void CustomGLVAOWidget::setXRotation(int angle)
+void CustomGLVAOWidget::setXModelRotation(int angle)
 {
 	qNormalizeAngle(angle);
-	if (angle != xRot)
+	if (angle != xModelRot)
 	{
-		xRot = angle;
-		emit xRotationChanged(angle);
+		xModelRot = angle;
+		emit xModelRotationChanged(angle);
 		updateScene();
 	}
 }
 
-void CustomGLVAOWidget::setYRotation(int angle)
+void CustomGLVAOWidget::setYModelRotation(int angle)
 {
 	qNormalizeAngle(angle);
-	if (angle != yRot)
+	if (angle != yModelRot)
 	{
-		yRot = angle;
-		emit yRotationChanged(angle);
+		yModelRot = angle;
+		emit yModelRotationChanged(angle);
 		updateScene();
 	}
 }
 
-void CustomGLVAOWidget::setZRotation(int angle)
+void CustomGLVAOWidget::setZModelRotation(int angle)
 {
 	qNormalizeAngle(angle);
-	if (angle != zRot)
+	if (angle != zModelRot)
 	{
-		zRot = angle;
-		emit zRotationChanged(angle);
+		zModelRot = angle;
+		emit zModelRotationChanged(angle);
+		updateScene();
+	}
+}
+
+void CustomGLVAOWidget::setXCamPosition(int pos)
+{
+	if (pos != xCamPos)
+	{
+		xCamPos = pos;
+		emit xCamPositionChanged(pos);
+		updateScene();
+	}
+}
+
+void CustomGLVAOWidget::setYCamPosition(int pos)
+{
+	if (pos != yCamPos)
+	{
+		yCamPos = pos;
+		emit yCamPositionChanged(pos);
+		updateScene();
+	}
+}
+
+void CustomGLVAOWidget::setZCamPosition(int pos)
+{
+	if (pos != zCamPos)
+	{
+		zCamPos = pos;
+		emit zCamPositionChanged(pos);
+		updateScene();
+	}
+}
+
+void CustomGLVAOWidget::setFovY(int angle)
+{
+	if (angle != fovY)
+	{
+		fovY = angle;
+		emit fovYChanged(angle);
 		updateScene();
 	}
 }
@@ -156,13 +204,13 @@ void CustomGLVAOWidget::mouseMoveEvent(QMouseEvent *event)
 
 	if (event->buttons() & Qt::LeftButton)
 	{
-		setXRotation(xRot + dy);
-		setYRotation(yRot + dx);
+		setXModelRotation(xModelRot + dy);
+		setYModelRotation(yModelRot + dx);
 	}
 	else if (event->buttons() & Qt::RightButton)
 	{
-		setXRotation(xRot + dy);
-		setZRotation(zRot + dx);
+		setXModelRotation(xModelRot + dy);
+		setZModelRotation(zModelRot + dx);
 	}
 
 	lastPos = event->pos();

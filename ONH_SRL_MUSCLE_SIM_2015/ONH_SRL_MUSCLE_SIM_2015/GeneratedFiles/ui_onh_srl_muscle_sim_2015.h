@@ -13,6 +13,7 @@
 #include <QtWidgets/QAction>
 #include <QtWidgets/QApplication>
 #include <QtWidgets/QButtonGroup>
+#include <QtWidgets/QDial>
 #include <QtWidgets/QGroupBox>
 #include <QtWidgets/QHeaderView>
 #include <QtWidgets/QLCDNumber>
@@ -21,6 +22,7 @@
 #include <QtWidgets/QMenuBar>
 #include <QtWidgets/QSlider>
 #include <QtWidgets/QStatusBar>
+#include <QtWidgets/QTabWidget>
 #include <QtWidgets/QToolBar>
 #include <QtWidgets/QWidget>
 
@@ -30,16 +32,33 @@ class Ui_ONH_SRL_MUSCLE_SIM_2015Class
 {
 public:
     QWidget *centralWidget;
+    QTabWidget *tabWidget;
+    QWidget *tab;
+    QGroupBox *groupBox_2;
+    QSlider *xCamPosSlider;
+    QSlider *zCamPosSlider;
+    QSlider *yCamPosSlider;
+    QLabel *label_4;
+    QLabel *label_5;
+    QLabel *label_6;
+    QLCDNumber *lcdNumber_4;
+    QLCDNumber *lcdNumber_5;
+    QLCDNumber *lcdNumber_6;
+    QDial *fovyDial;
+    QLabel *label_7;
+    QLCDNumber *lcdNumber_7;
+    QWidget *tab_2;
     QGroupBox *groupBox;
-    QSlider *xRotSlider;
-    QSlider *zRotSlider;
-    QSlider *yRotSlider;
+    QSlider *xModelRotSlider;
+    QSlider *zModelRotSlider;
+    QSlider *yModelRotSlider;
     QLabel *label;
     QLabel *label_2;
     QLabel *label_3;
     QLCDNumber *lcdNumber;
     QLCDNumber *lcdNumber_2;
     QLCDNumber *lcdNumber_3;
+    QWidget *widget;
     QMenuBar *menuBar;
     QToolBar *mainToolBar;
     QStatusBar *statusBar;
@@ -48,39 +67,131 @@ public:
     {
         if (ONH_SRL_MUSCLE_SIM_2015Class->objectName().isEmpty())
             ONH_SRL_MUSCLE_SIM_2015Class->setObjectName(QStringLiteral("ONH_SRL_MUSCLE_SIM_2015Class"));
-        ONH_SRL_MUSCLE_SIM_2015Class->resize(600, 320);
+        ONH_SRL_MUSCLE_SIM_2015Class->resize(1200, 700);
         centralWidget = new QWidget(ONH_SRL_MUSCLE_SIM_2015Class);
         centralWidget->setObjectName(QStringLiteral("centralWidget"));
-        groupBox = new QGroupBox(centralWidget);
+        tabWidget = new QTabWidget(centralWidget);
+        tabWidget->setObjectName(QStringLiteral("tabWidget"));
+        tabWidget->setGeometry(QRect(10, 10, 351, 461));
+        tab = new QWidget();
+        tab->setObjectName(QStringLiteral("tab"));
+        groupBox_2 = new QGroupBox(tab);
+        groupBox_2->setObjectName(QStringLiteral("groupBox_2"));
+        groupBox_2->setGeometry(QRect(10, 10, 231, 121));
+        xCamPosSlider = new QSlider(groupBox_2);
+        xCamPosSlider->setObjectName(QStringLiteral("xCamPosSlider"));
+        xCamPosSlider->setGeometry(QRect(20, 30, 140, 20));
+        xCamPosSlider->setMinimum(-10);
+        xCamPosSlider->setMaximum(10);
+        xCamPosSlider->setPageStep(5);
+        xCamPosSlider->setOrientation(Qt::Horizontal);
+        xCamPosSlider->setTickPosition(QSlider::TicksAbove);
+        xCamPosSlider->setTickInterval(2);
+        zCamPosSlider = new QSlider(groupBox_2);
+        zCamPosSlider->setObjectName(QStringLiteral("zCamPosSlider"));
+        zCamPosSlider->setGeometry(QRect(20, 90, 140, 20));
+        zCamPosSlider->setMinimum(-30);
+        zCamPosSlider->setMaximum(30);
+        zCamPosSlider->setPageStep(5);
+        zCamPosSlider->setValue(-5);
+        zCamPosSlider->setTracking(true);
+        zCamPosSlider->setOrientation(Qt::Horizontal);
+        zCamPosSlider->setInvertedAppearance(false);
+        zCamPosSlider->setInvertedControls(false);
+        zCamPosSlider->setTickPosition(QSlider::TicksAbove);
+        zCamPosSlider->setTickInterval(2);
+        yCamPosSlider = new QSlider(groupBox_2);
+        yCamPosSlider->setObjectName(QStringLiteral("yCamPosSlider"));
+        yCamPosSlider->setGeometry(QRect(20, 60, 140, 20));
+        yCamPosSlider->setMinimum(-10);
+        yCamPosSlider->setMaximum(10);
+        yCamPosSlider->setPageStep(5);
+        yCamPosSlider->setOrientation(Qt::Horizontal);
+        yCamPosSlider->setTickPosition(QSlider::TicksAbove);
+        yCamPosSlider->setTickInterval(2);
+        label_4 = new QLabel(groupBox_2);
+        label_4->setObjectName(QStringLiteral("label_4"));
+        label_4->setGeometry(QRect(0, 30, 16, 16));
+        label_4->setAlignment(Qt::AlignCenter);
+        label_5 = new QLabel(groupBox_2);
+        label_5->setObjectName(QStringLiteral("label_5"));
+        label_5->setGeometry(QRect(0, 60, 16, 16));
+        label_5->setAlignment(Qt::AlignCenter);
+        label_6 = new QLabel(groupBox_2);
+        label_6->setObjectName(QStringLiteral("label_6"));
+        label_6->setGeometry(QRect(0, 90, 16, 16));
+        label_6->setAlignment(Qt::AlignCenter);
+        lcdNumber_4 = new QLCDNumber(groupBox_2);
+        lcdNumber_4->setObjectName(QStringLiteral("lcdNumber_4"));
+        lcdNumber_4->setGeometry(QRect(170, 30, 51, 23));
+        lcdNumber_4->setAutoFillBackground(false);
+        lcdNumber_4->setStyleSheet(QLatin1String("color: rgb(0, 255, 0);\n"
+"background-color: rgb(0, 0, 0);"));
+        lcdNumber_4->setFrameShadow(QFrame::Raised);
+        lcdNumber_4->setSmallDecimalPoint(false);
+        lcdNumber_4->setSegmentStyle(QLCDNumber::Flat);
+        lcdNumber_5 = new QLCDNumber(groupBox_2);
+        lcdNumber_5->setObjectName(QStringLiteral("lcdNumber_5"));
+        lcdNumber_5->setGeometry(QRect(170, 60, 51, 23));
+        lcdNumber_5->setStyleSheet(QLatin1String("color: rgb(0, 255, 0);\n"
+"background-color: rgb(0, 0, 0);"));
+        lcdNumber_5->setSegmentStyle(QLCDNumber::Flat);
+        lcdNumber_6 = new QLCDNumber(groupBox_2);
+        lcdNumber_6->setObjectName(QStringLiteral("lcdNumber_6"));
+        lcdNumber_6->setGeometry(QRect(170, 90, 51, 23));
+        lcdNumber_6->setStyleSheet(QLatin1String("color: rgb(0, 255, 0);\n"
+"background-color: rgb(0, 0, 0);"));
+        lcdNumber_6->setSegmentStyle(QLCDNumber::Flat);
+        fovyDial = new QDial(tab);
+        fovyDial->setObjectName(QStringLiteral("fovyDial"));
+        fovyDial->setGeometry(QRect(270, 30, 50, 64));
+        fovyDial->setMinimum(30);
+        fovyDial->setMaximum(100);
+        fovyDial->setPageStep(5);
+        fovyDial->setValue(45);
+        label_7 = new QLabel(tab);
+        label_7->setObjectName(QStringLiteral("label_7"));
+        label_7->setGeometry(QRect(270, 20, 51, 16));
+        label_7->setAlignment(Qt::AlignCenter);
+        lcdNumber_7 = new QLCDNumber(tab);
+        lcdNumber_7->setObjectName(QStringLiteral("lcdNumber_7"));
+        lcdNumber_7->setGeometry(QRect(270, 100, 51, 23));
+        lcdNumber_7->setStyleSheet(QLatin1String("color: rgb(0, 255, 0);\n"
+"background-color: rgb(0, 0, 0);"));
+        lcdNumber_7->setSegmentStyle(QLCDNumber::Flat);
+        tabWidget->addTab(tab, QString());
+        tab_2 = new QWidget();
+        tab_2->setObjectName(QStringLiteral("tab_2"));
+        groupBox = new QGroupBox(tab_2);
         groupBox->setObjectName(QStringLiteral("groupBox"));
-        groupBox->setGeometry(QRect(20, 10, 231, 121));
-        xRotSlider = new QSlider(groupBox);
-        xRotSlider->setObjectName(QStringLiteral("xRotSlider"));
-        xRotSlider->setGeometry(QRect(20, 30, 140, 20));
-        xRotSlider->setMinimum(-180);
-        xRotSlider->setMaximum(180);
-        xRotSlider->setOrientation(Qt::Horizontal);
-        xRotSlider->setTickPosition(QSlider::TicksAbove);
-        xRotSlider->setTickInterval(20);
-        zRotSlider = new QSlider(groupBox);
-        zRotSlider->setObjectName(QStringLiteral("zRotSlider"));
-        zRotSlider->setGeometry(QRect(20, 90, 140, 20));
-        zRotSlider->setMinimum(-180);
-        zRotSlider->setMaximum(180);
-        zRotSlider->setTracking(true);
-        zRotSlider->setOrientation(Qt::Horizontal);
-        zRotSlider->setInvertedAppearance(false);
-        zRotSlider->setInvertedControls(false);
-        zRotSlider->setTickPosition(QSlider::TicksAbove);
-        zRotSlider->setTickInterval(20);
-        yRotSlider = new QSlider(groupBox);
-        yRotSlider->setObjectName(QStringLiteral("yRotSlider"));
-        yRotSlider->setGeometry(QRect(20, 60, 140, 20));
-        yRotSlider->setMinimum(-180);
-        yRotSlider->setMaximum(180);
-        yRotSlider->setOrientation(Qt::Horizontal);
-        yRotSlider->setTickPosition(QSlider::TicksAbove);
-        yRotSlider->setTickInterval(20);
+        groupBox->setGeometry(QRect(10, 10, 231, 121));
+        xModelRotSlider = new QSlider(groupBox);
+        xModelRotSlider->setObjectName(QStringLiteral("xModelRotSlider"));
+        xModelRotSlider->setGeometry(QRect(20, 30, 140, 20));
+        xModelRotSlider->setMinimum(-180);
+        xModelRotSlider->setMaximum(180);
+        xModelRotSlider->setOrientation(Qt::Horizontal);
+        xModelRotSlider->setTickPosition(QSlider::TicksAbove);
+        xModelRotSlider->setTickInterval(36);
+        zModelRotSlider = new QSlider(groupBox);
+        zModelRotSlider->setObjectName(QStringLiteral("zModelRotSlider"));
+        zModelRotSlider->setGeometry(QRect(20, 90, 140, 20));
+        zModelRotSlider->setMinimum(-180);
+        zModelRotSlider->setMaximum(180);
+        zModelRotSlider->setTracking(true);
+        zModelRotSlider->setOrientation(Qt::Horizontal);
+        zModelRotSlider->setInvertedAppearance(false);
+        zModelRotSlider->setInvertedControls(false);
+        zModelRotSlider->setTickPosition(QSlider::TicksAbove);
+        zModelRotSlider->setTickInterval(36);
+        yModelRotSlider = new QSlider(groupBox);
+        yModelRotSlider->setObjectName(QStringLiteral("yModelRotSlider"));
+        yModelRotSlider->setGeometry(QRect(20, 60, 140, 20));
+        yModelRotSlider->setMinimum(-180);
+        yModelRotSlider->setMaximum(180);
+        yModelRotSlider->setOrientation(Qt::Horizontal);
+        yModelRotSlider->setTickPosition(QSlider::TicksAbove);
+        yModelRotSlider->setTickInterval(36);
         label = new QLabel(groupBox);
         label->setObjectName(QStringLiteral("label"));
         label->setGeometry(QRect(0, 30, 16, 16));
@@ -114,10 +225,15 @@ public:
         lcdNumber_3->setStyleSheet(QLatin1String("color: rgb(0, 255, 0);\n"
 "background-color: rgb(0, 0, 0);"));
         lcdNumber_3->setSegmentStyle(QLCDNumber::Flat);
+        tabWidget->addTab(tab_2, QString());
+        widget = new QWidget(centralWidget);
+        widget->setObjectName(QStringLiteral("widget"));
+        widget->setGeometry(QRect(370, 30, 800, 600));
+        widget->setStyleSheet(QStringLiteral("background-color: rgb(0, 0, 0);"));
         ONH_SRL_MUSCLE_SIM_2015Class->setCentralWidget(centralWidget);
         menuBar = new QMenuBar(ONH_SRL_MUSCLE_SIM_2015Class);
         menuBar->setObjectName(QStringLiteral("menuBar"));
-        menuBar->setGeometry(QRect(0, 0, 600, 21));
+        menuBar->setGeometry(QRect(0, 0, 1200, 21));
         ONH_SRL_MUSCLE_SIM_2015Class->setMenuBar(menuBar);
         mainToolBar = new QToolBar(ONH_SRL_MUSCLE_SIM_2015Class);
         mainToolBar->setObjectName(QStringLiteral("mainToolBar"));
@@ -127,9 +243,16 @@ public:
         ONH_SRL_MUSCLE_SIM_2015Class->setStatusBar(statusBar);
 
         retranslateUi(ONH_SRL_MUSCLE_SIM_2015Class);
-        QObject::connect(xRotSlider, SIGNAL(valueChanged(int)), lcdNumber, SLOT(display(int)));
-        QObject::connect(yRotSlider, SIGNAL(valueChanged(int)), lcdNumber_2, SLOT(display(int)));
-        QObject::connect(zRotSlider, SIGNAL(valueChanged(int)), lcdNumber_3, SLOT(display(int)));
+        QObject::connect(xCamPosSlider, SIGNAL(valueChanged(int)), lcdNumber_4, SLOT(display(int)));
+        QObject::connect(yCamPosSlider, SIGNAL(valueChanged(int)), lcdNumber_5, SLOT(display(int)));
+        QObject::connect(zCamPosSlider, SIGNAL(valueChanged(int)), lcdNumber_6, SLOT(display(int)));
+        QObject::connect(xModelRotSlider, SIGNAL(valueChanged(int)), lcdNumber, SLOT(display(int)));
+        QObject::connect(yModelRotSlider, SIGNAL(valueChanged(int)), lcdNumber_2, SLOT(display(int)));
+        QObject::connect(zModelRotSlider, SIGNAL(valueChanged(int)), lcdNumber_3, SLOT(display(int)));
+        QObject::connect(fovyDial, SIGNAL(valueChanged(int)), lcdNumber_7, SLOT(display(int)));
+
+        tabWidget->setCurrentIndex(0);
+
 
         QMetaObject::connectSlotsByName(ONH_SRL_MUSCLE_SIM_2015Class);
     } // setupUi
@@ -137,10 +260,17 @@ public:
     void retranslateUi(QMainWindow *ONH_SRL_MUSCLE_SIM_2015Class)
     {
         ONH_SRL_MUSCLE_SIM_2015Class->setWindowTitle(QApplication::translate("ONH_SRL_MUSCLE_SIM_2015Class", "ONH_SRL_MUSCLE_SIM_2015", 0));
+        groupBox_2->setTitle(QApplication::translate("ONH_SRL_MUSCLE_SIM_2015Class", "Position", 0));
+        label_4->setText(QApplication::translate("ONH_SRL_MUSCLE_SIM_2015Class", "X", 0));
+        label_5->setText(QApplication::translate("ONH_SRL_MUSCLE_SIM_2015Class", "Y", 0));
+        label_6->setText(QApplication::translate("ONH_SRL_MUSCLE_SIM_2015Class", "Z", 0));
+        label_7->setText(QApplication::translate("ONH_SRL_MUSCLE_SIM_2015Class", "FOVY", 0));
+        tabWidget->setTabText(tabWidget->indexOf(tab), QApplication::translate("ONH_SRL_MUSCLE_SIM_2015Class", "Camera", 0));
         groupBox->setTitle(QApplication::translate("ONH_SRL_MUSCLE_SIM_2015Class", "Rotation", 0));
         label->setText(QApplication::translate("ONH_SRL_MUSCLE_SIM_2015Class", "X", 0));
         label_2->setText(QApplication::translate("ONH_SRL_MUSCLE_SIM_2015Class", "Y", 0));
         label_3->setText(QApplication::translate("ONH_SRL_MUSCLE_SIM_2015Class", "Z", 0));
+        tabWidget->setTabText(tabWidget->indexOf(tab_2), QApplication::translate("ONH_SRL_MUSCLE_SIM_2015Class", "Model", 0));
     } // retranslateUi
 
 };
