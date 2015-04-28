@@ -19,16 +19,14 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="lb_src\Lattice.cpp" />
-    <ClCompile Include="lb_src\LatticeElement.cpp" />
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <CudaCompile Include="lb_src\Lattice_thrust.cu" />
     <CudaCompile Include="simpleKernelVBO.cu" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="lb_src\Lattice.h" />
-    <ClInclude Include="lb_src\LatticeElement.h" />
+    <ClInclude Include="lb_src\Lattice_thrust.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{8A6B6147-0682-4B1E-BD57-CBEDD80452CA}</ProjectGuid>
@@ -103,6 +101,7 @@ copy "$(CudaToolkitBinDir)\cudart*.dll" "$(OutDir)"</Command>
     </PostBuildEvent>
     <CudaCompile>
       <Include>C:\ProgramData\NVIDIA Corporation\CUDA Samples\v6.5\common\inc</Include>
+      <TargetMachinePlatform>64</TargetMachinePlatform>
     </CudaCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
