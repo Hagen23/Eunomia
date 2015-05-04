@@ -110,6 +110,5 @@ void latticeElementd3q19::calculateInEquilibriumFunction(vector3d inVector, floa
 
 		//ftemp[i] = f[i] = w * ro * ( 1 + 3 * (eiU) + 4.5 * (eiUsq) -1.5 * (uSq));
 		ftemp[i] = f[i] = w * ro * (1.f + (eiU) / (c*c) + (eiUsq) / (2 * c * c * c * c) - (uSq) / (2 * c * c));
-		std::cout << ftemp[i] << " " << std::endl;
 	}
 }

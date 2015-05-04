@@ -1,0 +1,68 @@
+\begin{thebibliography}{9}
+\providecommand{\natexlab}[1]{#1}
+\providecommand{\url}[1]{\texttt{#1}}
+\expandafter\ifx\csname urlstyle\endcsname\relax
+  \providecommand{\doi}[1]{doi: #1}\else
+  \providecommand{\doi}{doi: \begingroup \urlstyle{rm}\Url}\fi
+
+\bibitem[Lee et~al.(2010)Lee, Glueck, Khan, Fiume, and Jackson]{lee2010survey}
+Dongwoon Lee, Michael Glueck, Khan, Eugene Fiume, and Ken Jackson.
+\newblock A survey of modeling and simulation of skeletal muscle.
+\newblock \emph{ACM Transactions on Graphics}, 28\penalty0 (4):\penalty0 162,
+  2010.
+
+\bibitem[Oatis(2009)]{oatis2009kynesiology}
+Carol Oatis.
+\newblock \emph{Kinesiology: The Mechanics and Pathomechanics of Human
+  Movement}.
+\newblock Lippincott Williams \& Wilkins, 2th edition, 2009.
+
+\bibitem[Tang et~al.(2009)Tang, Zhang, and Tsui]{tang20093d}
+CY~Tang, G~Zhang, and CP~Tsui.
+\newblock A 3d skeletal muscle model coupled with active contraction of muscle
+  fibres and hyperelastic behaviour.
+\newblock \emph{Journal of biomechanics}, 42\penalty0 (7):\penalty0 865--872,
+  2009.
+
+\bibitem[R{\"o}hrle et~al.(2012)R{\"o}hrle, Davidson, and
+  Pullan]{rohrle2012physiologically}
+Oliver R{\"o}hrle, John~B Davidson, and Andrew~J Pullan.
+\newblock A physiologically based, multi-scale model of skeletal muscle
+  structure and function.
+\newblock \emph{Frontiers in physiology}, 3, 2012.
+
+\bibitem[Hill(1970)]{hill1970first}
+Archibald~Vivian Hill.
+\newblock \emph{First and last experiments in muscle mechanics}, volume~32.
+\newblock Cambridge University Press Cambridge, 1970.
+
+\bibitem[R{\"o}hrle(2010)]{rohrle2010simulating}
+Oliver R{\"o}hrle.
+\newblock Simulating the electro-mechanical behavior of skeletal muscles.
+\newblock \emph{Computing in Science \& Engineering}, 12\penalty0 (6):\penalty0
+  48--58, 2010.
+
+\bibitem[Lee et~al.(2009)Lee, Sifakis, and Terzopoulos]{lee2009comprehensive}
+Sung-Hee Lee, Eftychios Sifakis, and Demetri Terzopoulos.
+\newblock Comprehensive biomechanical modeling and simulation of the upper
+  body.
+\newblock \emph{ACM Trans. Graph.}, 28\penalty0 (4):\penalty0 99:1--99:17,
+  September 2009.
+\newblock ISSN 0730-0301.
+\newblock \doi{10.1145/1559755.1559756}.
+\newblock URL \url{http://doi.acm.org/10.1145/1559755.1559756}.
+
+\bibitem[Fan et~al.(2014)Fan, Litven, and Pai]{fan2014active}
+Ye~Fan, Joshua Litven, and Dinesh~K Pai.
+\newblock Active volumetric musculoskeletal systems.
+\newblock \emph{ACM Transactions on Graphics (TOG)}, 33\penalty0 (4):\penalty0
+  152, 2014.
+
+\bibitem[of~Medicine(2003)]{visibleHumanProject}
+U.S. National~Library of~Medicine.
+\newblock The visible human project.
+\newblock \url{http://www.nlm.nih.gov/research/visible/visible_human.html},
+  2003.
+\newblock Accesado: 2015-02-04.
+
+\end{thebibliography}

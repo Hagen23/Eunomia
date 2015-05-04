@@ -1,0 +1,153 @@
+\chapter{Plan de trabajo}
+\label{PlanTrabajo}
+
+\lhead{Capítulo \ref{PlanTrabajo}. \emph{Plan de Trabajo}}
+
+En éste capítulo se muestra el plan de trabajo propuesto, así como los milestones, y los resultados esperados de la investigación.
+
+Los milestones esperados son los siguientes:
+
+\begin{itemize}
+	\item Simulación de sólidos y ecuaciones de activación: Se espera tener todos los componentes para poder hacer simulaciones de sólidos Eulerianos que sean capaces de tener contacto entre ellos. De igual forma, se espera haber terminado el solucionador de las ecuaciones bidominio. Todo esto realizado en CUDA. 
+	\item Engine gráfico completo: Se debe de concluir el desarrollo del engine gráfico que permitirá el manejo y la interacción de distintos elementos en una escena.
+	\item Simulación de movimientos de flexión y extensión: Se espera tener una simulación de un brazo y un antebrazo que ya estén siendo movidos por los músculos relacionados.
+	\item Modelo músculo-esquelético validado: Se espera poder validar la funcionalidad y utilidad del modelo propuesto mediante los datos de EMG y MOCAP y las pruebas de Turing.
+	\item Tesis completada: Se espera tener una serie de publicaciones, así como el documento de tesis completado.
+\end{itemize}
+
+Los resultados esperados de ésta investigación son los siguientes:
+
+\begin{itemize}
+	\item Un engine gráfico para graficar elementos utilizando shaders y que permita el manejo de colisiones mediante octrees.
+	\item Un modelo del sistema músculo-esquelético basado en sólidos Eulerianos, y las ecuaciones bidominio.
+	\item Una simulación de un brazo y antebrazo, realizando los movimientos de flexión y extensión en el codo.
+	\item Varias publicaciones de los diferentes componentes de la tesis, así como el documento de tesis completo.
+\end{itemize}
+
+\begin{landscape}
+
+\section{Diagrama de Gantt}
+
+\definecolor{foobarblue}{RGB}{0,153,255}
+\definecolor{foobaryellow}{RGB}{234,187,0}
+
+\begin{ganttchart}[
+hgrid,
+vgrid,
+x unit=2cm,
+y unit chart=1.2cm,
+time slot format=isodate-yearmonth,
+compress calendar,
+newline shortcut=true,
+bar/.append style={
+	shape= rectangle,
+	inner sep=0pt,
+	draw=foobarblue!50!black,
+	very thick,
+	top color=white,
+	bottom color=foobarblue!50
+	},
+bar label node/.append style={align=right},
+milestone/.append style={
+	draw=foobaryellow!50!black,
+	very thick,
+	top color=white,
+	bottom color=foobaryellow!50}
+]{2015-01}{2015-08}
+\gantttitlecalendar{year, month} \\
+
+\ganttbar[name=lbm2d]{Desarrollo de\ganttalignnewline Lattice Boltzmann (LBM) en 2D}{2015-01}{2015-01} \\
+\ganttbar[name=lb3d]{Desarrollo de LBM en 3D,\ganttalignnewline aplicando Single-Relaxation}{2015-02}{2015-02} \\
+\ganttbar[name=lbmmr]{Aplicar Multi-Relaxation \ganttalignnewline y propiedades físicas a LBM}{2015-03}{2015-03} \\
+\ganttbar[name=lbmcuda]{Migrar LBM a CUDA}{2015-04}{2015-04} \\
+\ganttbar[name=muscleObj]{Obtener modelo 3D \ganttalignnewline de músculos del cuerpo}{2015-02}{2015-02} \\
+\ganttbar[name=eulerianSolid]{Generar sólidos Eulerianos \ganttalignnewline basados en LBM}{2015-04}{2015-05}\\
+\ganttbar[name=bidomain]{Desarrollar un solucionador \ganttalignnewline de las ecuaciones bidominio en CUDA}{2015-04}{2015-05}\\
+\ganttbar[name=strands]{Desarrollar fibras musculares}{2015-06}{2015-06} \\
+\ganttbar[name=activation]{Integrar las ecuaciones bidominio \ganttalignnewline con las fibras musculares}{2015-06}{2015-07} \\
+\ganttmilestone{Simulación de sólidos y ecuaciones de activación}{2015-07}
+
+%\ganttlink{lbm2d}{lb3d}
+%\ganttlink{lb3d}{lbmmr}
+%\ganttlink{lbmmr}{lbmcuda}
+%\ganttlink{lbmcuda}{eulerianSolid}
+%\ganttlink{muscleObj}{eulerianSolid}
+%\ganttlink{eulerianSolid}{strands}
+%\ganttlink{bidomain}{activation}
+%\ganttlink{strands}{activation}
+\end{ganttchart}
+
+\begin{ganttchart}[
+hgrid,
+vgrid,
+x unit=2cm,
+y unit chart=1.5cm,
+time slot format=isodate-yearmonth,
+compress calendar,
+newline shortcut=true,
+bar/.append style={
+	shape= rectangle,
+	inner sep=0pt,
+	draw=foobarblue!50!black,
+	very thick,
+	top color=white,
+	bottom color=foobarblue!50
+	},
+bar label node/.append style={align=right},
+milestone/.append style={
+	draw=foobaryellow!50!black,
+	very thick,
+	top color=white,
+	bottom color=foobaryellow!50}
+]{2015-07}{2016-01}
+\gantttitlecalendar{year, month} \\
+
+\ganttbar[name=environment]{Desarrollar un entorno basado en octrees \ganttalignnewline donde interactuarán los músculos}{2015-07}{2015-07} \\
+\ganttbar[name=engine]{Desarrollar un engine para graficar \ganttalignnewline los elementos de la escena con shaders}{2015-08}{2015-08} \\
+\ganttmilestone{Engine gráfico completo}{2015-8} \\
+\ganttbar[name=muscle]{Simular un músculo completo}{2015-09}{2015-09} \\
+\ganttbar[name=muscles]{Simular los músculos \ganttalignnewline y los movimientos esperados }{2015-010}{2015-11} \\
+\ganttbar[name=paperBidomain]{Generar dos publicaciones con respecto al \ganttalignnewline modelo músculo-esquelético propuesto}{2015-11}{2015-12} \\
+\ganttbar[name=detailLevel]{Aplicar nivel de detalle a las simulaciones}{2015-11}{2015-12} \\
+\ganttmilestone{Simulación de los movimientos de flexión y extensión}{2015-12}
+
+\end{ganttchart}
+
+\begin{ganttchart}[
+hgrid,
+vgrid,
+x unit=1cm,
+y unit chart=1.5cm,
+time slot format=isodate-yearmonth,
+compress calendar,
+newline shortcut=true,
+bar/.append style={
+	shape= rectangle,
+	inner sep=0pt,
+	draw=foobarblue!50!black,
+	very thick,
+	top color=white,
+	bottom color=foobarblue!50
+	},
+bar label node/.append style={align=right},
+milestone/.append style={
+	draw=foobaryellow!50!black,
+	very thick,
+	top color=white,
+	bottom color=foobaryellow!50}
+]{2016-01}{2017-01}
+\gantttitlecalendar{year, month} \\
+
+\ganttbar[name=emgData]{Obtener datos de EMG y MOCAP}{2016-01}{2016-02} \\
+\ganttbar[name=emgAnalysis]{Análisis de datos de EMG y MOCAP}{2016-02}{2016-03} \\
+\ganttbar[name=emgFramework]{Generar un marco de trabajo \ganttalignnewline para validar las simulaciones}{2016-04}{2016-04} \\
+\ganttbar[name=validation]{Validar las simulaciones generadas \ganttalignnewline con los datos obtenidos}{2016-04}{2016-05} \\
+\ganttmilestone{Modelo músculo-esquelético validado}{2016-05} \\
+\ganttbar[name=paperValidation]{Generación de publicación con \ganttalignnewline respecto al análisis de datos y validación de las simulaciones}{2016-06}{2016-07} \\
+\ganttbar[name=tesisChapters]{Generación de capítulos de desarrollo de la tesis.}{2016-08}{2016-11} \\
+\ganttbar[name=tesisPresentation]{Presentación de la tesis.}{2016-12}{2016-12} \\
+\ganttmilestone{Tesis completada}{2016-12}
+
+\end{ganttchart}
+
+\end{landscape}

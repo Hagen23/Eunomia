@@ -1,0 +1,801 @@
+\chapter{Marco Teórico} % Main chapter title
+
+\label{MarcoTeorico} % For referencing the chapter elsewhere, use \ref{Chapter1} 
+
+%hablar de los detalles de los tipos de musculos
+
+\lhead{Capítulo \ref{MarcoTeorico}. \emph{Marco Teórico}}
+
+Para este trabajo se utilizan diferentes conceptos y métodos de las áreas de anatomía, biomecánica, gráficas computacionales, programación paralela y concurrente, entre otras. En este capítulo se detalla, para cada una de las áreas, información relevante que será usada para el modelado de músculos y para entender los conceptos y términos de los siguientes capítulos en ésta propuesta.
+
+%----------------------------------------------------------------------------------------
+\section{Anatomía}
+
+% Detallar cuales son las estructuras pasivas
+La biología de los humanos es una área de estudio bastante amplia. Por esto, este trabajo se centra en solo un conjunto de tejidos relevantes para definir la forma y la función de los músculos del cuerpo: huesos, ligamentos, tendones, y músculos. Estas estructuras son las que permiten el movimiento de diferentes partes del cuerpo y que directamente impactan los cambios en la superficie del cuerpo. Estas estructuras se categorizan en activas y pasivas. Los músculos son considerados estructuras activas ya que son capaces de producir fuerzas por su cuenta. Las estructuras pasivas consisten de materiales que no producen fuerza activamente por su cuenta; estos materiales exhiben tensión cuando son jalados por otras fuerzas externas. Los huesos, tendones, y ligamentos, son estructuras pasivas en el cuerpo. Un ejemplo de dichas estructuras se puede ver en la \fref{fig:activePasiveStructures}.
+
+\begin{figure}
+	\centering
+		\includegraphics[scale=0.6]{Estructuras_ActivasPasivas.png}
+	\caption[Ejemplo de estructuras activas y pasivas en el brazo.]{Ejemplo de estructuras activas y pasivas en el brazo. Adaptado de \citep{oatis2009kynesiology}.}
+	\label{fig:activePasiveStructures}
+\end{figure}
+
+Todas esas estructuras forman un sistema orgánico cohesivo y eficiente. Los huesos crean un esqueleto que provee un soporte estructural del cuerpo, así como protección de órganos internos. Mecánicamente, en conjunto con los músculos y tendones, se crea un complejo sistema de poleas que permite la locomoción del cuerpo. Los ligamentos proveen estabilidad en las uniones al prevenir que se separen segmentos de huesos adyacentes. Actúan como una guía de movimiento conforme se mueven las articulaciones. Los músculos son los principales generadores de fuerza y están unidos a los tendones, que transmiten la fuerza de los músculos hacia los huesos donde están unidos \citep{biomechanics2012nordin}. 
+
+\subsection{Músculos}
+
+Los músculos son considerados estructuras activas ya que son capaces de generar fuerzas por su cuenta. El sistema muscular consiste de tres tipos de músculos: el músculo cardiaco, que compone el corazón; el músculo suave (no estriado o involuntario), que conforman las pareces de otros órganos internos huecos o vasos sanguíneos; y el músculo esquelético (estriado o voluntario), que se une al esqueleto mediante los tendones, y es el encargado de generar la fuerza necesaria para generar movimientos. Los primeros dos tipos de músculo son controlados por el sistema nervioso autónomo, y se contraen sin necesidad de un esfuerzo consciente. A diferencia de los primeros dos tipos de músculo, la contracción del músculo esquelético se controla a través del sistema nervioso somático, y las contracciones se hacen, principalmente, de forma consciente. Estas contracciones voluntarias producen fuerzas que se transfieren al esqueleto, resultando en movimientos del cuerpo \citep{biomechanics2012nordin}. Debido a esta propiedad de generación de movimiento de los músculos esqueléticos, en este trabajo se estudiará la estructura y propiedades solo de este tipo de músculos. 
+
+\subsubsection{Músculos esqueléticos}
+
+Los músculos esqueléticos son de los tejidos más abundantes en el cuerpo humano, consistiendo de entre 40\% y 45\% del total del peso total del cuerpo. Hay más de 430 músculos esqueléticos, encontrados en pares en los lados izquierdo y derecho del cuerpo. Los movimientos más vigorosos son producidos por menos de 80 pares. Estos músculos proveen protección y fuerza al esqueleto al distribuir cargas y absorbiendo impactos. Ellos permiten que los huesos se muevan en las uniones (mediante trabajo dinámico), y mantienen la postura del cuerpo (mediante trabajo estático). Usualmente, esas acciones representan la acción conjunta de grupos de músculos, y no solo músculos individuales.
+
+\subsubsection{Composición, organización, y estructura de los músculos}
+\label{sec:muscleComposition}
+
+Los músculos del cuerpo consisten de dos unidades discretas: el vientre muscular, y dos extremidades tendinosas que unen el vientre muscular al hueso. El vientre muscular consiste de las células musculares, o fibras, que producen la contracción, y de los tejidos conectivos que envuelven a las fibras musculares. 
+
+Los músculos tienen una estructura jerárquica, que se puede ver en la \fref{fig:muscleStructure}. La capa externa de tejido conectivo que cubre al vientre muscular es llamado el epimisio; este une al vientre muscular con el tendón. Internamente, el vientre muscular está compuesto por un gran número de grupos de fibras musculares, llamados fascículos, que están separados unos de otros por una capa de tejido conectivo llamado permisio. A su vez, cada fascículo está compuesto de fibras musculares, que están aisladas unas de otras por el endomisio. Estás fibras musculares son las principales estructuras de los músculos; cada fibra varia entre 1 y 400 mm en longitud, y entre 10 y 60 $\mu$m en diámetro. Cada fibra muscular consiste de grupos en paralelo de miofibrillas. Finalmente, cada miofibrilla está compuesta de un arreglo en serie de unidades contráctiles, llamadas sarcómeros, que son los encargados de producir las contracciones asociadas con los músculos. 
+
+\begin{figure}[!ht]
+	\centering
+		\includegraphics[scale=0.6]{muscleStructure_SPA.png}
+	\caption[Estructura jerárquica de músculos esqueléticos.]{Estructura jerárquica de los músculos esqueléticos. Adaptado de \citep{lee2010survey}.}
+	\label{fig:muscleStructure}
+\end{figure}
+
+%Mencionar los distintos tipos de patrones de peneacion
+La arquitectura de los músculos se refiere al arreglo interno de los fascículos. Una cantidad pequeña de músculos tienen arquitecturas simples, donde los fascículos se acomodan en paralelo con respecto a los demás a lo largo del músculo. Éstos son, típicamente, músculos largos, como los bíceps. Sin embargo, en la mayoría de los músculos, los fascículos tienen una orientación caracterizada por el ángulo que forman con respecto a los tendones que están unidos a ellos. Ese acomodo de fibras es conocido como la peneación de los músculos. Hay varios tipos de patrones de peneación en los músculos esqueléticos, como se puede ver en la \fref{fig:muscleArchitecture}. Estos distintos tipos de arquitecturas determinan el rango de movimientos y la fuerza que es producida por cada músculo. Un músculo va a contener un número mayor de fibras musculares pequeñas en una configuración penada que en una en paralelo. Por esto, los músculos penados no se contraen los suficiente, pero pueden producir mucha más fuerza que los músculos en paralelo de el mismo tamaño \cite{oatis2009kynesiology}.
+
+\begin{figure}[!ht]
+	\centering
+		\includegraphics[scale=0.6]{muscleTypes_SPA.png}
+	\caption[Ejemplos de arquitectura de músculos.]{Ejemplos de distintas arquitecturas de músculos. Adaptado de \citep{oatis2009kynesiology}.}
+	\label{fig:muscleArchitecture}
+\end{figure}
+
+En general, cada parte final del músculo esta conectada a un hueso a través de tendones, los cuales no tienen propiedades contráctiles activas. Los músculos son los que forman los componentes contráctiles y los tendones tienen elementos elásticos en serie. El epimisio, perimisio, endomisio, y el sarcolema actúan como elementos elásticos en paralelo. Las fuerzas que se producen por la contracción de los músculos se transmiten a los huesos a través de los tendones. Estos transmiten las fuerzas producidas del músculo al que están unidos hacia los huesos. Los tendones conectan a los músculos ya sea en un área estrecha o a lo largo de un área amplia y plana, conocida como la aponeurosis. La unión de los músculos a huesos más estacionarios (lugar proximal) se llama el origen, mientras que la parte que se une a huesos más móviles (lugar distal) se llama la inserción. 
+
+\subsubsection{La unidad motora}
+
+La unidad funcional de los músculos esqueléticos es la unidad motora, que incluye a una neurona motora, y a todas las fibras musculares que son invervadas por ella. Ésta unidad es la más pequeña parte de un músculo que se puede hacer que se contraiga independientemente. Cuando se estimula, todas las fibras musculares en la unidad motora responden como una. Cuando las fibras de una unidad motora reciben un estímulo, tienen uno de dos posibles comportamientos: se contraen al máximo, o no se contraen \citep{biomechanics2012nordin, criswell2011cram}.
+
+El número de fibras musculares que componen una unidad motora está relacionado al nivel de control necesario de cada músculo en particular. En músculos pequeños que realizan movimientos muy finos, como los músculos extraoculares, cada unidad motora puede contener menos de una docena de fibras musculares, mientras que un músculo grande que realiza movimientos toscos, cada unidad motora puede contener entre hasta 2000 fibras musculares. Los músculos que controlan movimientos más finos tienen menos fibras por unidad motora (menos de 10 fibras), mientras que los músculos que controlan movimientos más grandes tienen más fibras por unidad motora (entre 100 y 1000 fibras). Normalmente, las unidades motoras con menos fibras se activan antes que las unidades motoras con más fibras.
+
+Las fibras de cada unidad motora no están contiguas, sino que están dispersas a lo largo del músculo con fibras de otras unidades. Por esto, si una unidad motora es estimulada, una larga porción del músculo parece que se contrae. Si unidades motoras adicionales se estimulan, el músculo se contrae con una fuerza mayor. El utilizar unidades motoras adicionales en respuesta a una estimulación mayor es llamado reclutamiento.
+
+Las contracciones voluntarias de un músculo inician en la corteza motora frontal del cerebro, donde los impulsos viajan a lo largo de canales cortico-espinales hasta los músculos. Esos impulsos de la corteza motora son llamados \textit{potenciales de acción}, y cada impulso está relacionado con sólo una unidad motora. 
+
+Un músculo se puede representar como $n$ unidades motoras que son controladas por $n$ axones nerviosos que se originan del sistema nervioso central, cada uno con su propia función de excitación neural $u(t)$, que genera una activación muscular $a(t)$. Las fibras musculares de cada unidad motora $i$ generan en conjunto una fuerza $F_i^M$, que siempre se suman con las fuerzas de otras unidades motoras para producir la fuerza del músculo $F^M$ \citep{zajac1989muscle}.
+
+\subsubsection{La unidad músculo-tendinosa}
+
+Ya que los músculos y los tendones trabajan en conjunto para crear una unidad funcional de generación y transmisión de fuerza, se le llama a esa estructura la unidad músculo-tendinosa. Hill \citep{hill1970first} demostró que los tendones representan un componente elástico, similar a un resorte, localizado en serie (SE) con un componente contráctil (CC) que representa a las proteínas contráctiles de las miofibrillas, la actina, y la miosina, mientras que el epimisio, permisio, endomisio, y sarcolema, son representados por un segundo componente elástico en paralelo (PE) al componente contráctil. Un ejemplo de la unidad músculo-tendinosa se puede ver en la \fref{fig:musculotendinousUnit}.
+
+%Al final falta referencia la figura, poner la ecuación y explicar las siglas de la figura.
+\begin{figure}[!ht]
+	\centering
+		\includegraphics[scale=0.6]{musculotendinousUnit.png}
+	\caption[Unidad músculo-tendinosa.]{La unidad músculo-tendinosa consiste de un elemento contráctil (CC) en paralelo con un componente elástico (PEC), y en serie con otro componente elástico (SEC). Adaptado de \cite{biomechanics2012nordin}.}
+	\label{fig:musculotendinousUnit}
+\end{figure}
+
+\subsubsection{Contracción Muscular}
+
+El mecanismo que permite a los músculos generar movimientos es la contracción muscular. La contracción de un músculo completo es la suma de contracciones singulares que ocurren dentro de cada uno de los sarcómeros. Está es controlada por el sistema nervioso central, donde se generan impulsos nerviosos que viajan a través de neuronas motoras hasta la rama somática sensorial en el músculo. El lugar donde la terminación de una neurona motora y la fibra muscular se conectan es llamada la unión neuromuscular. Cada neurona motora inerva un juego de fibras musculares donde cada impulso estimula el flujo de calcio a los sarcómeros, causando que los filamentos se deslizen. Los sarcómeros tienen estructuras basadas en proteínas, compuestos de filamentos delgados con alta resistencia a la tracción (actina), filamentos gruesos (miosina), filamentos elásticos (tiltina), y filamentos inelásticos (nebulina). La actina y miosina están apilados uno sobre otro alternativamente, formando puentes cruzados para producir fuerza. 
+
+La teoría de los filamentos deslizantes y los puentes cruzados \cite{huxley1971proposed, huxley1974muscular}, describe el proceso de la contracción muscular. Durante la contracción muscular, la longitud de los filamentos de actina y miosina permanece constante y estos se deslizan unos sobre otros para aumentar su superposición, generando un acortamiento en el músculo, como se puede ver en la \fref{fig:muscleContraction}. La fuerza de la contracción se genera por las cabezas de miosina, o puentes cruzados, en la región donde la actina y miosina se sobrelapan. Los puentes cruzados giran en un arco alrededor de su posición sobre los filamentos de miosina. Ese movimiento de los puentes cruzados en contacto con los filamentos de actina produce el deslizamiento de estos hacia el centro del sarcómero. La fibra muscular se contrae cuando los sarcómeros se acortan simultáneamente.
+
+\begin{figure}[!ht]
+	\centering
+		\includegraphics[scale=0.6]{muscleContraction_SPA.png}
+	\caption[Ejemplo de contracción de músculos.]{Ejemplo de contracción de músculos. Adaptado de \citep{oatis2009kynesiology}.}
+	\label{fig:muscleContraction}
+\end{figure}
+
+La contracción de los músculos se puede clasificar de acuerdo al cambio de longitud o al nivel de fuerza producido. En la contracción isotónica, la longitud del músculo cambia y se genera una fuerza; el músculo o se contrae o se expande, dependiendo de si la fuerza producida es suficiente para resistir una carga externa. En la contracción isométrica, el músculo permanece sin cambios mientras produce fuerza, como, por ejemplo, cuando se mantiene un objeto sin movimiento. Aunque no se genera un movimiento en este tipo de contracción, la energía se utiliza y casi siempre se disipa como calor.
+
+El estudio médico llamado electromiografía (ver sección \ref{section:emg}), provee un mecanismo para evaluar y comparar los efectos neurales de un músculo y su actividad de contracción. A través de este estudio, se ha podido saber mucho respecto al proceso contráctil, particularmente, la relación del tiempo con la actividad eléctrica generada en el músculo, o las fibras musculares, al momento de generar una contracción \cite{oatis2009kynesiology}.
+
+\subsubsection{Producción de fuerza en el músculo}
+
+La actividad básica de el músculo es la de contraerse, produciendo así una fuerza de tracción. Una fuerza también produce un momento, o una tendencia a rotar, cuando la fuerza se ejerce a una distancia del punto de rotación. La habilidad para generar la fuerza de tracción y la habilidad de crear un momento son los factores que sirven para describir la fuerza de un músculo. Una valoración in vivo de la fuerza muscular se hace al determinar la capacidad del músculo para generar un momento. Esa valoración incluye la determinación de la cantidad de resistencia que un individuo puede soportar sin generar una rotación, o la cantidad de peso que se puede levantar. En contraste, una valoración in vitro valora la fuerza muscular al medir la habilidad de un músculo de generar fuerza de tracción, dada por la siguiente ecuación:
+
+\begin{equation}
+	M = r \times F
+\end{equation}
+
+donde $M$ es el momento generado por la fuerza de tracción $F$ aplicado a una distancia ($r$, brazo de momento del músculo, la distancia perpendicular de un eje a la línea de acción de una fuerza) del punto de rotación (el eje de la unión). Así, la fuerza de un músculo es una función de un arreglo de factores que influencian tanto la fuerza de tracción $F$ como el brazo de momento $r$. Los principales factores que afectan a la fuerza de los músculos son:
+
+\begin{itemize}
+	\item El tamaño del músculo
+	\item El brazo de momento del músculo
+	\item El estiramiento del músculo
+	\item La velocidad de contracción
+	\item El tipo de fibras que componen al músculo
+\end{itemize}
+
+El tamaño del músculo es el factor más importante para la producción de fuerza de tracción, debido a que las fibras musculares son las encargadas de generar la fuerza de contracción, y mientras más fibras contenga un músculo, más fuerza se puede producir. Sin embargo, el tamaño de un músculo no es una buena indicación de el número de fibras que contiene. La medida estándar para medir un aproximado de las fibras de un músculo es el área de corte transversal fisiológico (PCSA). El PCSA es el área de una rebanada que pasa a lo largo de las fibras de un músculo. El ángulo en el que las fibras se insertan al tendón (ángulo de peneación) tambien influencia la fuerza total que se aplica al miembro por un músculo penado. La fuerza de tracción generada por el músculo completo es un vector de la suma de los componentes de fuerza que se aplican en paralelo al tendón del músculo.
+
+\subsubsection{Electromiografías}
+\label{section:emg}
+
+La electromiografía (EMG) es el estudio principal para evaluar la activación muscular en aplicaciones clínicas y de investigación. Se basa en el análisis de las señales eléctricas que emanan durante la contracción muscular voluntaria o involuntaria, es decir, analiza los potenciales de acción generados por las unidades motoras en un punto del músculo. Por esto, solamente representa una medida aproximada de la fuerza de la contracción muscular, ya que el número de fibras musculares que se contraen está directamente relacionado con el número de unidades motoras que se disparan. Una señal de EMG es la suma algebraica de los potenciales de acción de una unidad motora dentro del área de sensado del electrodo que se posiciona sobre el músculo a estudiar. El área de sensado de un electrodo casi siempre incluye datos de más de una unidad motora debido a que las fibras musculares de diferentes unidades están entremezcladas a lo largo del músculo. Cualquier porción de un músculo puede contener fibras que pertenecen hasta a 50 unidades motoras \citep{kutz2004standard}.
+
+Existen dos tipos principales de EMG: la clínica, y la cinesiológica. Las EMG clínicas, usualmente realizadas por fisiatras y neurólogos, son estudios de las características de los potenciales de acción de una unidad motora. Estos son típicamente para ayudar en el diagnóstico de alguna patología neuromuscular. Las EMG cinesiológicas son principalmente utilizadas para hacer análisis de movimientos. Éste tipo de EMG estudia la relación de las funciones musculares al movimiento de segmentos del cuerpo, y evalúa la sincronización de la actividad de los músculos con el movimiento que generan. Las EMG cinesiológicas ayudan en estudios de ortopedia, para ayudar en la rehabilitación, así como para análisis biomecánicos del movimiento del cuerpo humano. Muchos estudios utilizan ambos tipos de EMG para examinar la producción de la fuerza en los músculos \citep{rash2003electromyography}.
+
+Las señales de EMG se pueden obtener utilizando técnicas invasivas y no invasivas. Las técnicas invasivas utilizan una aguja o un alambre delgado, que se inserta directamente al músculo, para medir los potenciales de acción. Las técnicas no invasivas, también conocidas como electromiografías superficiales, utilizan electrodos pegados sobre la piel, aproximadamente entre el origen y la inserción del músculo, para medir los potenciales de acción. En cualquier caso, debido al bajo voltaje de la señal de EMG (entre algunos millivolts y 100 $\mu$V), se requiere de una amplificación de la señal antes de que se pueda empezar a recolectar la señal digitalmente. Adicionalmente, para reducir el ruido de la señal, se usa un filtro de paso de banda analógico de entre 20 y 500 Hz. Por esto, es necesario una tasa de muestreo de 1000 Hz \citep{kutz2004standard}. 
+
+Los datos de EMG se analizan tanto en el dominio de la frecuencia, utilizando transformada rápida de Fourier (FFT), como en el de amplitud. Para el análisis de amplitud, la técnica de procesamiento más usada es calcular la raíz cuadrada media (RMS) de la señal. A lo largo de un periodo $T$, la RMS de una señal $x(t)$ se puede expresar como:
+
+\begin{equation}
+	EMG_{rms} = \sqrt{\frac{1}{T} \int_0^T x(t)^2 \mathrm{d}t}
+\end{equation}
+
+En su forma discreta, a lo largo de $N$ muestreos continuos, la RMS se puede expresar como:
+
+\begin{equation}
+	EMG_{rms} = \sqrt{\frac{1}{N} \sum_{i=1}^{N} x_i(t)^2}
+\end{equation}
+
+\subsection{Huesos}
+
+El propósito del sistema esquelético es el de proteger órganos internos, proveer vínculos cinemáticos y puntos de unión para los músculos, y facilitar la acción de los músculos y el movimiento del cuerpo. Por esto, los huesos tienen propiedades estructurales y mecánicas que les permiten realizar dichas tareas:
+
+\begin{itemize}
+	\item Los huesos son de las estructuras más duras del cuerpo; solo la dentina y el esmalte de los dientes son más duros.
+	\item Son de los tejidos más metabolicamente activos en el cuerpo, con una capacidad excelente de auto-reparación.
+	\item Pueden alterar sus propiedades y configuración en respuesta a cambios mecánicos. Por ejemplo, los cambios en la densidad son observados comúnmente después de periodos de poco uso; cambios en la forma de los huesos se pueden ver durante la recuperación de fracturas, y después de ciertas cirugías.
+\end{itemize} 
+
+Funcionalmente, las propiedades mecánicas más importantes de los huesos son su fuerza, dureza, y rigidez. Éstas características se pueden entender de mejor forma al examinar su comportamiento bajo una carga, es decir, bajo la influencia de fuerzas sobre las estructuras. Las cargas causan deformaciones, o cambios en las dimensiones, de una estructura. Cuando una carga en una dirección conocida es impuesta sobre una estructura, la deformación de la misma se puede medir y graficar en una curva de carga-deformación. Un ejemplo de dicha gráfica se puede ver en la \fref{fig:boneLoadDeformationCurve}.
+
+\begin{figure}[!ht]
+	\centering
+		\includegraphics[scale=0.8]{boneLoadDeformationCurve.png}
+	\caption[Ejemplo de curva de carga-deformación.]{Ejemplo de curva de carga-deformación. Si una carga se aplica dentro de la región elástica (región donde puede regresar a su forma original) de el hueso (entre el punto A y B en la curva), y luego se suelta, no ocurre una deformación permanente. Si la carga continúa después del punto de límite de elasticidad (B en la curva), y la carga se suelta, se genera una deformación permanente. Si la carga continúa dentro de la región plástica, se puede llegar a un punto de falla final (C en la curva). Adaptado de \citep{biomechanics2012nordin}.}
+	\label{fig:boneLoadDeformationCurve}
+\end{figure}
+
+\subsection{Tendones}
+
+Los tendones están compuestos principalmente por arreglos en paralelo de fibras de colágeno y tienen la propiedad mecánica de que son mucho más duros que los músculos cuando se les jala. Sus funciones principales son la de unir al músculo con los huesos, y transmitir la fuerza de tracción que generan los músculos a los huesos para poder producir movimiento. Además de transmitir fuerza, los tendones modulan pasivamente la fuerza durante la locomoción, proporcionando estabilidad adicional en las uniones, así como que ayudan a mantener la postura del cuerpo. Los tendones tienen formas distintas dependiendo de dónde esté unido. Los \textit{tendones externos} conectan a los músculos con el hueso, mientras que los \textit{tendones internos}, o aponeurosis, proveen una área de unión para el músculo, y parece un material como hoja \citep{oatis2009kynesiology, biomechanics2012nordin}.
+
+\subsection{Ligamentos}
+
+Los ligamentos unen a los diferentes huesos del esqueleto humano. Como están hechos de colágeno, tienen propiedades físicas similares a las de los tendones. Los ligamentos también pueden ser mucho más elásticos que los tendones. El rol de los ligamentos no sólo es el de conectar a los huesos, sino que también aumentan la estabilidad mecánica de las uniones, ayudan a guiar el movimiento de las uniones, y previenen movimientos excesivos. De esta forma, los ligamentos actúan como contenciones estáticas \citep{oatis2009kynesiology, biomechanics2012nordin}.
+
+\section{Biomecánica }
+
+La biomecánica es la ciencia que examina las fuerzas que actúan sobre y dentro de una estructura biológica, y los efectos producidos por dichas fuerzas. Las fuerzas externas que actúan sobre un sistema se cuantifican utilizando dispositivos sofisticados de medición. Las fuerzas internas, que se generan por la actividad muscular, por fuerzas externas, o ambas, se evalúan utilizando dispositivos de medición implantados en zonas de interés, o con estimaciones de un modelo matemático. Posibles resultados de fuerzas internas o externas, son:
+
+\begin{itemize}
+	\item Movimientos de segmentos de interés.
+	\item Deformación de material biológico.
+	\item Cambios biológicos en los tejidos sobre los que actúan.
+\end{itemize}
+
+Por esto, la biomecánica estudia o cuantifica, lo siguiente:
+
+\begin{itemize}
+	\item Movimientos de diferentes segmentos del cuerpo, y los factores que influencian el movimiento, la alineación del cuerpo, distribución de pesos, entre otros.
+	\item Deformación de estructuras biológicas, y los factores que influencian su deformación.
+	\item Los efectos biológicos de fuerzas que actúan localmente sobre tejido vivo; efectos como el crecimiento y desarrollo, o sobrecarga y lesiones.
+\end{itemize}
+
+En el presente trabajo, se va a enfocar en cuantificar y simular el comportamiento de los músculos esqueléticos. Para esto, es necesario mencionar los distintos modelos con los que se calcula la generación de fuerza en el músculo.
+
+\subsection{Modelos fenomenológicos y modelos biofísicos}
+
+Basado en el enfoque de los modelos y simulaciones musculares, la mayoría de los modelos se pueden agrupar en dos categorías: modelos fenomenológicos, y modelos biofísicos \citep{tang20093d,rohrle2012physiologically}. Los modelos fenomenológicos usan representaciones matemáticas para describir las propiedades mecánicas de los músculos esqueléticos, basados en mediciones experimentales de ellos. Uno de los modelos fenomenológicos más usado es el modelo de músculos de Hill \citep{hill1970first}.
+
+Por el contrario, los modelos biofísicos, buscan predecir la respuesta de los músculos a un estímulo determinado, considerando la fisiología subyacente de los músculos esqueléticos. Un ejemplo de modelo biofísico es la teoría de contracción muscular de Huxley, que considera la función e interacción de las fibras musculares para generar movimiento. Estos modelos se enfocan en simular el arreglo interno de las fibras musculares, lo que permite hacer una visualización de los patrones de peneación dentro del volumen de un músculo, así como un análisis más detallado de la distribución y tamaños de las fibras dentro de los músculos \citep{ng2001muscle}. Este conocimiento sería esencial para fisioterapeutas, cirujanos y ortopedistas, especialmente para programas de rehabilitación de pacientes con problemas neuromusculares. 
+
+\subsection{Actuadores de músculos basados en sistemas resorte-amortiguador}
+
+Una forma de modelar las fuerzas que se generan por los músculos es utilizando actuadores lineales cuya dirección es determinada por un segmento de línea que conecta dos miembros en los puntos de origen e inserción. Alexander \citep{alexander1990three} se refiere a los músculos como resortes en varias situaciones, particularmente cuando la longitud del tendón es relativamente larga en comparación con el músculo.
+
+En gráficas computacionales, las líneas de fuerzas se modelan como sistemas de resorte-amortiguador. Estos sistemas ya se han usado para simular animales, como peces \citep{tu1994artificial}, y serpientes \citep{miller1988motion}. La forma general de estos modelos de fuerza es el siguiente:
+
+\begin{equation}
+	f^m = k_p(l^m-l_o^m)-k_d l^m
+\end{equation}
+
+donde $l^m$ es la longitud del músculo (longitud cuando el músculo está en movimiento), $l_o^m$ es la longitud de descanso del músculo (longitud cuando el músculo está en reposo, es decir, no se está moviendo), $k_p$ es el coeficiente de rigidez, y $k_d$ es el coeficiente de amortiguación. Al utilizar coeficientes adecuados para $k_p$ y $k_d$, las frecuencias naturales de un movimiento se pueden ajustar. La longitud de descanso de un resorte $l_o^m$ se pueden cambiar a lo largo de un movimiento para proveer una longitud objetivo variable para poses con configuraciones cambiantes. Sin embargo, para modelar músculos y tendones se requiere de un modelo que tenga parámetros similares a las características de dichas estructuras. Ese modelo permitiría usar medidas empíricas para parametrizar y capturar distintas características de cualquier músculo en el cuerpo. Además, permitiría generar un gran número de movimientos sin necesidad de ajustar los diferentes parámetros. Existe un modelo basado en actuadores lineales que consiste de tres elementos que pueden ser modelados individualmente: el modelo de tres elementos de Hill \citep{hill1970first}.
+
+\subsection{Modelo de tres elementos de Hill}
+
+El modelo de tres elementos de Hill, o modelo de músculos de Hill, es un modelo fenomenológico, basado en una serie de experimentos controlados sobre músculos de rana, que modela las dependencias de fuerza-longitud y fuerza-velocidad observadas en un músculo activado. Es uno de los principales modelos usados ya que, aunque no captura todas las características de los músculos, es capaz de estimar patrones cualitativos de activación muscular, así como las propiedades mecánicas del músculo. El modelo tiene tres componentes principales: un elemento en serie (SE) que representa al tendón, un elemento en paralelo (PE) que representa los tejidos conectivos, y un elemento contráctil (CE) que representa las proteínas contráctiles \citep{biomechanics2012nordin}. La \fref{fig:hillMuscleModel} muestra el modelo de tres elementos de Hill.
+
+\begin{figure}[!ht]
+	\centering
+		\includegraphics[scale=0.8]{hillMuscleModel.png}
+	\caption[Modelo de tres elementos de Hill.]{El modelo de Hill describe la fuerza de un músculo como la suma de tres elementos, el elemento contráctil (CE), el elemento en serie (SE), y el elemento en paralelo (PE). B es la viscosidad del músculo. $a(t)$ es la señal de activación. Adaptado de \citep{lee2010survey}.}
+	\label{fig:hillMuscleModel}
+\end{figure}
+
+\subsubsection{Elemento en serie (SE)}
+
+El elemento en serie (SE) agrupa varios de los efectos de varios materiales biológicos en el músculo. Éste elemento representa principalmente a los efectos elásticos del tendón, y la elasticidad de las estructuras dentro del sarcómero; ésta última usualmente se omite ya que la elasticidad del tendón la domina. Otra propiedad del tendón que se omite de las simulaciones es su viscosidad. Esto ya que el factor de amortiguamiento que ofrece la viscosidad es despreciable.
+
+Dadas esas simplificaciones, se puede enfocar en modelar las propiedades de estrés y tensión del tendón. La tensión del tendón, o SE, se puede calcular con:
+
+\begin{equation}
+	\varepsilon^{SE} = \frac{l^{SE}-l_o^{SE}}{l_o^{SE}}
+\end{equation}
+
+donde $l^{SE}$ es la longitud del SE, $l_o^{SE}$ es la longitud de descanso, y $\varepsilon^{SE}$ se refiere a la elongación del SE. En la \fref{fig:tendonStrain} se puede ver una curva típica del comportamiento del SE.  El punto inicial, tiene una relación no lineal y se cree que es por la forma en la que las fibras de colágeno se estiran. Cuando la tensión está entre 1.4 y 4\%, la curva tiene un comportamiento lineal, hasta que alrededor de 10\% se llega a un punto de falla, donde el material se puede fallar.
+
+\begin{figure}[!ht]
+	\centering
+		\includegraphics[scale=0.8]{tendonStrain.png}
+	\caption[Curva de fuerza-tensión del SE.]{La versión normalizada de la fuerza-tensión del tendón, mostrando los puntos de Inicio, Comportamiento lineal, y Punto de falla. Adaptado de \citep{zajac1989muscle, ng2001anatomically}.}
+	\label{fig:tendonStrain}
+\end{figure}
+
+\subsubsection{Elemento en paralelo (PE)}
+
+Éste elemento representa las propiedades elásticas pasivas de los músculos, sin tener en cuenta la contracción activa del músculo. El PE representa la elasticidad pasiva de los tejidos conectivos (endomisio, perimisio, y epimisio) de los músculos. El PE es responsable del comportamiento pasivo del músculo cuando está estirado. Debido a las propiedades materiales de éstos tejidos, la tensión solo se produce cuando el PE se tensiona activamente más allá de su longitud de descanso. Se puede definir la elongación del PE con:
+
+\begin{equation}
+	\varepsilon^{PE} = \frac{l^{PE}-l_o^{PE}}{l_o^{PE}}
+\end{equation}
+
+El término $l^{PE}$ es usualmente equivalente a la longitud del vientre muscular $l^m$. 
+
+\subsubsection{Elemento contráctil (CE)}
+
+El elemento contráctil es el encargado de la generación activa de fuerza, que depende de la longitud del músculo $l^m$, y de la señal de activación que varía en el tiempo $a(t)$, que se origina del sistema nervioso central y llega hasta las unidades motoras del músculo.
+
+Al estudiar éste elemento, se pudieron descubrir dos propiedades importantes de los músculos: \textit{la propiedad de fuerza-longitud} y \textit{la propiedad de fuerza-velocidad}. Aunque estas relaciones son ampliamente usadas y reconocidas, es importante mencionar que se obtuvieron en condiciones controladas de los músculos (por ejemplo, con músculos completamente activados o con una carga constante), y un músculo in vivo tiene cargas y activaciones dinámicas.
+
+Para el caso de la propiedad de fuerza-longitud, se trabaja con un músculo completamente activado, para garantizar el reclutamiento de todas las fibras musculares. La longitud del músculo se mantiene constante, es decir, isométrica, y se puede medir la fuerza \citep{biomechanics2007herzog}. Si éste proceso se hace para diferentes longitudes, se puede generar una curva como la que se ve en la \fref{fig:forceLength}.
+
+\begin{figure}[!ht]
+	\centering
+		\includegraphics[scale=0.6]{forceLength.png}
+	\caption[Curva de fuerza-longitud.]{Se muestran las fuerzas pasiva (curva punteada), activa (curva con guiones), y total (curva sólida), que son generadas por un músculo a lo largo de su longitud. $f_o^m$ es la máxima fuerza isométrica, y $l_o$ es la longitud de descanso. Adaptado de \citep{zajac1989muscle, lee2010survey}.}
+	\label{fig:forceLength}
+\end{figure}
+
+Esa curva se ha modelado de distintas formas, siendo los segmentos de línea \citep{zajac1989muscle} los menos computacionalmente caros, además de que cada segmento de línea puede contribuir a un estado específico en el proceso de contracción dentro de los sarcómeros \citep{biomechanics2007herzog}. En general, la función de fuerza-longitud es la siguiente:
+
+\begin{equation}
+	f^{CE}(l^m) = f_o^m \Bigg[ 1 - \Bigg(\frac{l^m-l_o^m}{W} \Bigg)^2\Bigg]
+\end{equation}
+
+donde se considera que la longitud del músculo es la misma que la del elemento contráctil, para que $l^{CE} = l^m$. Los valores de $l_o^m$ se refieren a la propiedad isométrica donde la fuerza isométrica máxima, $f_o^m$ se genera. El parámetro $W$ ajusta el ancho de la curva. En la \fref{fig:forceLength} se puede ver que hay un rango limitado de operación para la generación de fuerza.
+
+Adicionalmente a la dependencia de la fuerza del músculo con su longitud, la fuerza también se influencia por la velocidad de acortamiento del músculo (ver \fref{fig:forceVelocity}). Para poder medir ésta propiedad, se mantiene una longitud isométrica que se suelta de repente para permitir el acortamiento contra una carga externa. La ecuación hiperbólica de fuerza-velocidad es la que Hill \citep{hill1970first} formuló:
+
+\begin{equation}
+	f^m = \frac{f_a^m b -  a v^m}{b + v^m}
+\end{equation}
+
+donde $v^m$ es la velocidad de acortamiento del músculo. Esta propiedad es invertible, por lo que la velocidad se puede calcular de la tensión medida:
+
+\begin{equation}
+	v^m = b \frac{f_o^m-f^m}{f^m + a}
+\end{equation}
+
+El parámetro $v_o^m$ es llamado la velocidad máxima de acortamiento y se genera cuando no hay una carga en el músculo. Los coeficientes $a$ y $b$ con llamados \textit{coeficientes de Hill}, y representan los efectos de la temperatura y el tipo de músculo, respectivamente. 
+
+\begin{figure}[!ht]
+	\centering
+		\includegraphics[scale=0.6]{forceVelocity.png}
+	\caption[Curva de fuerza-velocidad.]{La versión normalizada de la fuerza-velocidad del músculo. Se muestran los cambios de fuerza que un músculo genera contra la velocidad de contracción del músculo. $v_{max}^m$ es la velocidad máxima de acortamiento, $f_o^m$ es la máxima fuerza isométrica. Este comportamiento se puede describir con la ecuación hiperbólica de Hill.  Adaptado de \citep{zajac1989muscle, lee2010survey}.}
+	\label{fig:forceVelocity}
+\end{figure}
+
+Las propiedades anteriores fueron medidas con músculos completamente activos. Ya que una estimulación neural ocurre como un tren de pulsos, la frecuencia determina si una activación completa puede ocurrir. En frecuencias bajas, cada pulso se sigue de una contracción nerviosa. Si las contracciones ocurren en intervalos cortos de tiempo conforme aumenta la frecuencia, las contracciones se unen en un flujo continuo de producción de fuerza. Usualmente hay varios milisegundos de retraso antes de que una estimulación inicial se de y el músculo se contraiga. 
+
+Zajac \citep{zajac1989muscle} considera ese retraso al crear una ecuación diferencial de primer orden donde se relaciona el estado de activación del músculo $a(t)$, a la señal de excitación neural $u(t)$:
+
+\begin{equation}
+	a(t) + \frac{1}{\tau_{act}}(\beta + (1-\beta) u(t)) a(t) = \frac{1}{\tau_{act}} u(t)
+\end{equation}
+
+La proporción $\tau_{act}$ es una constante de tiempo cuando el músculo está completamente excitado ($u(t) = 1$). Se puede definir una constante de tiempo $\tau_{deact} = \frac{\tau_{act}}{\beta}$ cuando el músculo está desactivado ($u(t) = 0$). La constante $\beta$ es una proporción de tiempo entre la activación y desactivación de los músculos. 
+
+\subsubsection{Modelo de musculo-tendón}
+
+Habiendo descrito los elementos del modelo de Hill, se pueden combinar sus efecto en un modelo para el musculo-tendón. Se puede generar las siguientes relaciones:
+
+\begin{equation}
+	f^t = f^{SE}
+\end{equation} 
+
+\begin{equation}
+	f^m = f^{PE} + F^{CE}
+\end{equation} 
+
+\begin{equation}
+	f^{mt} = f^m = f^t
+\end{equation} 
+
+donde $f^{mt}$ es la fuerza generada desde la unidad musculo tendinosa. Ya que $l^t=l^{mt} - l^m$, esas cantidades de fuerza se pueden expresar como funciones sólo de la longitud muscular, la velocidad muscular, y su activación: $f^t(l^m), f^m(l^m, \dot{l}^m, a(t))$. Esa relación entre $l^m, \dot{l}^m$, y $a(t)$ crea un volumen donde cada isosuperficie generada en una activación fija corresponde a una superficie de restricción de fuerza-longitud-velocidad. Éste comportamiento se puede ver en la \fref{fig:forceLengthVelocityVolume}. Esa función volumétrica es la que se modela en los elementos contráctiles para generar los efectos de activación de los músculos.
+
+\begin{figure}[!ht]
+	\centering
+		\includegraphics[scale=0.6]{forceLengthVelocityVolume.png}
+	\caption[Volumen de fuerza-longitud-volumen.]{Volumen de fuerza-longitud-volumen. Adaptado de \citep{ng2001anatomically}.}
+	\label{fig:forceLengthVelocityVolume}
+\end{figure}
+
+\subsection{Modelo de Zajac}
+
+El modelo de Hill fue refinado por Zajac \citep{zajac1989muscle}, para ser un modelo sin dimensiones o ''agrupado'', que pudiera ser escalado fácilmente para representar cualquier unidad musculo-tendinosa. Los componentes de fuerza se modelan de mediciones de fibras musculares aisladas, que reflejan directamente las propiedades no lineales de los filamentos deslizantes. Mientras que el elemento en serie se agrupa con el tendón y se remueve del modelo, los efectos de la peneación se incluyen directamente en el modelo. En la \fref{fig:zajacMuscleModel} se pueden ver las adiciones que se hicieron al modelo de Hill.
+
+\begin{figure}[!ht]
+	\centering
+		\includegraphics[scale=0.6]{zajacMuscleModel.png}
+	\caption[Modelo de extendido de músculos de Zajac.]{El modelo extendido de Hill propuesto por Zajac, donde se agrega el ángulo de peneación $\alpha$ de las fibras musculares. $k^{SE}$, $k^{PE}$, y $k^t$ es la rigidez de los elementos en serie, en paralelo, y del tendón, respectivamente. $F^t$ representa la fuerza que ejerce el tendón, $l^t$ es la longitud del tendón, mientras que $l^{mt}$ es la longitud de la unidad musculo-tendinosa. $l^m \cos \alpha$ es la contribución de la longitud del músculo $l^m$ a la longitud de la unidad musculo-tendinosa, y depende de el ángulo $\alpha$. Adaptado de \citep{zajac1989muscle, lee2010survey}.}
+	\label{fig:zajacMuscleModel}
+\end{figure}
+
+En el modelo de Zajac, la longitud del músculo $l^m$, la longitud del tendón $l^t$, la fuerza muscular $f^m$, y la velocidad de acortamiento del músculo $v^m$, se normalizan, respectivamente, como:
+
+\begin{equation}
+	\dot{l}^m = \frac{l^m}{l_o^m}
+\end{equation}
+\begin{equation}
+	\dot{l}^t = \frac{l^t}{l_s^t}
+\end{equation}
+\begin{equation}
+	\dot{f}^m = \frac{f^m}{f_o^m}
+\end{equation}
+\begin{equation}
+	\dot{v}^m = \frac{v^m}{v_{max}^m}
+\end{equation}
+
+donde $l_o^m$ es la longitud óptima del músculo en donde la fuerza $f_o^m$ se desarrolla, $l_s^t$ es la longitud de descanso del tendón, $f_o^m$ es la máxima fuerza isométrica de un músculo activado, y $v_{max}^m$ es la velocidad máxima de acortamiento de las fibras musculares. La relación entre los músculos y la longitud de la unidad musculo-tendinosa es:
+
+\begin{equation}
+	\dot{l}^{mt} = \dot{l}^t + \dot{l}^m \cos( \alpha )
+\end{equation}
+
+donde $\alpha$ es el ángulo de peneación. Fuerzas normalizadas de activación de tipo activas $\dot{f}_{active}^{CE}$ y pasivas $\dot{f}^{PE}$ se pueden aproximar de las características de las curvas de fuerza-longitud y fuerza-velocidad. La producción de fuerza contráctil $\dot{f}^{CE}$ es la fuerza $\dot{f}_{active}^{CE}$ escalada por el nivel de activación $a(t)$ y la relación de fuerza-velocidad $f_v(\dot{v}^m)$.
+
+\begin{equation}
+	\dot{f}^{CE} = a(t) f_v(\dot{v}^m)\dot{f}_{active}^{CE}(\dot{l}^m)
+\end{equation}
+
+Finalmente, la fuerza total generada por la unidad musculo-tendinosa completa es:
+
+\begin{equation}
+	\dot{f}_m = (\dot{f}^{CE} + \dot{f}^{PE})\cos(\alpha)
+\end{equation}
+
+\subsection{Modelo de Huxley}
+
+Otro modelo comúnmente usado es el modelo muscular de Huxley \citep{huxley1957muscleContraction, huxley1974muscular} que se desarrolló basándose en la teoría de los filamentos deslizantes y los puentes cruzados. A diferencia del modelo de Hill que describe los comportamientos macroscópicos de los músculos, el modelo de Huxley se usa principalmente para entender las propiedades microscópicas de los elementos contráctiles del músculo. Para describir la contracción muscular, la reacción de unión de actina y miosina se expresa con:
+
+\begin{equation}
+	\frac{\mathnormal{dn}}{\mathnormal{dt}} = \frac{\partial n}{\partial t} - v(t) \frac{\partial n}{\partial x} =  (1-n)f(x)-ng(x)
+\end{equation}
+
+donde $n(x,t)$ es proporcional al número de puentes cruzados unidos con un desplazamiento $x$ en un tiempo $t$, $v(t)$ es la velocidad de contracción del sarcómero, $f(x)$ es la proporción de la unión, y $g(x)$ es la proporción de separación. El desplazamiento $x$ es la distancia entre la posición de equilibrio y la posición de unión de la miosina en el filamento de actina. El comportamiento del puente cruzado se modela utilizando un resorte con una constante de resorte $k$. La fuerza total ejercida por un músculo se calcula sumando todas las fuerzas que contribuyen a la unión de cada puente cruzado:
+
+\begin{equation}
+	F(t) = \frac{m k As(t)}{2l} \int_{-\infty}^\infty x n(x,t) dx
+\end{equation}
+
+donde $m$ es el número de puentes cruzados por unidad de volumen, $A$ es el área de sección transversal del músculo, $s(t)$ es la longitud del sarcómero, y $l$ representa la distancia entre posiciones sucesivas de uniones de miosina.
+
+\subsection{Modelo Celular de los músculos esqueléticos}
+
+El estudio de las interacciones entre diferentes componentes moleculares (como el calcio, sodio, miosina, o actina) conduce a la generación de modelos matemáticos que son descritos típicamente por ecuaciones diferenciales ordinarias de primer orden (Ordinary Differential Equations, ODEs). A escala celular, esos modelos fenomenológicos tienen que describir las interacciones de las concentraciones iónicas a nivel intra y extra celular. Los potenciales eléctricos generados por variaciones en los niveles de concentración disparan las uniones moleculares de la actina y miosina, y de esa forma influencian las propiedades mecánicas y la generación de fuerza en el músculo \citep{rohrle2010simulating, matthias20113d}.
+
+Hodgkin y Huxley \citep{hodgkin1952quantitative} formularon un primer modelo basado en experimentos con los axones de calamares gigantes. El transporte de iones a lo largo de las membranas celulares (membranas que separan el interior de las células de un ambiente exterior) se describe matemáticamente por un conjunto de ODEs. En la \fref{fig:equivalentCircuit} se puede ver un circuito eléctrico equivalente (un circuito simplificado que contiene todas las propiedades eléctricas necesarias de un circuito más complejo) de dicho modelo. El modelo de Hodgkin y Huxley está limitado a las interacciones del Sodio (Na) y el potasio (K), adicionalmente, pueden ocurrir fugas a lo largo de la membrana celular.
+
+\begin{figure}[!ht]
+	\centering
+		\includegraphics[scale=0.6]{equivalentCircuit.png}
+	\caption[Circuito eléctrico equivalente para modelar las células de los músculos.]{Circuito eléctrico equivalente para modelar las células de los músculos. $C_m$ es la capacitancia de la membrana; $I$ es la corriente del modelo, $I_{Na}, I_K$ son las corrientes iónicas para las moléculas de sodio, y potasio, respectivamente, $I_l$ es la corriente de fuga; $V_m$ es el voltaje de la membrana; $E_{Na}, E_K, El$ son las resistencias del sodio, potasio, y la resistencia de fuga, respectivamente. Adaptado de \citep{matthias20113d}.}
+	\label{fig:equivalentCircuit}
+\end{figure}
+
+El potencial transmembrana (es decir, potencial que ocurre o se presenta a través de una membrana celular) $V_m$ se encuentra en:
+
+\begin{equation}
+	C_m V_m = Q
+\end{equation}
+
+donde $C_m$ es la capacitancia de la membrana, y $Q$ es la carga eléctrica. Asumiendo que la capacitancia no cambia a lo largo del tiempo, se obtiene:
+
+\begin{equation}
+	C_m \frac{d V_m}{d t} = \frac{d}{dt} Q = I
+\end{equation}
+
+Usando la ley de Kirchhoff, se puede obtener:
+
+\begin{equation}
+	C_m \frac{d V_m}{d t} = I_{ext} - I_{Na} - I_K - I_l
+\end{equation}
+
+siendo $I_{Na}, I_K$ las corrientes iónicas para las moléculas de sodio, y potasio, respectivamente, $I_l$ la corriente de fuga, y $I_{ext}$ es la corriente de excitación (corriente necesaria para que el modelo empiece a trabajar). 
+
+\subsubsection{Modelo Bidominio}
+
+El modelo de Hodgkin-Huxley analiza la actividad eléctrica de una célula de un tejido. El enfoque más común para modelar la actividad eléctrica de un tejido biológico, es decir, la propagación de la actividad eléctrica a lo largo del tejido, es mediante el modelo Bidominio \citep{physiology2009keener, rohrle2010simulating, matthias20113d}. Mientras que a nivel celular hay una distinción entre los espacios intra y extra celulares, en el modelo bidominio estos espacios se modelan como si ocuparan el mismo espacio, haciendo que éste enfoque haga un promedio de los volúmenes que ambos espacios ocupan.
+
+Se considera que los espacios intra y extra celulares tienen diferentes campos potenciales $\phi_i$ y $\phi_e$, respectivamente, así como tensores de conductividad $\sigma_i$ y $\sigma_e$, respectivamente. El potencial transmembrana está dado por:
+
+\begin{equation}
+	V_m = \phi_i - \phi_e
+\end{equation}
+
+usando la ley de Ohm para la densidad de la corriente $j = \sigma E$, y reemplazando la fuerza del campo eléctrico $E$ por el gradiente de potencial, la densidad de corriente se puede expresar, para ambos espacios, como:
+
+\begin{equation}
+\label{eq:currentDensity}
+	j = - \sigma \nabla \phi
+\end{equation}
+
+La conservación de la corriente eléctrica requiere que el flujo de salida del espacio intracelular sea igual al flujo de entrada del espacio extracelular, y tiene que ser igual a la corriente a lo largo de la membrana que separa ambos espacios (ver \fref{fig:bidomainSpace}). Por esto, los cambios en la densidad de la corriente en el interior de la célula tienen que ser iguales a los cambios negativos de la densidad de corriente en el exterior de la célula:
+
+\begin{figure}[!ht]
+	\centering
+		\includegraphics[scale=0.8]{bidomainSpace.png}
+	\caption[Diagrama del espacio bidominio.]{Los espacios intra y extra celulares están separados por la membrana celular. La corriente transmembrana $Im$ se relaciona al cambio de densidad $j$. Adaptado de \citep{matthias20113d}.}
+	\label{fig:bidomainSpace}
+\end{figure}
+
+\begin{equation}
+\label{eq:electricCurrentConservation}
+	-\nabla \cdot j_i = \nabla \cdot j_e = A_m I_m
+\end{equation}
+
+donde $A_m$ es la proporción de superficie-volumen de la membrana celular, y $I_m$ es la corriente transmembrana. Al sustituir \ref{eq:currentDensity} en \ref{eq:electricCurrentConservation} se obtiene:
+
+\begin{equation}
+	-\nabla \cdot (\sigma_e \nabla \phi_e) = \nabla \cdot (\sigma_i \nabla \phi_i)
+\end{equation}
+
+Reescribiendo ésta ecuación en términos de $V_m$, al substraer $\nabla \cdot (\sigma_i \nabla \phi_e)$ de ambos lados de la ecuación se obtiene:
+
+\begin{equation}
+\label{eq:bidomain1}
+	-\nabla \cdot ((\sigma_i + \sigma_e)\nabla \phi_e) = \nabla \cdot (\sigma_i \nabla V_m)
+\end{equation}
+
+El flujo de la corriente a lo largo de una membrana se puede reescribir utilizando el modelo celular $I_m = C_m \frac{\partial V_m}{\partial t} + I_{ion} - I_{ext}$, siendo $I_{ion}$ es la suma de todas las corrientes iónicas que estén en el modelo, y $I_{ext}$ es la corriente de excitación, obteniéndose:
+
+\begin{equation}
+	\nabla \cdot (\sigma_i \nabla \phi_i) = A_m (C_m \frac{\partial V_m}{\partial t} + I_{ion} - I_{ext})
+\end{equation}
+
+Finalmente, $\phi_i$ se puede reemplazar por $V_m$, generando:
+
+\begin{equation}
+\label{eq:bidomain2}
+	\nabla \cdot (\sigma_i \nabla V_m) + \nabla \cdot (\sigma_i \nabla \phi_e) = A_m (C_m \frac{\partial V_m}{\partial t} + I_{ion} - I_{ext})
+\end{equation}
+
+donde $\sigma_i$ es el tensor de conductividad intracelular,  $\sigma_e$ es el tensor de conductividad extracelular, $V_m = \sigma_i - \sigma_e$ representa la diferencia en el voltaje entre los espacios intra y extra celulares (potencial transmembrana), $I_{ion}$ es la suma de las corrientes iónicas, $A_m$ es la proporción de superficie-volumen de la membrana celular, $C_m$ es la capacitancia de la membrana por unidad de área, y $I_{ext}$ es la corriente de excitación externa.
+
+Las ecuaciones \ref{eq:bidomain1} y \ref{eq:bidomain2} son las ecuaciones bidominio generales. La primera ecuación se utiliza para calcular la distribución espacial dependiente del tiempo de los campos potenciales del espacio extracelular, a partir de una distribución de potencial transmembrana determinada. La segunda ecuación es una ecuación de reacción-difusión en término del potencial transmembrana. La reacción no lineal se deriva del cálculo de $I_{ion}$ que es la suma de todas las corrientes iónicas a lo largo de la membrana de las células de un tejido. Basándose en un estímulo externo (que en el contexto de los músculos esqueléticos sirve para simular un impulso neural), las ecuaciones bidominio proveen las distribuciones de potencial transmembrana, así como las concentraciones de las interacciones de las moléculas antes, durante, y después de una contracción muscular. Debido a que esas contracciones se relacionan con las propiedades contráctiles del músculo, se pueden utilizar para describir el modelo mecánico de los músculos \citep{rohrle2010simulating}.
+
+\section{Gráficas por computadora}
+
+En ésta sección se van a detallar las principales técnicas y herramientas de gráficas computacionales que han sido utilizadas para visualizar, simular, y animar varias figuras. Éstas técnicas se pueden aplicar para representar la geometría de músculos, para animar la contracción muscular, y para deformar la forma de los tejidos cuando interactúan con otros elementos de una escena. 
+
+\subsection{Curvas y superficies paramétricas}
+
+Las curvas y superficies paramétricas agregaron flexibilidad y precisión a los sistemas de modelado, ya que estos pueden utilizarlas para representar un gran rango de elementos y objetos: desde líneas y planos, hasta círculos precisos y esferas, así como objetos complejos esculpidos con varias superficies. Esto permite que las curvas y superficies sean clave para diferentes tipos de usos: en el modelado por computadora, permiten el diseño de automóviles, aviones, zapatos, botellas, personajes animados, entre otros; en el área de gráficas vectoriales, se utilizan para modelar curvas suaves que se pueden escalar indefinidamente; en simulaciones basadas en tiempo, se pueden usar para controlar el movimiento de un objeto animado al indicar que se mueva entre dos puntos, en lugar de ir indicando pasos intermedios. Por esto, las curvas y superficies paramétricas son el estándar de varias técnicas de las gráficas computacionales, el diseño por computadora, simulaciones físicas, entre otras áreas. Una de las principales técnicas para representar curvas y superficies es la de Bezier \citep{Rogers2001}. 
+
+\subsubsection{Curvas y superficies de Bezier}
+
+Las curvas de Bezier están definidas dentro de un polígono de control como el que se puede ver en la \fref{fig:bezierCurve}. El polígono de control tiene varios puntos de control que, al moverse, ajustan la forma de la curva. 
+
+\begin{figure}[!ht]
+	\centering
+		\includegraphics[scale=0.5]{bezierCurve.png}
+	\caption[Curva de Bezier.]{Curva de Bezier y su polígono de control. Adaptado de \citep{Rogers2001}.}
+	\label{fig:bezierCurve}
+\end{figure}
+
+Matemáticamente, la curva de Bezier se puede definir por:
+
+\begin{equation}
+	P(t) = \sum_{i=0}^n B_i J_{n,i}(t) 0 \leq t \leq 1
+\end{equation}
+
+donde la función de Bezier, o Bernstein, está dada por:
+
+\begin{equation}
+	J_{n,i}(t) = \left(
+    \begin{array}{c}
+      n \\
+      i
+    \end{array}
+  \right) t^i(1-t)^{n-i}
+\end{equation}
+
+y
+
+\begin{equation}
+  \left(
+    \begin{array}{c}
+      n \\
+      i
+    \end{array}
+  \right) =  \frac{n!}{i!(n-i)!}
+\end{equation}
+
+donde $B_i$ es un arreglo que contiene los vértices en dos dimensiones del polígono de control, y $n$ es el grado de la función de Bernstein, y es uno menos que el número de puntos de control del polígono de Bezier.
+
+Las superficies de Bezier son una extensión de las curvas de Bezier; en lugar de estar definidas solamente por un parámetro $t$, las superficies se definen al hacer un mapeo de una superficie plana en coordenadas paramétricas $u, w$ a un espacio tridimensional $x,y,z$. 
+
+Matemáticamente, la superficie de Bezier se define por:
+
+\begin{equation}
+	Q(u,w) = \sum_{i=0}^n \sum_{j=0}^m B_{i,j} J_{n,i}(u) K_{m,j}(w)
+\end{equation}
+
+donde $J_{n,i}(u)$ y $K_{m,j}(w)$ son las funciones de Bernstein en las direcciones paramétricas $u$ y $w$:
+
+\begin{equation}
+	J_{n,i}(u) = \left(
+    \begin{array}{c}
+      n \\
+      i
+    \end{array}
+  \right) u^i(1-u)^{n-i}
+\end{equation}
+
+\begin{equation}
+	K_{m,j}(w) = \left(
+    \begin{array}{c}
+      m \\
+      j
+    \end{array}
+  \right) w^j(1-w)^{m-j}
+\end{equation}
+
+donde $B_{i,j}$ son los vértices en tres dimensiones del polígono de control. Los índices $n$ y $m$ son uno menos que el número de vértices en el polígono de control en las direcciones $u$ y $w$, respectivamente. Un ejemplo de una superficie de Bezier se puede ver en la \fref{fig:bezierSurface}.
+
+\begin{figure}[!ht]
+	\centering
+		\includegraphics[scale=0.5]{bezierSurface.png}
+	\caption[Superficie de Bezier.]{Superficie de Bezier y su polígono de control. Adaptado de \citep{Rogers2001}.}
+	\label{fig:bezierSurface}
+\end{figure}
+
+\subsection{Deformaciones de forma libre (FFDs)}
+
+Sederberg y Parry \citep{sederberg1986free} proponen la técnica de deformaciones de forma libre como una respuesta a las técnicas de modelado existentes basadas en superficies paramétricas. Ésta técnica se usa para modelar deformaciones en la geometría de objetos rígidos. Se basa en la idea de envolver a un objeto dentro de un cubo u otro objeto que funcione como un contenedor, y transformar el objeto dentro del contenedor conforme el contenedor se deforma. Las deformaciones de los contenedores están basadas en hiper-parches, que son análogos a las superficies paramétricas. 
+
+Varias de las ventajas de la técnica de deformaciones de forma libre se presentan a continuación:
+
+\begin{itemize}
+	\item Se pueden utilizar con varias técnicas de modelado.
+	\item La técnica funciona con distintas superficies paramétricas.
+	\item Además de aplicarse al modelado de objetos sólidos, se puede aplicar a superficies o a modelos poligonales.
+	\item Provee una indicación del grado de cambio del volumen del sólido, además de que las FFDs se pueden ajustar para poder preservar un volumen.
+	\item Las superficies y curvas paramétricas se mantienen paramétricas al utilizar FFDs. 
+\end{itemize}
+
+\subsection{Método de Elemento Finito (FEM)}
+
+Cuando se utiliza el método de elemento finito, un cuerpo se subdivide en un conjunto de dominios o elementos finitos (es decir, hexaedros o tetraedros en 3D, cuadriláteros o triángulos en 2D). Los desplazamientos y las posiciones de un elemento son aproximadas a partir de valores discretos usando funciones de interpolación:
+
+\begin{equation}
+	\Phi(x) \approx \sum_i{h_i(x)\Phi_i}
+\end{equation}
+
+donde $h_i$ es la función de interpolación para el elemento $x$ y $\Phi_i$ es un peso escalar asociado con $h_i$. Existen muchas opciones para el tipo de elemento y las funciones de interpolación. La elección depende de la geometría de los objetos, la precisión deseada, y el poder de cómputo disponible. Funciones de interpolación de un orden mayor, y elementos más complejos requieren de mayor tiempo de procesamiento por cada elemento, pero pueden generar aproximaciones más precisas \citep{fix2008analysis}. Dado un problema dinámico a resolver, se derivan ecuaciones de equilibrio en término de cantidades de interés (es decir, tensión o estrés) y se expresan como Ecuaciones Diferenciales Parciales (EDP). Estas EDP se aproximan posteriormente por el modelo de FEM. El resultado son ecuaciones algebraicas que representan sistemas lineales o no lineales. Mientras que sistemas lineales pequeños pueden resolverse con métodos sencillos (por ejemplo, eliminación Gaussiana), sistemas grandes o no lineales requieren de métodos iterativos (por ejemplo, el método de Newton) \citep{press1992numerical}.
+
+\subsection{Método de Volumen Finito (FVM)}
+
+Al igual que con FEM, los métodos de volumen finito aproximan EDP. Para la integración de variables en EDPs, integrales de volumen se convierten en integrales de superficie utilizando el teorema de divergencia. Estos términos se evalúan posteriormente como flujos sobre las superficies de cada volumen finito. Por ejemplo, para calcular la fuerza interna $f$ en un nodo $x_i$, se utiliza:
+
+\begin{equation}
+	f_i = \frac{\mathrm d}{\mathrm dt} \iiint_\Omega \rho v dx = \frac{\mathrm d}{\mathrm dt} \iint_{\vartheta\Omega} t \mathrm{d}S = \frac{\mathrm d}{\mathrm dt} \iint_{\vartheta\Omega} \sigma n \mathrm{d}S
+\end{equation}
+
+donde $\rho$ es la densidad, $v$ es la velocidad, $t$ es la tracción de la superficie sobre $\vartheta\Omega$, $\sigma$ es el tensor de estrés, y $n$ es la normal de la superficie \citep{leveque2002finite}. 
+
+\subsection{Modelos de Lattice Boltzmann (LBM)}
+
+Los modelos de Lattice Boltzman tienen la habilidad de simular fluidos con una gran variedad de comportamientos, incluyendo flujos inestables, separación de fases, evaporación, condensación, flotabilidad, e interacciones con superficies. Los LBM se basan en autómatas celulares, y en los conceptos de flujo de fluidos basados en autómatas celulares de redes de gas (Lattice Gas Celular Automata, LGCA) \citep{sukop2006lattice}.
+
+\subsubsection{LGCA}
+
+Un autómata celular es una entidad que ocupa una posición en una cuadrícula o un punto en una red, e interactúa con sus vecinos idénticos. Un autómata celular generalmente examina su propio estado y los estados de algunos de sus vecinos en un punto particular en el tiempo, y reajusta su propio estado para el siguiente paso de tiempo conforme a reglas simples. Por esto, las reglas y las condiciones iniciales y de límite determinan la evolución de el grupo de autómatas celulares en el tiempo.
+
+Los LGCA son modelos discretos basados en partículas que se mueven en una red, o lattice, de acuerdo a reglas simples con el fin de resolver las ecuaciones de Navier-Stokes de movimiento de fluidos. El modelo Frish-Hasslacher-Pomeau (FHP) es el primer modelo de LGCA que fue capaz de simular las ecuaciones en dos dimensiones de Navier-Stokes \citep{sukop2006lattice}.
+
+Este modelo está construido en una red triangular, donde los puntos de la red están separados por una unidad de red (lattice unit, $lu$) y todas las partículas tienen una velocidad: 1 lu / tiempo ($lu ts^{-1}$). En cada punto de la red $x$, pueden haber hasta 6 partículas (por sus colindancias con vecinos), una para cada una de las posibles velocidades y una para cada una de las posibles direcciones: $e_a = (\cos \pi a/3, \sin \pi a/3)$ donde $a = 1,2,\dots,6$ y $e_a$ es el vector de velocidad que apunta desde el origen (0,0) hacia la coordenada cartesiana $(\cos \pi a/3, \sin \pi a/3)$. Las variables $\textbf{n} = (n_1, n_2, \dots, n_6)$ contienen los estados de las partículas, indicando la presencia (1) o ausencia (0) de partículas moviéndose de un punto en la red $x$ a un punto vecino $x + e_a$. 
+
+La evolución del modelo FHP se realiza en dos pasos que se ejecutan en cada unidad de tiempo. El primer paso es la propagación o flujo, donde las partículas se mueven a nuevos lugares de acuerdo a sus posiciones previas y sus velocidades. El segundo paso es el de colisión y dispersión de partículas, de acuerdo a ciertas reglas de colisión.
+
+\subsubsection{Definición y ecuaciones del LBM}
+
+Los LBM simplifican los modelos previos al reducir el número de posibles posiciones espaciales de las partículas, y discretiza el tiempo para tener pasos de tiempo específicos. Las posiciones de las partículas se confinan a nodos en la red. El modelo de red para dos dimensiones se muestra en la \fref{fig:d2q19}. Ese modelo es conocido como \textit{D2Q9} ya que es bidimensional y a que tiene 9 velocidades microscópicas posibles $e_a, a=0,1,2,\dots,8$.
+
+\begin{figure}[!ht]
+	\centering
+		\includegraphics[scale=0.8]{d2q19.png}
+	\caption[Red en dos dimensiones para el LBM.]{Red en dos dimensiones, con sus 9 posibles velocidades $e_a$, donde $a = 0,1,\dots,8$, y $e_0$ denota una partícula en reposo. Adaptado de \citep{sukop2006lattice}.}
+	\label{fig:d2q19}
+\end{figure}
+
+Las magnitudes de las velocidades microscópicas $e_1$ hasta $e_4$ es de 1 unidad de red por paso de tiempo, o $1 lu ts^{-1}$, y las magnitudes de $e_5$ a $e_8$ son $\sqrt{2}$ $lu ts^{-1}$. Estas velocidades son convenientes ya que en todas sus coordenadas $x$, $y$ los valores que toman son 0 o $\pm$ 1.
+
+A ese modelo se incorpora una función de distribución de partículas $f$, que contiene 9 elementos, uno por cada dirección de las velocidades. Ésta función se puede ver como un histograma que representa una frecuencia de ocurrencia de densidades del fluido. En consecuencia, la densidad macroscópica del fluido $\rho$ está dada por:
+
+\begin{equation}
+	\rho = \sum_{a=0}^8 f_a
+\end{equation}
+
+La velocidad macroscópica $u$ es un promedio de las velocidades microscópicas $e_a$ ponderadas por las densidades $f_a$:
+
+\begin{equation}
+	u = \frac{1}{\rho} \sum_{a=0}^8 f_a e_a
+\end{equation}
+
+Ésta ecuación permite pasar de velocidades microscópicas a una velocidad macroscópica que representa el movimiento del fluido. Los siguientes pasos son el de propagación y colisión de partículas en base a la función de distribución. El enfoque más simple para la colisión es la aproximación de Bhatnagar-Gross-Krook \citep{sukop2006lattice}. Estos pasos se pueden definir con:
+
+\begin{equation}
+	f_a(x+e_a \Delta t, t + \Delta t) = f_a(x,t) - \frac{f_a(x,t) - f_a^{eq}(x,t)}{\tau}
+\end{equation}
+
+donde $f_a(x+e_a \Delta t, t + \Delta t) = f_a(x,t)$ es el término de propagación, mientras que $\frac{f_a(x,t) - f_a^{eq}(x,t)}{\tau}$ es el término de colisión. Aunque ambos términos se pueden combinar en una sola función, los pasos de propagación y colisión se tienen que separar si se van a presentar límites sólidos, ya que se presentan condiciones de rebote adicionalmente a la colisión. La colisión de las partículas del fluido se considera como una relajación hacia un equilibrio local. Este equilibrio para el modelo \textit{D2Q9} está dado por:
+
+\begin{equation}
+	f_a^{eq} = w_a \rho (x) \bigg[ 1 + 3 \frac{e_a \cdot u}{c^2} + \frac{9(e_a \cdot u)^2}{2 c^4} - \frac{3 u^2}{2 c^2} \bigg]
+\end{equation}
+
+donde los pesos $w_a$ son 4/9 para partículas en reposo $a=0$, 1/9 para $a=1,2,3,4$, y 1/36 para $a=5,6,7,8$. $c$ es la velocidad básica de la red, 1 $lu ts^{-1}$. 
+
+Es necesario definir condiciones de límite antes poder terminar de calcular las propiedades macroscópicas del fluido. En general se tiene mucha flexibilidad para definir y aplicar condiciones de límite en los LBM. De hecho, ésta característica permite simular una gran cantidad medios, como por ejemplo, medios porosos. Las dos condiciones de límite más usuales son las periódicas, y las de rebote. Las condiciones periódicas son las más simples, ya que el sistema se cierra al hacer que la salida de un eje sea la entrada de otro eje. Las condiciones de rebote son principalmente usadas en simulaciones caracterizadas por geometrías complejas. Para lograr esto, solamente se tiene que definir un nodo de la red como un obstáculo sólido y las densidades se almacenan temporalmente dentro de los sólidos para después emerger en el siguiente paso de tiempo.
+
+\subsection{Fluidos Eulerianos}
+
+La forma de un objeto se define en un \textit{espacio material}, y las coordenadas que se usan para etiquetar puntos en ese espacio se definen como \textit{coordenadas materiales} (también son conocidas como \textit{coordenadas de referencia} o, en gráficas computacionales, como \textit{coordenadas del objeto} o \textit{coordenadas de modelado}). Se denota un punto en el espacio material como \textbf{\textit{X}}. En lo que se enfoca es en cómo se mueve ese objeto, y como interactúa con otros objetos en un mundo real, es decir, en un espacio Euclidiano en tres dimensiones donde aplican las leyes de la física. Se le llama a ese espacio el \textit{espacio físico}, y a las coordenadas de un punto en ese espacio se les llama \textit{coordenadas físicas} (también conocidas como \textit{coordenadas espaciales} o, en gráficas computacionales, como \textit{coordenadas del mundo}). Se denota un punto en el espacio físico como \textbf{\textit{x}}.
+
+Un movimiento, o deformación, es un mapa, $\phi : \textbf{\textit{X}} \to \textbf{\textit{x}}$, de el espacio material al espacio físico. El gradiente de deformación se define como $\textbf{\textit{F}} = \frac{\partial \phi}{\partial \textbf{\textit{X}}} \equiv \frac{\partial \textbf{\textit{x}}}{\partial \textbf{\textit{X}}}$. Calcular \textbf{\textit{F}} es un paso indispensable para cualquier método de deformación. Para simulaciones por computadora es necesario discretizar esos espacios en alguna forma \citep{pai2014eulerian}.
+
+La mayoría de los métodos para simular sólidos deformables utilizan un enfoque Lagrangiano. Esos métodos discretizan el espacio material, es decir, una malla es fijada en el espacio material; \textbf{\textit{X}} se fija en los nodos de la malla, y la simulación calcula los valores cambiantes en el tiempo de \textbf{\textit{x}} en cada nodo. Es decir, el movimiento se rastrea usando una representación discreta de el mapeo $\phi$. Una vez que \textbf{\textit{X}} y \textbf{\textit{x}} están disponibles, se puede calcular \textbf{\textit{F}}.
+
+En contraste, los enfoques Eulerianos discretizan el espacio físico. Es decir, una malla es fijada al espacio físico; \textbf{\textit{x}} es fijado a los nodos y la simulación calcula los valores cambiantes en el tiempo de \textbf{\textit{X}} en cada nodo. Las discretizaciones Eulerianas son bastante usadas en simulaciones de fluidos, sin embargo, una diferencia importante es que para simular fluidos no es necesario reconstruir las coordenadas materiales \textbf{\textit{X}}, solo las velocidades \textbf{\textit{v}}. Para sólidos Eulerianos, se hace una advección (variación de una partícula escalar en un punto dado por el efecto de un campo vectorial; por ejemplo, el transporte de una sustancia por la corriente de un río) de las coordenadas materiales usando la velocidad para tener registro de la deformación del material. Una vez que \textbf{\textit{X}} y \textbf{\textit{x}} están disponibles, se puede calcular \textbf{\textit{F}}.
+
+Una razón para utilizar discretizaciones Eulerianas sobre Lagrangianas es que simplifica, en muchos escenarios, el manejo de restricciones. Representar precisamente la física de las deformaciones es sólo parte del problema, también se tienen que considerar las restricciones (o condiciones de límite o frontera) de las deformaciones. Para gráficas computacionales, es mucho más importante el manejo de las restricciones que la representación precisa del comportamiento del material. En muchos casos, esas restricciones se especifican en el espacio físico. Por ejemplo, un músculo se puede unir a los huesos en posiciones que son especificadas en el hueso; los nodos de la malla Euleriana se pueden posicionar considerando esa restricción. Otra razón para usar discretizaciones Eulerianas es que simplifican el contacto y manejo de colisiones entre varios objetos. La detección de contacto usualmente se hace en el espacio físico, ya que todos los objetos tienen que compartir coordenadas. Con un enfoque Euleriano se puede usar la misma malla para procesar tanto las colisiones como simulaciones físicas. Además, las técnicas Eulerianas son robustas para deformaciones de gran escala. La resolución de las mallas está ligada a las salidas del espacio físico, en lugar de la forma del objeto. Esa característica hace que usar enfoques Eulerianos sea atractivo para simular tejidos suaves, como músculos. 
+
+Sin embargo, los métodos Eulerianos tienen ciertas desventajas, como limitaciones espaciales y temporales, y disipación causada por ciertos esquemas de advección \citep{fan2013eulerian}. En general, comparado con un enfoque puramente Lagrangiano, tratar con superficies libres es más complicado, mientras que tratar con contacto y restricciones adicionales es más sencillo.
+
+\subsection{Sólidos Eulerianos}
+
+La simulación continua de materiales se centra en el mapeo entre la configuración no deformada, o material, de un objeto, y su configuración deformada, o física. Específicamente, dada una partícula en una posición \textbf{\textit{X}} en el espacio material, se desea calcular su posición física \textbf{\textit{x}}. Ésto se puede lograr al integrar la ecuación de momento, dada por:
+
+\begin{equation}
+	\rho \frac{d \textbf{v} (\textbf{\textit{X}})}{dt} = \nabla \cdot \sigma + \rho \textbf{b}
+	\label{eq:momentum}
+\end{equation}
+
+%Revisar que es el estres de cauchy
+
+para una partícula \textbf{\textit{X}}. $\rho$ es la densidad de masa de el sólido, $\textbf{v}$ es la velocidad de la partícula, $\frac{d\textbf{v}}{dt}$ es la aceleración de la partícula, $\sigma$ es el estrés de Cauchy, y $\textbf{b}$ es la aceleración debido a las fuerzas del cuerpo (como la gravedad) \citep{levin2011eulerian}. Para resolver la misma ecuación en términos Eulerianos, se requiere expresar la ecuación \ref{eq:momentum} en términos de las variables físicas \textbf{\textit{x}} en lugar de las coordenadas materiales \textbf{\textit{X}}.
+
+El punto clave para lograrlo, es que \textbf{\textit{v}} es ahora la velocidad de la partícula que está en \textbf{\textit{x}}. La velocidad, o cualquier propiedad \textit{P} registrada en \textbf{\textit{x}}, puede cambiar (es decir, tener una derivada parcial $\frac{\partial P}{\partial t}$) por dos razones: (1) debido a que las propiedades de la partícula cambian (es decir, debido a $\frac{\partial P}{\partial t}$), y (2) debido a que una nueva partícula con diferentes propiedades fluye a \textbf{\textit{x}} (debido a $\frac{\partial P}{\partial \textbf{x}} \frac{\partial \textbf{x}}{\partial t}$). Al poner éstas consideraciones en un espacio de tres dimensiones, se puede expandir $\frac{d P}{d t}$, y se puede ver que $\frac{\partial \textbf{x}}{\partial t} = \textbf{v}$. Así se puede llegar a la relación de advección:
+
+\begin{equation}
+	\frac{d P}{d t} = \frac{\partial P}{\partial t} + \textbf{v} \cdot \nabla P
+\end{equation}
+
+Normalmente, a $\frac{d P}{d t}$ se le llama la \textit{derivada material}, ya que es la derivada de \textit{P} para un punto material o una partícula. 
+
+Se obtiene la advección de la velocidad \textbf{v} de la misma manera, ya que es una propiedad material:
+
+\begin{equation}
+	\frac{d \textbf{v}}{d t} = \frac{\partial \textbf{v}}{\partial t} + \textbf{v} \cdot \nabla \textbf{v}
+\end{equation}
+
+Al sustituir la ecuación anterior en la ecuación de momento, se obtiene:
+
+\begin{equation}
+	\rho \bigg( \frac{\partial \textbf{v}}{\partial t} + \textbf{v} \cdot \nabla \textbf{v} \bigg) = \nabla \cdot \sigma + \rho \textbf{b}
+\end{equation}
+
+Al integrar esa ecuación diferencial se obtiene un campo de velocidad en el espacio a través del cual la masa del objeto va a ser adveccionada. 
+
+Para calcular \textbf{v} primero se tiene que calcular el estrés que actúa sobre el objeto. Para sólidos, esto requiere estimar el gradiente de deformación \textbf{\textit{F}}, y subsecuentemente la tensión \textbf{\textit{E}}, que son funciones tanto de \textbf{\textit{x}} como de \textbf{\textit{X}}. Las propiedades de un objeto son todas funciones de la forma $P(\textbf{X})$. Al expresar \textbf{\textit{X}} como \textbf{\textit{X}}(\textbf{\textit{x}}) se tiene acceso a las propiedades del objeto en el dominio físico, sin importar la configuración deformada.
+
+Como \textbf{\textit{X}} es una coordenada material, no cambia para un punto material. Por esto, se puede escribir:
+
+\begin{equation}
+	\frac{d \textbf{X}}{d t} = 0
+\end{equation}
+
+Al aplicar la derivada material se obtiene:
+
+\begin{equation}
+	\frac{\partial \textbf{X}}{\partial t} + \textbf{v} \cdot \nabla \textbf{X} = 0
+\end{equation}
+
+Se usa esa ecuación para adveccionar las coodenadas materiales del objeto. Esa operación de advección de coordenadas materiales es clave para los métodos de sólidos Eulerianos. Usando \textbf{X} uno siempre puede encontrar desde donde proviene, en el espacio material, una partícula de objeto en particular. Con esa información siempre se puede regresar un objeto a su forma original: ésta es una característica básica de un cuerpo elástico \citep{pai2014eulerian}.
+
+\subsection{Sólidos Eularianos-Lagrangianos}
+
+Los escenarios en los que un objeto deformable esta restringido con respecto a un objeto sólido móvil son muy comunes. A diferencia de los sólidos solamente Eulerianos que no pueden simular fácilmente esos escenarios, los sólidos Eulerianos-Lagrangianos sí son capaces de simularlos. El punto clave es que se introduce un \textit{espacio intermedio} entre el espacio material y el espacio físico, como se puede ver en la \fref{fig:intermediateSpace}.
+
+\begin{figure}
+	\centering
+		\includegraphics[scale=0.8]{intermediateSpace.png}
+	\caption[Espacios para una simulación Euleriana-Lagrangiana.]{Espacios para una simulación Euleriana-Lagrangiana. Adaptado de \citep{fan2013eulerian}.}
+		\label{fig:intermediateSpace}
+\end{figure}
+
+En un enfoque Euleriano-Lagrangiano, se discretiza el espacio intermedio. Ésta discretización es Lagrangiana para el movimiento $\phi 1$ y Euleriana para el movimiento $\phi 2$. En el caso de la \fref{fig:intermediateSpace}, hay un objeto rígido móvil sobre el cual un objeto deformable se une. $\phi 1$ es un movimiento rígido, mientras que $\phi 2$ es una deformación como se describió en la sección anterior. Una parte importante de éste enfoque es que los espacios pueden ser de diferentes dimensiones (de tres dimensiones para sólidos, de dos dimensiones para superficies, y de una dimensión para fibras), y la discretización puede consistir de nodos posicionados irregularmente. 
+
+\section{Programación paralela y concurrente}
+
+Desde hace varios años ha estado en aumento el interés en el cómputo paralelo y concurrente. Con el cambio de paradigma de los fabricantes de procesadores (Central Processing Units, CPUs) de sólo aumentar la velocidad del reloj hacia agregar varios núcleos de procesamiento a sus chips (procesadores multinúcleo), y con la introducción de el uso de tarjetas de video programables (Graphical Processing Units, GPUs), los desarrolladores de aplicaciones y sistemas se han visto en la necesidad de adaptar los paradigmas de desarrollo de aplicaciones \citep{sutter2005free} con el fin de aprovechar al máximo los recursos que tienen a su disposición. 
+
+\subsection{Concurrencia y paralelismo}
+
+En su nivel más simple, al hablar de concurrencia se hace referencia a dos o más actividades que están pasando al mismo tiempo. La concurrencia se puede encontrar como una parte natural de la vida: se puede caminar por una calle y realizar acciones con las manos, por ejemplo. Concurrencia en el desarrollo de sistemas se refiere a un sistema realizando diferentes actividades al mismo tiempo, en  lugar de secuencialmente (una después de otra); un sistema concurrente se puede decir que es paralelo si más de una tarea está activa ''físicamente'', es decir, mediante más de un procesador \citep{williams2012c}.
+
+Esto no es un concepto nuevo: los sistemas operativos multitarea permiten a una computadora ejecutar varias aplicaciones al mismo tiempo mediante una programación de la ejecución de las tareas; como los cambios de las tareas son tan rápidos, no se puede decir en que punto una tarea se suspendió y el procesador cambió a otra. Desde hace varios años, las computadoras con procesadores multinúcleo están volviéndose el estándar. A diferencia de los procesadores de un sólo núcleo, en una computadora con un procesador multinúcleo cada tarea se puede ejecutar en su propio núcleo. Ésto tiene el nombre de \textit{concurrencia en hardware} \citep{williams2012c}. En la \fref{fig:dualCore} se puede ver un escenario idealizado de una computadora con dos tareas, y como se dividen las tareas en un procesador con un sólo núcleo y en uno multinúcleo.
+
+\begin{figure}
+	\centering
+		\includegraphics[scale=0.8]{dualCore.png}
+	\caption[Enfoques distintos de concurrencia en CPUs.]{Ejecución en paralelo en un CPU con doble núcleo contra la programación de tareas en un CPU de un sólo núcleo. Adaptado de \citep{williams2012c}.}
+		\label{fig:dualCore}
+\end{figure}
+
+Cada núcleo tiene un número determinado de hilos de ejecución. Un hilo de ejecución se puede ver como un proceso que se ejecuta independientemente de otros, y que ejecuta una diferente secuencia de instrucciones. Considerando esto, hay dos enfoques para utilizar concurrencia en una aplicación: concurrencia con múltiples procesos, y concurrencia con múltiples hilos \citep{williams2012c}.
+
+\begin{itemize}
+	\item \textbf{Concurrencia con múltiples procesos}: Con éste enfoque se busca dividir la ejecución de procesos en varios hilos de ejecución que son ejecutados al mismo tiempo. Un ejemplo sería ejecutar un procesador de texto y un navegador de Internet al mismo tiempo.
+	\item \textbf{Concurrencia con múltiples hilos}: Éste enfoque busca ejecutar múltiples hilos para un sólo proceso, y dividir las instrucciones de ese proceso en los distintos hilos. Todos los hilos comparten el mismo espacio de memoria, y muchos de los datos se pueden acceder directamente desde todos los hilos. Un ejemplo sería dividir el cálculo de una aproximación de PI en varios hilos de ejecución.
+\end{itemize}
+
+Habiendo definido qué es la concurrencia, se pueden vislumbrar los principales objetivos del cómputo paralelo y concurrente: mejorar los tiempos de procesamiento de las aplicaciones de software, y hacer una separación de tareas en las aplicaciones \citep{williams2012c}.
+
+\begin{itemize}
+	\item \textbf{Mejorar los tiempos de procesamiento}: Los sistemas multiprocesadores han existido desde hace décadas (en supercomputadoras, mainframes, y servidores). Sin embargo, con la actual prevalencia de los procesadores multinúcleo en las computadoras personales, el poder de cómputo de los sistemas más recientes se percibe al ejecutar muchas tareas en paralelo. Para mejorar los tiempos de procesamiento, los desarrolladores tienen varias formas de aprovechar los diferentes núcleos y los hilos de ejecución disponibles: ya sea mediante la separación de un proceso en varias partes, y ejecutarlas en paralelo, o mediante el uso de los hilos para resolver problemas más grandes; por ejemplo, en lugar de procesar un archivo a la vez, se pueden procesar varios archivos en cada hilo de ejecución. Ésto se conoce como \textit{paralelismo de datos}.
+	\item \textbf{Separación de tareas}: Ésto se refiere a la separación de código que hace una tarea determinada en distintos hilos de ejecución. Se puede apreciar principalmente al separar distintas funcionalidades de un sistema, aunque éstas se ejecuten al mismo tiempo. Por ejemplo, se puede ver la separación de tareas en un videojuego. Un hilo de ejecución se encarga de el motor gráfico, otro de ejecutar los sonidos, y otro de el procesamiento de las acciones dentro del juego. Ésto se conoce como \textit{paralelismo de tareas}.
+\end{itemize}
+
+\subsection{Cómputo utilizando GPUs}
+
+Hasta hace unos años, las computadoras contenían solamente un procesador diseñado para ejecutar tareas generales. Desde la última década, se le ha dado importancia al uso de otros elementos de procesamiento, siendo el más prevalente el GPU. Éstos fueron originalmente diseñados para ejecutar tareas especializadas de gráficas por computadora en paralelo. Sin embargo, los GPUs se han vuelto más poderosos y se han generalizado, dejando que se ejecute cómputo en paralelo de propósito general, obteniendo mejoras considerables en desempeño y eficiencia de consumo de energía \citep{cuda2014cheng}. A éste concepto también se le conoce como GPGPU, General Purpose Graphical Processing Unit.
+
+El cómputo utilizando GPU busca utilizar tanto las GPUs como los CPUs de una computadora para mejorar el desempeño de diferentes aplicaciones mediante el uso de paralelismo de datos. A diferencia de los CPUs multinúcleo, las GPUs pueden contar con cientos de núcleos de procesamiento, y cada núcleo puede ejecutar cientos de hilos de ejecución. A pesar de ésta diferencia, las GPUs no tienen como intensión reemplazar al CPU; cada uno tiene ciertas ventajas para ciertos tipos de programas. El CPU es bueno para procesar tareas intensivas de control, mientras que el GPU es bueno para tareas intensivas de paralelización de datos, donde se requieran hacer muchos cálculos con esos datos en paralelo. Por esto, para obtener un desempeño ideal al ejecutar una aplicación, se tiene que utilizar tanto CPU como GPU, dejando el código secuencial al CPU y el código paralelo al GPU, permitiendo que las características de ambos se complementen (ver la \fref{fig:gpuCpu}). Para soportar la ejecución en conjunto de el CPU y el GPU, NVIDIA diseñó un modelo de programación llamado CUDA \citep{cuda2014cheng}. 
+
+\begin{figure}
+	\centering
+		\includegraphics[scale=0.8]{gpuCpu.png}
+	\caption[Separación de código en GPU y CPU.]{Ejecución de diferentes partes de un código en paralelo en un GPU, y en secuencia en un CPU. Adaptado de \citep{cuda2014cheng}.}
+		\label{fig:gpuCpu}
+\end{figure}
+
+\subsubsection{CUDA}
+
+CUDA, que significa Compute Unified Device Architecture, es una plataforma paralela de cómputo de propósito general y un modelo de programación que permite acceder el GPU para hacer cálculos, y poder resolver de manera eficiente problemas computacionalmente complejos. CUDA es accesible a través de librerías aceleradas con CUDA, directivas de compilador, interfaces de desarrollo de aplicaciones (API), y extensiones a lenguajes de programación como C, C++, Fortran, y Python (entre otros). El lenguaje de programación nativo de CUDA es el lenguaje C; en conjunto se le llama CUDA C.
+
+CUDA provee dos APIs para el manejo de el GPU, y la organizacion de los núcleos y sus respectivos hilos. El \textit{driver} API es un API de bajo nivel, relativamente difícil de programar, pero que provee mucho control sobre los dispositivos utilizados. El \textit{runtime} API es un API de alto nivel, implementado sobre el driver API, que provee herramientas y directivas relativamente sencillas para la programación sobre GPU. El runtime es el más usado por los desarrolladores de aplicaciones.
+
+Un programa de CUDA C consiste de una mezcla de dos partes: código anfitrión (host) que se ejecuta en el CPU, y código de dispositivo (device) que se ejecuta en el GPU. El compilador de NVIDIA CUDA, \textit{nvcc}, separa el código de host del de device al momento de compilación. El código de host es código C estándar y se compila con compiladores de C, en memoria RAM. El código device se escribe utilizando CUDA C con palabras clave específicas para definir las funciones paralelas, llamadas \textit{kernels}. El código de device se compila utilizando nvcc, utilizando memoria de video. En el proceso de vinculación, las librerías del runtime de CUDA se agregan para manejar las llamadas de los \textit{kernels} (no tiene que ver con el kernel de sistema operativo) y la manipulación explícita del GPU. Esto se puede ver en la \fref{fig:cudaCompilation}.
+
+\begin{figure}
+	\centering
+		\includegraphics[scale=0.8]{cudaCompilation.png}
+	\caption[Compilación de código de CUDA C.]{Compilación de código de CUDA C. Adaptado de \citep{cuda2014cheng}.}
+		\label{fig:cudaCompilation}
+\end{figure}
+
+
+
+
+
+
+
+
+
+
+

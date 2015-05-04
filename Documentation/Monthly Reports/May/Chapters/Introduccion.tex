@@ -1,0 +1,250 @@
+% Chapter 1
+
+\section{Introducción} % Main chapter title
+\label{Introduccion} % For referencing the chapter elsewhere, use \ref{Chapter1} 
+
+%----------------------------------------------------------------------------------------
+%\section{Simulación y animación por computadora}
+
+El término modelo se refiere a una representación de un sistema en particular. En particular, los modelos matemáticos intentan representar la realidad, o un aspecto de la realidad, al utilizar conceptos, símbolos y relaciones matemáticas. La construcción de un modelo matemático involucra la representación de objetos y procesos reales con objetos y procesos matemáticos. Normalmente, estos modelos son expresados en términos de ecuaciones, y se estudian utilizando las mismas herramientas que se aplican para resolver ecuaciones, es decir, herramientas analíticas, geométricas y computacionales.
+
+Adicional al propósito de explicar, predecir y proveer bases para tomar mediciones, los modelos se crean con fines de generar control y guía de los sistemas que modelan. Algunos ejemplos son:
+
+\begin{itemize}
+	\item Modelos para controlar la administración de alguna medicina.
+	\item Un modelo económico para representar las tasas de intereses.
+	\item Modelos mecánicos para controlar el movimiento de robots.
+	\item Modelos biomecánicos que describen el comportamiento de un ser vivo.
+\end{itemize}
+
+Cuando se crean modelos matemáticos para simular algún sistema, muchas veces se requiere de incluir una gran cantidad de detalle o de características específicas, lo que hacen que sean difíciles de estudiar utilizando herramientas matemáticas (álgebra, geometría, cálculo, etc), por lo que se requiere considerar alternativas para su estudio. En muchos casos, lo más apropiado es utilizar una simulación por computadora. En general, ya que se tiene un modelo, se utilizan las computadoras para implementar el modelo con ciertos parámetros (generar una simulación) y generar datos de salida que son evaluados y permiten generar conclusiones o tomar decisiones.
+
+Las simulaciones por computadora permiten reproducir modelos abstractos de sistemas en particular. Son bastante útiles para simular modelos matemáticos de muchos sistemas naturales en física, química y biología. También son usados para modelos económicos, psicológicos, anatómicos y varias ramas de la ingeniería. A éstas simulaciones se les llaman simulaciones numéricas. El simular los distintos modelos permite explorar y obtener nuevas percepciones de un sistema, para poder generar nuevas tecnologías, así como para estimar el desempeño de sistemas muy complejos.
+
+Una forma de simular modelos es mediante el uso de gráficas y animaciones (método usado para crear una ilusión de movimiento al desplegar una serie de imágenes en dos o tres dimensiones) generadas por computadora. A éstas se les llama simulaciones gráficas o visuales. Esto permite que se puedan analizar los datos al visualizar el comportamiento del modelo gráficamente y, de esa manera, se pueda obtener información adicional o generar ajustes a ciertas partes de la simulación o del modelo. Es importante notar que las animaciones generadas por computadora se tienen que generar una vez que los datos de los modelos se obtienen, lo que hace que sean estáticas (se vuelven los cuadros de los videos o animaciones). Una simulación gráfica sí permite dinamismo. Por esto, no se debe de confundir una animación con una simulación gráfica, ya que en ésta última se calculan y despliegan los datos en el momento. 
+
+Al hablar de animaciones por computadora, se puede pensar en imágenes caricaturescas, foto-realistas, videojuegos o películas. Sin embargo, la animación por computadora se utiliza en una gran variedad de aplicaciones e industrias: algunas relacionadas con el entretenimiento, otras para educación o investigación, todo depende del campo o la especialidad. Algunas de las áreas donde se pueden utilizar las gráficas y animaciones por computadora, y aprovecharlas en la simulación de modelos son:
+
+\begin{itemize}
+	\item \textbf{Medicina}
+Las animaciones y simulaciones médicas requieren de mucho más detalle que otras debido a que no solamente se tiene que modelar la apariencia externa de los sistemas, sino que se tiene que considerar todo lo interno que los compone (órganos, tejidos, etc). De igual manera, se tiene que considerar que los modelos tienen que ser anatómicamente correctos. Algunas de las posibles aplicaciones de simulaciones gráficas y animaciones que se pueden aprovechar son las siguientes:
+
+	\begin{itemize}
+		\item Demostración de cómo se comportan ciertas medicinas en el sistema.
+		\item Modelos interactivos de varias partes del cuerpo humano, a nivel tanto micro como macroscópico, así como del interior y el exterior. Un ejemplo se puede ver en la \fref{fig:medicalImaging}.
+		\item Interpretación de datos de un paciente con imágenes en 3D.
+		\item Creación de material didáctico para estudiantes.
+		\item Demostración de técnicas quirúrgicas representadas en pacientes modelados y representados en una simulación.
+	\end{itemize}
+
+\begin{figure}[!ht]
+	\centering
+		\includegraphics[scale=0.6]{medicalImaging.jpg}
+	\caption[Simulación médica gráfica.]{Simulación médica de sistemas del cuerpo humano \citep{medicalImaging}.}
+	\label{fig:medicalImaging}
+\end{figure}
+
+	\item \textbf{Mecánica/Robótica}
+Usar modelos y animaciones por computadora para crear gráficos virtuales de productos y diseños propuestos puede ahorrarle a las compañías mucho dinero y tiempo, al reducir costos de desarrollo debido a que al trabajar en un mundo virtual los desarrolladores pueden eliminar muchos de los problemas que normalmente requerirían pruebas físicas extensas y mucha experimentación. Cualquier cosa que se necesite probar, desde acoplamiento de engranes hasta pruebas de choque de vehículos, se pueden simular con varios parámetros y condiciones especiales. Estas simulaciones pueden ayudar a encontrar problemas potenciales mucho antes y sin la necesidad de desperdiciar tiempo, dinero y equipo físico en pruebas. En robótica, son especialmente útiles ya que simular una celda de manufactura, permite a los desarrolladores analizar el comportamiento de ésta antes de tener que invertir tiempo y dinero en la producción de la misma. Esto se conoce como programación fuera de línea. En la \fref{fig:robotOffline}, se muestra un simulador que es capaz de generar escenarios virtuales de celdas y sistemas de manufactura.
+
+\begin{figure}[!ht]
+	\centering
+		\includegraphics[scale=0.6]{robotOffline.jpg}
+	\caption[Programación fuera de línea.]{Simulador de celdas de manufactura \citep{robotOffline}.}
+	\label{fig:robotOffline}
+\end{figure}
+
+%	\item \textbf{Arquitectura}
+%Al usar modelos geométricos y simulaciones se pueden crear escenarios, terrenos, edificios y estacionamientos completos, con modelos físicos y fuerzas de la naturaleza interaccionando sobre ellos, para poder hacer pruebas de concepto y función de grandes proyectos en un tiempo corto. Esto permite que se identifiquen errores potenciales, que se ajusten varios parámetros de los edificios y que se puedan hacer pruebas de resistencia de lo que se está diseñando. Con softwares como \citep{architectureCAD}, se pueden generar maquetas interactivas que pueden ser desplegadas en cuartos de realidad virtual para mostrarse a posibles clientes o inversores.
+%
+%\begin{figure}[!ht]
+%	\centering
+%		\includegraphics[scale=0.5]{architectureCAD.jpg}
+%	\caption[CAD para arquitectura.]{ Ashampoo 3D Architecture. Software para generación de estructuras en 3D \citep{architectureCAD}.}
+%	\label{fig:architectureCAD}
+%\end{figure}
+%
+%	\item Ciencias e ingeniería
+%En éstas áreas se involucran muchos modelos teóricos de fenómenos o diseños novedosos, con el fin de entender el mundo y mejorar la forma en la cuál se interacciona con el. Algunas de las aplicaciones son:
+%
+%	\begin{itemize}
+%		\item Simulación de modelos matemáticos que intentan describir el comportamiento de un huracán o el movimiento de una galaxia.
+%		\item Animación del funcionamiento de una aeronave.
+%		\item Simulaciones y pruebas de modelos en 3D de una línea de ensamblaje.
+%		\item Simulaciones de física nuclear.
+%		\item Sistemas de simulación de física y sistemas reales con fines de enseñanza, como el que se ve en la figura \ref{fig:physicsSimulator}.
+%	\end{itemize}
+%
+%\begin{figure}[!ht]
+%	\centering
+%		\includegraphics[scale=1]{physicsSimulator.png}
+%	\caption[Newton: Simulador de física.]{Sistema para enseñanza de sistemas físicos. \citep{physicsSimulator}.}
+%	\label{fig:physicsSimulator}
+%\end{figure}
+
+	\item \textbf{Industria del entretenimiento}
+Es debido a ésta industria que las gráficas por computadora empezaron a ser conocidas por un público más amplio, principalmente debido a  las películas, videos y videojuegos que utilizan animaciones generadas por computadora. Sin embargo, las audiencias solamente ven un producto terminado y no están conscientes de todo el trabajo, diseño, simulaciones e investigación que se tiene que realizar para que un personaje animado se mueva en la pantalla.
+
+Conforme fue avanzando la sofisticación de las técnicas usadas para generar esas animaciones, también fue necesario hacerlas más eficientes, lo que implicó la necesidad de investigar y desarrollar nuevos modelos matemáticos para varios de los elementos mostrados. Cosas  como la piel de los personajes, el viento, la física de los escenarios, el movimiento del agua y la tela de las ropas, fueron generadas usando modelos matemáticos para hacer más eficiente su producción y puesta en pantalla, tanto en simulaciones interactivas como en animaciones. Esto hace que tener modelos eficientes sea de gran importancia.
+
+\end{itemize}
+
+\subsection{Modelos matemáticos para generar animaciones}
+
+Así como se pueden utilizar animaciones y gráficas por computadora para representar modelos de distintos sistemas, se pueden utilizar modelos matemáticos y físicos para generar animaciones y gráficas.
+
+Tomando como ejemplo el modelado de un cuerpo humano, los animadores primero tienen que crear una representación simplificada del esqueleto del personaje (modelo geométrico del esqueleto), donde las partes de este corresponden a huesos reales. Este tipo de modelos no sólo se utilizan para el esqueleto de los personajes, sino también para animaciones faciales mediante la creación de un modelo que se asemeja al comportamiento deseado de la cara. La computadora usualmente no renderiza el modelo en 3D directamente, sino que usa el modelo para calcular la posición y orientación correcta del personaje, que después es renderizado en una imagen. Al cambiar ciertos parámetros del modelo, se puede generar una simulación de movimiento, por ejemplo, mediante la cuál se logra que el personaje se mueva correctamente.
+
+Dependiendo de la sofisticación de los modelos, se puede generar un comportamiento tan real como se desee para las animaciones. Actualmente hay muchos investigadores trabajando en el desarrollo de modelos que sean capaces de simular un comportamiento casi real del cuerpo humano. Uno de muchos trabajos relacionados es el de \cite{terzopoulos:1990}, donde se simulan caras humanas. Un ejemplo se puede ver en la \fref{fig:faceModelling}.
+
+\begin{figure}[!ht]
+	\centering
+		\includegraphics[scale=0.6]{faceModelling.jpg}
+	\caption[Simulación física de caras.]{Modelo biomecánico de una cara humana para animaciones por computadora. \citep{terzopoulos:1990}.}
+	\label{fig:faceModelling}
+\end{figure}
+
+Existen técnicas que permiten a los animadores y desarrolladores generar animaciones más reales y de manera más sencilla, sin la necesidad de tener un modelo que sea cien por ciento correcto. Estas son el keyframing animation y la captura de movimiento (MOCAP).
+
+Keyframing animation se refiere a establecer ciertas configuraciones (posiciones y orientaciones) de las articulaciones y eslabones de los esqueletos de los personajes o para los componentes de una escena, y dejar que la computadora haga una interpolación entre ellos para generar todos los pasos intermedios, como se puede ver en la \fref{fig:keyframeAnimation}. Esto hace que el proceso de animación se agilice en cuanto a tiempo y que se obtengan los resultados que los animadores deseen. Ésta técnica se puede complementar con un modelo matemático o teórico para obtener animaciones largas y complejas.
+
+\begin{figure}[!ht]
+	\centering
+		\includegraphics[scale=1]{keyframeAnimation.jpg}
+	\caption[Ejemplo de Keyframe Animation.]{Ejemplo de keyframe animation. \citep{keyframeAnimation}.}
+	\label{fig:keyframeAnimation}
+\end{figure}
+
+A diferencia del keyframing animation, el MOCAP hace uso de datos obtenidos del mundo real. Ésta técnica necesita de personas que actúen como si fueran el personaje que quieren animar. Sus movimientos son grabados utilizando cámaras y marcadores especiales, registrando datos de la posición de los marcadores muchas veces por segundo, normalmente a 100 fps (frames per second, cuadros por segundo). La información obtenida de la grabación se puede aplicar a un modelo geométrico de un esqueleto de un personaje con el fin de que realice las mismas acciones que el actor, de manera más natural que con keyframing. Ésta técnica es usada principalmente para animaciones comerciales, como la que se puede ver en la \fref{fig:motionCapture}.
+
+\begin{figure}[!ht]
+	\centering
+		\includegraphics[scale=0.35]{motionCapture.jpg}
+	\caption[Ejemplo de captura de movimiento.]{Ejemplo de MOCAP de la empresa Rhythm and Hues. \citep{motionCapture}.}
+	\label{fig:motionCapture}
+\end{figure}
+
+Estas técnicas tienen sus ventajas y desventajas, pero, ambas han sido usadas para los movimientos de los personajes en películas y videojuegos. Las animaciones generadas con keyframing pueden producir movimientos que serían muy difíciles o casi imposibles de actuar, es decir, no son movimientos naturales o reales, mientras que el MOCAP puede reproducir movimientos muy sutiles de un actor en particular. Esto es muy útil al capturar y representar expresiones faciales, ya que cada movimiento es importante para generar emociones y el comportamiento deseado del modelo geométrico 3D.
+
+Si se combinan modelos matemáticos con las técnicas mencionadas, se pueden generar animaciones con un nivel de realismo bastante alto, con personajes creíbles y naturales. Sin embargo, esto toma mucho tiempo de pruebas y de integración a las simulaciones gráficas finales. Sería muy bueno para las industrias que usen esas técnicas, el tener esos movimientos naturales de manera automática. Es importante mencionar que en éste trabajo de tesis no se buscan hacer animaciones, sino simulaciones gráficas.
+
+\subsection{Animaciones y personajes realistas}
+
+Uno de los grandes retos en las gráficas computacionales ha sido la creación de personajes humanos que se vean y muevan con el mayor nivel de realismo posible. La industria del cine, entre otras, es la que más desarrollo en éste sentido ha tenido, habiendo desarrollado películas como ''El Expreso Polar'' \citep{polarExpress}. Una imágen de un personaje realista en dicha película se puede ver en la \fref{fig:realisticPeople}.
+
+En contraste, en varias películas, animaciones y videojuegos se utilizan personajes antropomórficos poco realistas debido a dos factores, principalmente.
+
+El primero se refiere a que generar un personaje natural y lo más real posible tiene una dificultad inherente bastante alta. Se tienen que tener modelos matemáticos que modelen correctamente a los personajes considerando la anatomía y biomecánica de un ser humano real. Estos modelos no sólo se limitan a esqueletos, sino que también se tienen que contemplar tejidos suaves y duros (tendones, músculos, arterias, piel, etc), así como los distintos movimientos que pueden tener las distintas partes del cuerpo y la relación de cada uno de ellos con todas las partes relacionadas.
+
+\begin{figure}[!ht]
+	\centering
+		\includegraphics[scale=0.8]{realisticPeople.jpg}
+	\caption[Personaje animado realista.]{Personaje animado de la película animada “The polar express”. \citep{realisticPeople}.}
+	\label{fig:realisticPeople}
+\end{figure}
+
+%Debido a la dificultad que presenta modelar los distintos sistemas del cuerpo humano, existen modelos biomecánicos que logran generar comportamientos similares de las distintas partes o sistemas, sin llegar a reproducir comportamientos reales.Un ejemplo de estos modelos es el modelo de músculos de Hill \citep{Hill:1938}. Ese es uno de los modelos biomecánicos de músculos más usados que toma en consideración tanto los componentes activos como los pasivos de la tensión de los músculos. Sin embargo, es un modelo matemáticamente simplificado y considerablemente viejo (fue desarrollado en los años 30).
+
+El segundo factor importante es el valle misterioso. Éste es una hipótesis generada en el campo de la robótica y la animación por computadora, que establece que cuando réplicas humanas se parecen y actúan casi, pero no perfectamente, como un ser humano, se genera una sensación de repulsión entre los seres humanos que lo observan. El “valle” se refiere a una depresión en una gráfica que representa el confort de los seres humanos respecto al parecido de un robot o personaje animado.
+
+En la hipótesis original, se establece que conforme la apariencia de un robot se hace cada vez más humana, un observador humano tiene una respuesta emocional crecientemente positiva y empática, hasta un punto donde la respuesta se torna en repulsión. Sin embargo, una vez que la apariencia se vuelva cada vez más humana, la respuesta se vuelve positiva de nuevo. Una gráfica donde se representa el ''valle'' se puede ver en la \fref{fig:uncannyValley}.
+
+\begin{figure}[!ht]
+	\centering
+		\includegraphics[scale=0.55]{uncannyValley.jpg}
+	\caption[Gráfica del valle misterioso.]{Gráfica que ejemplifica los efectos del valle misterioso. \citep{uncannyValley}.}
+	\label{fig:uncannyValley}
+\end{figure}
+
+Ésta es una de las principales razones por las que en las películas generadas por computadora se tengan personajes con animaciones y modelos que los hacen tener un comportamiento casi real, pero aún así presentan características caricaturescas o deformaciones irreales.
+
+Éste concepto es importante ya que se tienen que generar modelos matemáticos y geométricos que sean casi humanos para que las animaciones que se generen sean aceptadas y se tenga un sentimiento de empatía por los personajes creados. Si no se generan modelos matemáticos correctos, con técnicas que generen animaciones casi reales, las aplicaciones que se puedan generar no van a ser aceptadas. 
+
+\subsection{Modelado de figuras humanas}
+
+Para poder modelar y simular figuras humanas que sean lo más cercanos a su contraparte real, se tienen que considerar las estructuras anatómicas que definen su forma y funcionamiento. 
+
+Los músculos esqueléticos son de las estructuras más importantes del cuerpo; componen más del 50\% del cuerpo humano, y son los que generan el movimiento y ayudan a mantener la figura del mismo. El modelado computacional de músculos ha sido un tema de investigación que ha sido atacado por varias áreas, desde medicina hasta videojuegos y películas, ya que dependiendo de las necesidades de desempeño son los enfoques utilizados para su modelado. Por ejemplo, un simulador médico puede requerir un nivel de detalle más alto en cuanto a las estructuras y funciones que se modelan, mientras que una película requerirá más detalles visuales. 
+
+Para poder generar simulaciones y animaciones de músculos esqueléticos, es necesario representar de manera correcta las diferentes estructuras del cuerpo. Generar modelos de esas estructuras, que sean lo más parecidos a los que se presentan en el cuerpo humano, es un gran reto en las gráficas computacionales debido a que se requiere una reconstrucción precisa de dichas estructuras, así como de sus funciones biológicas y fisiológicas. 
+
+De manera general, los músculos esqueléticos se componen de muchas fibras que se conectan a varios puntos de los huesos mediante los tendones. Para generar un movimiento, se requiere de un estímulo eléctrico que genera una contracción en las fibras musculares, lo que temporalmente aumenta la fuerza que ejerce sobre los tendones, y los huesos relacionados.
+
+En éste trabajo de tesis, nos basaremos en los músculos esqueléticos y desarrollaremos un modelo más preciso en comparación con lo que hay actualmente para generar simulaciones por computadora dinámicas y visuales de personajes humanoides más realistas. Eso con el fin de que se pueda utilizar para desarrollar animaciones de personajes, y videojuegos, así como para simulaciones médicas que ayuden al diagnóstico y rehabilitación de los pacientes. Más adelante podrá servir para hacer robots más apegados a los seres humanos. Para validar las simulaciones, se van a utilizar datos reales de movimientos obtenidos mediante electromiografías, MOCAP, y otros sensores.
+%Realizar un modelado anatómica y biomecánicamente correcto orientado a obtener simulaciones y animaciones humanas de una alta fidelidad, que puedan utilizarse en ámbitos como la medicina, es un gran reto en las gráficas computacionales. Desde los primeros trabajos como \citep{Chadwick:1989}, investigadores han conseguido un avance considerable en ésta área al enfocar su atención en modelar biomecánicamente ciertas partes del cuerpo. En \citep{lee2006heads}, por ejemplo, los investigadores desarrollaron un modelo biomecánico del cuello y la cabeza, emulando vértebras y músculos. En \citep{lee2009comprehensive}, se modeló y simuló toda la parte superior de un cuerpo humano, considerando tejidos suaves y duros. Trabajos como \citep{McAdams:2011}, hacen ver la importancia de generar modelos más eficientes para simular humanos, ya que la investigación sirvió para el desarrollo de la piel de personajes de películas animadas. Las Figuras \ref{fig:skin1} y \ref{fig:skin2} muestran algunos de sus resultados.
+%
+%\begin{figure}[!ht]
+%	\centering
+%		\includegraphics[scale=0.3]{skin1.png}
+%	\caption[Piel y músculos simulados gráficamente.]{Personaje con piel y músculos modelados matemáticamente. \citep{McAdams:2011}.}
+%	\label{fig:skin1}
+%\end{figure}
+%
+%En base a estos trabajos, se puede ver que hay mucho avance en el desarrollo de la apariencia externa (piel, pelo, texturas,etc.) de humanos realistas. Sin embargo, hace falta el desarrollo de más trabajos donde se haga énfasis en generar movimientos y poses más realistas de los personajes.
+
+%Por otro lado, en el área de la robótica, hay mucho desarrollo de robots que tienen características humanoides. Con el paso de los años, los robots brazos manipuladores y robots humanoides, están armados mecanica y fisicamente asumiendo que el movimiento se genera desde las articulaciones, y por ello, estas incluyen motores y un mecanismo de engranes o poleas, para generar movimientos de giro con respecto al eje de cada articulación. Sin embargo, este tipo de construcciones distan mucho de ser algo parecido al funcionamiento de un ser vivo, ya que estos no se giran con respecto a un eje, sino que pueden moverse en distintos ángulos y direcciones, además de que el movimiento no se genera en las articulaciones, sino que se genera en los músculos. Actualmente, hay pocos robots que se construyen intentando emular el comportamiento de seres vivos. 
+%
+%\begin{figure}[!ht]
+%	\centering
+%		\includegraphics[scale=0.6]{skin2.png}
+%	\caption[Efectos de colisión de piel simulada gráficamente.]{ Ejemplos del efecto de colisión de la piel. \citep{McAdams:2011}.}
+%	\label{fig:skin2}
+%\end{figure}
+%
+%En cambio, en el área de las gráficas por computadora, hay muchas técnicas y herramientas que ayudan a generar las figuras, modelos geométricos y movimientos de los personajes con resultados visuales parecidos a la realidad que pueden ser procesados en tiempo real. Existen muchas herramientas que ayudan a hacer los cálculos de los movimientos de personajes basándose en modelos matemáticos dentro del área de la cinemática. También existen varios enfoques que se orientan a generar resultados realistas al simular cabellos individuales, músculos, arrugas o el comportamiento de la tela al tocar los cuerpos. Sin embargo, estos métodos también requieren de mucho procesamiento para poder generar un cuadro de una animación.
+%
+%\begin{figure}[!ht]
+%	\centering
+%		\includegraphics[scale=0.7]{muscleMovement.png}
+%	\caption[Extremidad simulada gráficamente.]{Extremidad y músculos generado con NURBS en el software Autodesk MAYA. \citep{muscleMovement}.}
+%	\label{fig:muscleMovement}
+%\end{figure}
+
+%Los modelos matemáticos surgen del estudio de varias áreas, como la biomecánica (rama de la ciencia que se encarga de aplicar los principios de la mecánica y física, para intentar modelar y predecir los comportamientos de un sistema viviente) y la cinemática (rama de la física que estudia las leyes del movimiento y cambios de posición de los cuerpos, sin tomar en cuenta las fuerzas que lo producen, limitándose al estudio de la trayectoria que toman en función del tiempo).
+
+%La cinemática es de mucha importancia para el desarrollo de modelos matemáticos debido a dos conceptos, principalmente: la cinemática directa y la cinemática inversa. La cinemática directa es una técnica que sirve para calcular la configuración (posición y orientación) de las partes de una estructura articulada, a partir de sus componentes fijos y de las transformaciones inducidas por las articulaciones de la estructura. La cinemática inversa, al contrario de la directa, usa ecuaciones y modelos matemáticos para determinar los parámetros y transformaciones de las articulaciones para generar una configuración determinada.
+%
+%La cinemática directa e inversa, permiten generar los movimientos de los personajes, así como de todos los elementos que los componen (esqueleto, músculos, piel, etc). Sin embargo, dicha matemática asume que los movimientos de los personajes se generan a partir de las articulaciones de los personajes, pero la realidad es que los seres vivos que se quieren simular no generan los movimientos de esa forma.
+
+%Los músculos son los encargados de generar y mantener los movimientos y posiciones de los seres vivos. Hay tres tipos principales de músculos en el cuerpo humano:
+%
+%\begin{itemize}
+%	\item Músculos esqueletales: Se encargan del movimiento del esqueleto, labios, pestañas y ojos. Se llaman músculos voluntarios ya que son controlados conscientemente (aunque no necesariamente nos demos cuenta de que se quiso moverlo). 
+%	\item Músculos cardiacos: Componen la mayor parte del corazón.
+%	\item Músculos suaves: Son músculos que rodean las paredes de los vasos sanguíneos y los tractos digestivos con el fin de ayudar al avance y control de fluidos.
+%\end{itemize}
+
+%Estos músculos se componen de muchas fibras que se conectan a varios puntos de los huesos. Para generar un movimiento, se requiere de un estímulo eléctrico que genera una contracción en el músculo, lo que temporalmente aumenta la fuerza que ejerce sobre los huesos relacionados. Al aumentar la frecuencia de estos estímulos, las contracciones se traslapan para producir un nivel constante de fuerza, lo que a su vez genera el movimiento. La cantidad de estímulos y las fuerzas producidas son conocidas como los niveles de activación de los músculos.
+%
+%Por lo tanto, en éste trabajo de tesis, nos basaremos en esos músculos esqueléticos y haremos un modelo matemático más preciso que lo que hay actualmente para generar simulaciones por computadora dinámicas y visuales de personajes humanoides más realistas. Eso con el fin de que se pueda utilizar para desarrollar animaciones de personajes, y videojuegos, así como para simulaciones médicas que ayuden al diagnóstico y rehabilitación de los pacientes. Más adelante podrá servir para hacer robots más apegados a los seres humanos.
+%----------------------------------------------------------------------------------------
+
+\subsection{Organización de la propuesta}
+
+La estructura del presente trabajo consiste de seis capítulos: 
+
+\begin{itemize}
+	\item \ref{Introduccion}) \textbf{Introducción}: Se habla de la simulación y animación de figuras humanas, y de su relevancia en distintas áreas, así como de la necesidad de un modelado más correcto de figuras humanoides.
+	\item \ref{MarcoTeorico}) \textbf{Marco teórico}: Se hace una revisión de varios conceptos de anatomía, biomecánica, gráficas computacionales, y cómputo paralelo y concurrente, que serán necesarios para ayudar a dar a entender el trabajo propuesto. 
+	\item \ref{EstadoDelArte}) \textbf{Estado del arte}: Se presentan los trabajos relacionados con el modelado gráfico y el control de los músculos esqueléticos del cuerpo.
+	\item \ref{PlanteamientoProblema}) \textbf{Planteamiento del problema}: Se define el problema a resolver, así como que se define la hipótesis y los objetivos que se van a estudiar.
+	\item \ref{PropuestaSolucion}) \textbf{Propuesta de solución}: Se explica cuál va a ser el enfoque para resolver el problema expuesto, así como las técnicas y metodología general a utilizar.
+	\item \ref{TrabajoRealizado}) \textbf{Trabajo Realizado}: Se habla del trabajo que se ha realizado como parte del desarrollo de ésta tesis.
+	\item \ref{PlanTrabajo}) \textbf{Plan de Trabajo}: Se describe el plan de cómo se piensa realizar la investigación con tiempos estimados para las diferentes actividades, con milestones, y resultados esperados.
+\end{itemize}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

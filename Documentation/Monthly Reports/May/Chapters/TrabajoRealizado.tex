@@ -1,0 +1,83 @@
+\chapter{Trabajo Realizado}
+\label{TrabajoRealizado}
+
+\lhead{Capítulo \ref{TrabajoRealizado}. \emph{Trabajo Realizado}}
+
+En éste capítulo se describen los avances y proyectos que han sido realizados para el desarrollo del presente trabajo de tesis.
+
+%\section{Desarrollo del marco de trabajo para generar simulaciones gráficas de músculos}
+%
+%Uno de los elementos clave del presente trabajo, son las simulaciones gráficas de los músculos. Mediante éstas, va a ser posible la visualización, aplicación sobre músculos virtuales, y prueba, de distintos modelos (físicos, matemáticos, geométricos) que se desarrollen. Usualmente, el desarrollo de simulaciones gráficas es una tarea que puede llevar mucho tiempo, aunado al hecho de que son específicas dependiendo de el fenómeno que se quiera simular. Considerando las simulaciones de músculos, va a ser necesario hacer experimentos con diferentes estructuras gráficas, así como con diferentes modelos matemáticos y físicos, con el propósito de desarrollar una simulación que cumpla los objetivos de éste trabajo. Debido a esto, se empezó a desarrollar un marco de trabajo para poder generar simulaciones gráficas en poco tiempo, con relativa facilidad, y que se puedan ajustar a las necesidades del modelo matemático o físico que se quiera aplicar a los músculos.
+%
+%El marco de trabajo propuesto consiste de los varios componentes que serán controlados por hilos de ejecución independientes. Estos son los siguientes:
+%
+%\begin{itemize}
+%	\item	\textbf{Graficador de músculos} - Éste componente es el encargado de hacer la graficación de los músculos que se van a simular. Éste componente también será el encargado de integrar los resultados de la solución de los modelos matemáticos con las diferentes estructuras gráficas que se utilicen. Es importante el uso de de shaders y GPU's para la simulación gráfica debido a que se desea obtener un nivel de detalle alto.
+%	\item	\textbf{Graficador de elementos adicionales} - Éste componente se encargará de graficar elementos extra de la escena, como planos, luces, o elementos que ayuden a la composición de la escena.
+%	\item	\textbf{Módulo de solución de funciones matemáticas} - Éste componente será el que resuelva, en tiempo real, los modelos matemáticos necesarios para el movimiento y control de los músculos que se simulen. Considerando que se van a resolver sistemas complejos, es importante el uso de GPGPU para hacer los cálculos en tiempo real.
+%	\item	\textbf{Controlador de escena} - Éste componente será el encargado de el control de los diferentes hilos de ejecución. Su tarea principal será garantizar que se mantengan en ejecución y que se restablezcan en caso de un error. También será el encargado de la rotación, posición, y orientación de cámaras, y luces, así como de el uso de dispositivos de entrada, como mouse y teclado. 
+%\end{itemize}
+%
+%A continuación se detalla el trabajo realizado en cada uno de los componentes mencionados.
+
+\section{Graficador de músculos}
+
+Para poder graficar músculos, es importante entender su estructura física, así como la forma en que esa estructura permite su movimiento y genera su forma. Después de hacer un estudio teórico de los músculos, revisando su anatomía, estructuras que los componen, y la biomecánica que permite su movimiento, se decidió que una forma de simular la forma externa de los músculos, era mediante superficies paramétricas. En específico, se decidió utilizar superficies de Bezier debido a que, a diferencia a otras superficies paramétricas, como las NURBS, se puede tener un mayor nivel de control de la superficie al agregar puntos de control. 
+
+Para el desarrollo de superficies de Bezier, una primera instancia, se decidió utilizar los métodos que generan superficies que ya están implementadas en OpenGL. Sin embargo, al empezar a realizar simulaciones con esas superficies, se observó que no se permite la generación de superficies con un gran número de puntos de control. Existen límites en cuanto a la cantidad de puntos de control de las superficies (dicho límite es en base a las tarjetas de vídeo así como el procesador donde se realicen las simulaciones; en promedio, hay un límite de 30 puntos de control), así como de segmentos de línea que se pueden calcular. De igual forma, no se encontró en el estado del arte alguna forma práctica de mejorar el cálculo de las superficie usando paralelismo con OpenMP, o CUDA. 
+
+Por esas razones, se implementó el algoritmo de las superficies de Bezier sin el uso de librerías externas. El algoritmo para su calculo está bien establecido en la literatura, por lo que se utilizó \cite{Rogers2001} como referencia para su desarrollo. Las ventajas de implementar el algoritmo son las siguientes:
+
+\begin{itemize}
+	\item Se permite el uso de un gran número de puntos de control, así como de puntos por segmento de línea. El límite ahora va a depender de la capacidad de cómputo disponible para su cálculo.
+	\item Se obtiene un mayor control de la superficie generada, ya que, a diferencia de las superficies que se generan en librerías externas como OpenGL, se pueden acceder y modificar todos los puntos de la superficie y no solamente los puntos de control.
+	\item Se pueden utilizar técnicas de cómputo paralelo para mejorar los tiempos de procesamiento de las superficies, e intentar obtener simulaciones en tiempo real.
+\end{itemize}
+
+Una simulación simple del algoritmo, desarrollada en lenguaje C++, con código secuencial, se puede ver en la figura \ref{fig:parametricSurface}. La superficie simulada tiene 25 puntos de control y 30 puntos por segmento de línea, y se ejecutaba en tiempo real. Si se aumentaban más los puntos de control o los puntos por segmento, el tiempo de procesamiento aumentaba y no se lograban simulaciones en tiempo real. 
+
+\begin{figure}[!ht]
+	\centering
+		\includegraphics[scale=0.6]{Superficie.png}
+	\caption[Simulación de superficie paramétrica.]{Simulación de una superficie paramétrica utilizando el algoritmo implementado de \cite{Rogers2001}.}
+	\label{fig:parametricSurface}
+\end{figure}
+
+El algoritmo también se desarrollo con técnicas paralelas, utilizando OpenMP para el manejo de los hilos. Una simulación del algoritmo en paralelo, ejecutada en una computadora con 4 núcleos para procesamiento, era capaz de simular, en tiempo real, superficies con 50 puntos de control y 50 puntos por segmento de línea.
+
+Ya con los algoritmos de las superficies funcionando, se desarrolló un sistema con el cual se pudieran modificar los puntos de control de las superficies, para así intentar simular la forma de un músculo. Se hicieron simulaciones de ciertos músculos utilizando una sola superficie de Bezier. Se hicieron simulaciones tanto de el algoritmo secuencial como de el algoritmo en paralelo. En la figura \ref{fig:sequentialSurface} se puede ver una simulación de una superficie utilizando el algoritmo secuencial, formada por 25 puntos de control y 30 puntos por segmento de línea, ejecutándose en un promedio de 60Hz. En la figura \ref{fig:parallelSurface} se puede ver una simulación de una superficie utilizando el algoritmo paralelo, formada por 50 puntos de control y 50 puntos por segmento de línea, también ejecutándose en un promedio de 60Hz.
+
+\begin{figure}[!htb]
+\minipage{0.5\textwidth}
+	\centering
+	\includegraphics[width=6cm, height=5cm]{superficieSecuencial.png}
+  	\caption[Superficie de Bezier secuencial.]{Simulación de una superficie de Bezier secuencial formando un músculo.}
+	\label{fig:sequentialSurface}
+\endminipage\hfill
+\minipage{0.5\textwidth}
+	\centering
+  	\includegraphics[width=6cm, height=5cm]{superficieParalela.png}
+	\caption[Superficie de Bezier en paralelo.]{Simulación de una superficie de Bezier en paralelo formando un músculo.}
+	\label{fig:parallelSurface}
+\endminipage\hfill
+\end{figure}
+
+El siguiente paso fue el desarrollo del algoritmo utilizando GPGPU para aprovechar el procesamiento en tarjetas de video, y poder mejorar el desempeño y calidad gráfica de las simulaciones. Se utilizó CUDA con C++ para el desarrollo de dicho algoritmo. Se desarrolló el algoritmo utilizando un esquema dinámico de bloques e hilos, para poder aprovechar lo más posible los núcleos de una tarjeta de video, así como para poder utilizar el código en cualquier tarjeta disponible. 
+
+Con ese método, se lograron obtener simulaciones que se ejecutaban a 60 cuadros simulando superficies con 30 puntos de control con 30 puntos por segmento de línea secuencialmente, 40 puntos de control con 60 puntos por segmento de línea en paralelo, y con la versión en CUDA, se lograron simular superficies de hasta 70 puntos de control con 200 puntos por segmento de línea.
+
+\section{Simulador de lattice Boltzmann}
+
+Se empezó a desarrollar un simulador de fluidos usando lattice Boltzmann \citep{lattice2005wolfgladrow} con el fin de posteriormente generar los sólidos Eulerianos. Para esto, se está utilizando la librería LBM-C \citep{lbmc} que resuelve la ecuación de Navier-Stokes utilizando el método de lattice Boltzmann, para acelerar el desarrollo. Ésta librería tiene implementado una resolución de fluidos en dos y tres dimensiones, y está implementado utilizando CUDA. Se planea modificar dicha librería para poder agregar restricciones de volumen y propiedades físicas de los materiales, así como el enfoque Lagrangiano para poder generar los sólidos Eulerianos de una, dos, y tres dimensiones.
+
+\section{Obtención de datos para validación}
+
+Obtener datos de electromiografías para validar los niveles de activación, que estén relacionados con datos de captura de movimiento para ver la forma de los músculos durante un movimiento determinado es algo complicado en México. No hay suficientes clínicas con el equipo necesario para obtener electromiografías, y mucho menos para hacer captura de movimientos. Se hizo el contacto, mediante el Dr. Enrique Chong del campus Estado de México del Tecnológico de Monterrey, con la Clínica Cerebro \citep{clinicaCerebro} una de las pocas clínicas en el país que tienen dicho equipo con el fin de hacer una colaboración mediante la cuál se nos proporcionen dichos datos.
+
+De igual manera, se cuenta con un sistema de captura de movimiento en el laboratorio de realidad virtual y aumentada del campus Santa Fe del Tecnológico de Monterrey, y se podrían conseguir datos de MOCAP de movimientos determinados. El problema existente con los sistemas de MOCAP es que se tiene que considerar correctamente el acomodo de las cámaras (para evitar oclusiones de los marcadores), así como la posición y cantidad de marcadores (para poder obtener la forma real del músculo). Sin embargo, existen técnicas como las propuestas por Robertinie et al. \citep{robertini2013capture}, donde se utiliza una cámara de profundidad, como un Kinect, con el fin de reconstruir de manera más precisa la forma de un brazo de manera tal que se vean más definidamente los músculos. Se cuentan con varios Kinects, así como Kinects versión 2, para poder realizar los sistemas y pruebas necesarias. Con una técnica como ésta, se podrían generar puntos de comparación de movimientos específicos.
+
+\section{Agradecimientos}
+
+Este proyecto fue aceptado como parte del programa \textit{Faculty Research Awards} \citep{facultyResearchAward} de Google. El Dr. Sergio Ruiz Loza está colaborando en el desarrollo de éste proyecto con el apoyo del programa previo. De igual manera se agradece el apoyo de la clínica CEREBRO para la obtención de datos de electromiografía y de MOCAP.
+
+

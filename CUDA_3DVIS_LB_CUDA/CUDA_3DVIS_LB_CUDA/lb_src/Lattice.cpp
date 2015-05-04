@@ -63,9 +63,6 @@ void latticed3q19::stream()
 						else if (newK <= 0) newK = _depth - 1;
 
 						iBase = iSolid*_stride + l;
-						int aux = I3D_S(_width, _height, _stride, i, j, k, l);
-						int aux2 = I3D(_width, _height, newI, newJ, newK);
-						int aux3 = aux2*_stride + l;
 						iAdvected = I3D_S(_width, _height, _stride,  newI, newJ , newK, l );
 
 						ftemp[iBase] = f[iAdvected];
