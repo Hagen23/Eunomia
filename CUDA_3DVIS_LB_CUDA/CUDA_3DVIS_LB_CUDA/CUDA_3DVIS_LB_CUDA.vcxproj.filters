@@ -17,7 +17,9 @@
     <CudaCompile Include="simpleKernelVBO.cu">
       <Filter>Source Files</Filter>
     </CudaCompile>
-    <CudaCompile Include="lb_src\Lattice_thrust.cu" />
+    <CudaCompile Include="lb_src\Lattice_thrust.cu">
+      <Filter>Source Files</Filter>
+    </CudaCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="lb_src\Lattice_thrust.h">

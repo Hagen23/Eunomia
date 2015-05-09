@@ -1,25 +1,37 @@
-﻿Build started 29/04/2015 07:19:07 p.m..
-     1>Project "C:\Hagen\DCC\Tesis\Codigo\Eunomia\Eunomia\CUDA_3DVIS_LB\CUDA_3DVIS\CUDA_3DVIS.vcxproj" on node 2 (Build target(s)).
+﻿Build started 08/05/2015 08:17:38 p. m..
+     1>Project "D:\Octavio\Tesis\Codigo\Eunomia\CUDA_3DVIS_LB\CUDA_3DVIS\CUDA_3DVIS.vcxproj" on node 2 (Build target(s)).
      1>ClCompile:
-         C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\CL.exe /c /I"C:\ProgramData\NVIDIA Corporation\CUDA Samples\v6.5\common\inc" /I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v6.5\include" /ZI /nologo /W3 /WX- /Od /Oy- /D WIN32 /D _DEBUG /D _CONSOLE /D _MBCS /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"Debug\\" /Fd"Debug\vc120.pdb" /Gd /TP /analyze- /errorReport:prompt lb_src\LatticeElement.cpp
-         LatticeElement.cpp
-     1>c:\hagen\dcc\tesis\codigo\eunomia\eunomia\cuda_3dvis_lb\cuda_3dvis\lb_src\latticeelement.h(99): warning C4244: 'return' : conversion from 'double' to 'float', possible loss of data
+         C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\CL.exe /c /I"C:\ProgramData\NVIDIA Corporation\CUDA Samples\v6.5\common\inc" /I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v6.5\include" /ZI /nologo /W3 /WX- /Od /Oy- /D WIN32 /D _DEBUG /D _CONSOLE /D _MBCS /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"Debug\\" /Fd"Debug\vc120.pdb" /Gd /TP /analyze- /errorReport:prompt main.cpp
+         main.cpp
+     1>d:\octavio\tesis\codigo\eunomia\cuda_3dvis_lb\cuda_3dvis\lb_src\latticeelement.h(99): warning C4244: 'return' : conversion from 'double' to 'float', possible loss of data
+     1>d:\octavio\tesis\codigo\eunomia\cuda_3dvis_lb\cuda_3dvis\main.cpp(135): warning C4244: 'argument' : conversion from 'double' to 'float', possible loss of data
+     1>d:\octavio\tesis\codigo\eunomia\cuda_3dvis_lb\cuda_3dvis\main.cpp(136): warning C4244: 'argument' : conversion from 'double' to 'float', possible loss of data
+     1>d:\octavio\tesis\codigo\eunomia\cuda_3dvis_lb\cuda_3dvis\main.cpp(137): warning C4244: 'argument' : conversion from 'double' to 'float', possible loss of data
+     1>d:\octavio\tesis\codigo\eunomia\cuda_3dvis_lb\cuda_3dvis\main.cpp(139): warning C4244: '=' : conversion from 'double' to 'float', possible loss of data
+     1>d:\octavio\tesis\codigo\eunomia\cuda_3dvis_lb\cuda_3dvis\main.cpp(140): warning C4244: '=' : conversion from 'double' to 'float', possible loss of data
+     1>d:\octavio\tesis\codigo\eunomia\cuda_3dvis_lb\cuda_3dvis\main.cpp(141): warning C4244: '=' : conversion from 'double' to 'float', possible loss of data
+     1>d:\octavio\tesis\codigo\eunomia\cuda_3dvis_lb\cuda_3dvis\main.cpp(149): warning C4244: 'argument' : conversion from 'double' to 'GLfloat', possible loss of data
+     1>d:\octavio\tesis\codigo\eunomia\cuda_3dvis_lb\cuda_3dvis\main.cpp(375): warning C4244: 'argument' : conversion from 'double' to 'float', possible loss of data
+     1>d:\octavio\tesis\codigo\eunomia\cuda_3dvis_lb\cuda_3dvis\main.cpp(378): warning C4244: 'argument' : conversion from 'double' to 'float', possible loss of data
        Link:
-         C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"C:\Hagen\DCC\Tesis\Codigo\Eunomia\Eunomia\CUDA_3DVIS_LB\Debug\CUDA_3DVIS_LB.exe" /INCREMENTAL /NOLOGO /LIBPATH:"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v6.5\lib\Win32" cudart.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib glew32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"C:\Hagen\DCC\Tesis\Codigo\Eunomia\Eunomia\CUDA_3DVIS_LB\Debug\CUDA_3DVIS_LB.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:\Hagen\DCC\Tesis\Codigo\Eunomia\Eunomia\CUDA_3DVIS_LB\Debug\CUDA_3DVIS_LB.lib" /MACHINE:X86 Debug\simpleKernelVBO.cu.obj
+         C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"D:\Octavio\Tesis\Codigo\Eunomia\CUDA_3DVIS_LB\Debug\CUDA_3DVIS_LB.exe" /INCREMENTAL /NOLOGO /LIBPATH:"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v6.5\lib\Win32" cudart.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib glew32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"D:\Octavio\Tesis\Codigo\Eunomia\CUDA_3DVIS_LB\Debug\CUDA_3DVIS_LB.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"D:\Octavio\Tesis\Codigo\Eunomia\CUDA_3DVIS_LB\Debug\CUDA_3DVIS_LB.lib" /MACHINE:X86 Debug\simpleKernelVBO.cu.obj
          Debug\Lattice.obj
          Debug\LatticeElement.obj
          Debug\main.obj
-         CUDA_3DVIS.vcxproj -> C:\Hagen\DCC\Tesis\Codigo\Eunomia\Eunomia\CUDA_3DVIS_LB\Debug\CUDA_3DVIS_LB.exe
+     1>LatticeElement.obj : warning LNK4099: PDB 'vc120.pdb' was not found with 'LatticeElement.obj' or at 'D:\Octavio\Tesis\Codigo\Eunomia\CUDA_3DVIS_LB\Debug\vc120.pdb'; linking object as if no debug info
+     1>Lattice.obj : warning LNK4099: PDB 'vc120.pdb' was not found with 'Lattice.obj' or at 'D:\Octavio\Tesis\Codigo\Eunomia\CUDA_3DVIS_LB\Debug\vc120.pdb'; linking object as if no debug info
+     1>simpleKernelVBO.cu.obj : warning LNK4099: PDB 'vc120.pdb' was not found with 'simpleKernelVBO.cu.obj' or at 'D:\Octavio\Tesis\Codigo\Eunomia\CUDA_3DVIS_LB\Debug\vc120.pdb'; linking object as if no debug info
+         CUDA_3DVIS.vcxproj -> D:\Octavio\Tesis\Codigo\Eunomia\CUDA_3DVIS_LB\Debug\CUDA_3DVIS_LB.exe
        PostBuildEvent:
-         echo copy "C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v6.5\bin\cudart*.dll" "C:\Hagen\DCC\Tesis\Codigo\Eunomia\Eunomia\CUDA_3DVIS_LB\Debug\"
-         copy "C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v6.5\bin\cudart*.dll" "C:\Hagen\DCC\Tesis\Codigo\Eunomia\Eunomia\CUDA_3DVIS_LB\Debug\"
+         echo copy "C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v6.5\bin\cudart*.dll" "D:\Octavio\Tesis\Codigo\Eunomia\CUDA_3DVIS_LB\Debug\"
+         copy "C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v6.5\bin\cudart*.dll" "D:\Octavio\Tesis\Codigo\Eunomia\CUDA_3DVIS_LB\Debug\"
          :VCEnd
-         copy "C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v6.5\bin\cudart*.dll" "C:\Hagen\DCC\Tesis\Codigo\Eunomia\Eunomia\CUDA_3DVIS_LB\Debug\"
+         copy "C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v6.5\bin\cudart*.dll" "D:\Octavio\Tesis\Codigo\Eunomia\CUDA_3DVIS_LB\Debug\"
          C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v6.5\bin\cudart32_65.dll
          C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v6.5\bin\cudart64_65.dll
-                 2 archivo(s) copiado(s).
-     1>Done Building Project "C:\Hagen\DCC\Tesis\Codigo\Eunomia\Eunomia\CUDA_3DVIS_LB\CUDA_3DVIS\CUDA_3DVIS.vcxproj" (Build target(s)).
+                 2 file(s) copied.
+     1>Done Building Project "D:\Octavio\Tesis\Codigo\Eunomia\CUDA_3DVIS_LB\CUDA_3DVIS\CUDA_3DVIS.vcxproj" (Build target(s)).
 
 Build succeeded.
 
-Time Elapsed 00:00:02.08
+Time Elapsed 00:00:01.36

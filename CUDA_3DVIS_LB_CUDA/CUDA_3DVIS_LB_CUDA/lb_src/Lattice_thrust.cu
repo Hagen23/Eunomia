@@ -36,7 +36,8 @@ void latticed3q19::initThrust()
 		{
 			for (unsigned int i = 0; i < _width; i++)
 			{
-				latticeIndexes_h.push_back(make_uint3(i, j, k));
+				for (unsigned int l = 0; l < 19; l++)
+					latticeIndexes_h.push_back(make_uint4(i, j, k, l));
 			}
 		}
 	}

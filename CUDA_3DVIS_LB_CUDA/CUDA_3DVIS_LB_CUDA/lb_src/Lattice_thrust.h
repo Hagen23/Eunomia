@@ -24,13 +24,13 @@ static float dot(float3 a, float3 b)
 	return a.x*b.x + a.y*b.y + a.z * b.z;
 }
 
-__device__  __constant__ float latticeWeights[19] =
-{
-	1.f / 9.f,
-	1.f / 18.f, 1.f / 18.f, 1.f / 18.f, 1.f / 18.f, 1.f / 18.f, 1.f / 18.f,
-	1.f / 36.f, 1.f / 36.f, 1.f / 36.f, 1.f / 36.f, 1.f / 36.f, 1.f / 36.f,
-	1.f / 36.f, 1.f / 36.f, 1.f / 36.f, 1.f / 36.f, 1.f / 36.f, 1.f / 36.f
-};
+//__device__  float latticeWeights[19] =
+//{
+//	1.f / 9.f,
+//	1.f / 18.f, 1.f / 18.f, 1.f / 18.f, 1.f / 18.f, 1.f / 18.f, 1.f / 18.f,
+//	1.f / 36.f, 1.f / 36.f, 1.f / 36.f, 1.f / 36.f, 1.f / 36.f, 1.f / 36.f,
+//	1.f / 36.f, 1.f / 36.f, 1.f / 36.f, 1.f / 36.f, 1.f / 36.f, 1.f / 36.f
+//};
 
 __device__ __constant__ float3 speedDirection[19] =
 {
@@ -59,7 +59,7 @@ struct latticeStream
 	}
 
 	__device__
-	void operator()(uint3 t)
+	void operator()(uint4 t)
 	{
 		unsigned int iSolid, iBase, iAdvected;
 		unsigned int newI, newJ, newK;
@@ -69,11 +69,11 @@ struct latticeStream
 		if (solid[iSolid] == 0)
 		{
 			//#pragma unroll
-			for (int l = 0; l < 19; l++)
-			{
-				newI = (unsigned int)(t.x + speedDirection[l].x);
-				newJ = (unsigned int)(t.y + speedDirection[l].y);
-				newK = (unsigned int)(t.z + speedDirection[l].z);
+			/*for (int l = 0; l < 19; l++)
+			{*/
+				newI = (unsigned int)(t.x + speedDirection[t.w].x);
+				newJ = (unsigned int)(t.y + speedDirection[t.w].y);
+				newK = (unsigned int)(t.z + speedDirection[t.w].z);
 
 				//Checking for exit boundaries
 				if (newI >(width - 1)) newI = 0;
@@ -85,11 +85,11 @@ struct latticeStream
 				if (newK > (depth - 1)) newK = 0;
 				else if (newK <= 0) newK = depth - 1;
 
-				iBase = iSolid*stride + l;
-				iAdvected = I3D_S(width, height, stride, newI, newJ, newK, l);
+				iBase = iSolid*stride + t.w;
+				iAdvected = I3D_S(width, height, stride, newI, newJ, newK, t.w);
 
 				ftemp[iBase] = f[iAdvected];
-			}
+			//}
 		}
 
 		// We will have to copy the ftemp to f in host using thrust::copy before launching collide
@@ -106,12 +106,18 @@ struct latticeCollide
 	unsigned int	width, height, stride;
 	unsigned int	*solid;
 
+	float latticeWeights[19];
+
 	latticeCollide(	float* _f, 
 					float3* _velocityVector,
 					unsigned int _width, unsigned int _height, unsigned int _stride, float _tau, unsigned int *_solid):
 					f(_f), velocityVector(_velocityVector), width(_width), height(_height), stride(_stride), tau(_tau), solid(_solid)
 	{
 		cudaMalloc((void**)&feq, sizeof(float)*stride);
+
+		for (int i = 0; i < 19; i++)
+			latticeWeights[i] = 1.f / 10.f;
+
 	}
 
 	__device__
@@ -180,7 +186,7 @@ struct latticeCollide
 	}
 
 	__device__
-	void operator()(uint3 t)
+	void operator()(uint4 t)
 	{
 		int iBase = 0;
 		int i0 = I3D(width, height, t.x, t.y, t.z);
@@ -191,11 +197,11 @@ struct latticeCollide
 			calculateEquilibriumFunction(i0);
 
 			//#pragma unroll
-			for (int l = 0; l < 19; l++)
-			{
-				iBase = i0 * stride + l;
-				f[iBase] = f[iBase] - (f[iBase] - feq[l]) / tau;
-			}
+			/*for (int l = 0; l < 19; l++)
+			{*/
+				iBase = i0 * stride + t.w;
+				f[iBase] = f[iBase] - (f[iBase] - feq[t.w]) / tau;
+			//}
 		}
 		else
 			solid_BC(i0);
@@ -208,16 +214,21 @@ struct latticeInEq
 	float3			inVector;
 	float			ro, c;
 	unsigned int	width, height, stride;
+	
+	float latticeWeights[19];
 
 	latticeInEq(float* _f, float *_ftemp, float3 _inVector,
 		unsigned int _width, unsigned int _height, unsigned int _stride, float _ro, float _c) :
 		f(_f), ftemp(_ftemp), inVector(_inVector),
 		width(_width), height(_height), stride(_stride), ro(_ro), c(_c)
 	{
+
+		for (int i = 0; i < 19; i++)
+			latticeWeights[i] = 1.f / 10.f;
 	}
 
 	__device__
-	void operator()(uint3 t)
+	void operator()(uint4 t)
 	{
 		float w;
 		float eiU = 0;	// Dot product between speed direction and velocity
@@ -228,16 +239,16 @@ struct latticeInEq
 		unsigned int index = I3D(width, height, t.x, t.y, t.z);
 
 		//#pragma unroll
-		for (unsigned int i = 0; i<stride; i++)
-		{
-			w = latticeWeights[i];
-			eiU = dot(speedDirection[i], inVector);
+		/*for (unsigned int i = 0; i<stride; i++)
+		{*/
+			w = latticeWeights[t.w];
+			eiU = dot(speedDirection[t.w], inVector);
 			eiUsq = eiU * eiU;
 
-			iBase = index*stride + i;
+			iBase = index*stride + t.w;
 			//ftemp[i] = f[i] = w * ro * ( 1 + 3 * (eiU) + 4.5 * (eiUsq) -1.5 * (uSq));
 			ftemp[iBase] = f[iBase] = w * ro * (1.f + (eiU) / (c*c) + (eiUsq) / (2 * c * c * c * c) - (uSq) / (2 * c * c));
-		}
+		//}
 	}
 };
 
@@ -250,8 +261,8 @@ private:
 	float									_tau, _c;
 
 	// Stores the i, j, k, indexes
-	thrust::host_vector<uint3>				latticeIndexes_h;
-	thrust::device_vector<uint3>			latticeIndexes_d;
+	thrust::host_vector<uint4>				latticeIndexes_h;
+	thrust::device_vector<uint4>			latticeIndexes_d;
 	
 	//Stores whether the lattice element is solid or not
 	thrust::device_vector<unsigned int>		latticeSolidIndexes_d;
