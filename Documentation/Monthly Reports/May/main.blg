@@ -1,12 +1,8 @@
 This is BibTeX, Version 0.99dThe top-level auxiliary file: main.aux
 The style file: unsrtnat.bst
 Database file #1: Bibliography.bib
-I was expecting a `,' or a `}'---line 1221 of file Bibliography.bib
- :  The 
- :      Database Center for Life Science licensed. BodyParts3D/Anatomography
-I'm skipping whatever remains of this entry
 Name 3 in "Lee, Dongwoon and Glueck, Michael and Khan, and Fiume, Eugene and Jackson, Ken" has a comma at the end for entry lee2010survey
 while executing---line 1315 of file unsrtnat.bst
 Name 3 in "Lee, Dongwoon and Glueck, Michael and Khan, and Fiume, Eugene and Jackson, Ken" has a comma at the end for entry lee2010survey
 while executing---line 1315 of file unsrtnat.bst
-(There were 3 error messages)
+(There were 2 error messages)

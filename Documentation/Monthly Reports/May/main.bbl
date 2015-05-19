@@ -1,4 +1,4 @@
-\begin{thebibliography}{9}
+\begin{thebibliography}{11}
 \providecommand{\natexlab}[1]{#1}
 \providecommand{\url}[1]{\texttt{#1}}
 \expandafter\ifx\csname urlstyle\endcsname\relax
@@ -58,11 +58,23 @@ Ye~Fan, Joshua Litven, and Dinesh~K Pai.
 \newblock \emph{ACM Transactions on Graphics (TOG)}, 33\penalty0 (4):\penalty0
   152, 2014.
 
-\bibitem[of~Medicine(2003)]{visibleHumanProject}
-U.S. National~Library of~Medicine.
-\newblock The visible human project.
-\newblock \url{http://www.nlm.nih.gov/research/visible/visible_human.html},
-  2003.
-\newblock Accesado: 2015-02-04.
+\bibitem[Mitsuhashi et~al.(2009)Mitsuhashi, Fujieda, Tamura, Kawamoto, Takagi,
+  and Okubo]{mitsuhashi2009bodyparts3d}
+Nobutaka Mitsuhashi, Kaori Fujieda, Takuro Tamura, Shoko Kawamoto, Toshihisa
+  Takagi, and Kousaku Okubo.
+\newblock Bodyparts3d: 3d structure database for anatomical concepts.
+\newblock \emph{Nucleic acids research}, 37\penalty0 (suppl 1):\penalty0
+  D782--D785, 2009.
+
+\bibitem[for Life~Science(2015)]{DBCLS}
+Database~Center for Life~Science.
+\newblock Database center for life science.
+\newblock \url{http://dbcls.rois.ac.jp/en}, 2015.
+
+\bibitem[Sukop and Thorne~Jr(2006)]{sukop2006lattice}
+MC~Sukop and DT~Thorne~Jr.
+\newblock Lattice boltzmann modeling: An introduction for geoscientists and
+  engineers.
+\newblock \emph{ISBN 3540279814. URL}, 29, 2006.
 
 \end{thebibliography}
