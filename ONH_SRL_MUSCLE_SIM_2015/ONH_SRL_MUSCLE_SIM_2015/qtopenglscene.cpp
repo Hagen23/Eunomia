@@ -20,22 +20,39 @@ int QtOpenGLScene::initialize()
 	//modelname = "assets/spider.obj";
 	//modelname = "assets/testmixed.obj";
 	//modelname = "assets/WusonOBJ.obj";
+	
 	modelname = "assets/arm.obj";
+	//modelname = "assets/arm/OTHER_MUSCLES.obj";
+	//modelname = "assets/arm/ANCONEUS.obj";
+	axesname = "assets/arm/axes.obj";
 
 	string basepath = StringUtils::getBasePath(modelname);
 	tex_manager = new TextureManager(basepath);
-	assimp_manager = new AssimpManager(modelname);
-
-	if (!assimp_manager->Import3DFromFile())
+	
+	model_manager = new AssimpManager(modelname);
+	if (!model_manager->Import3DFromFile())
 	{
 		return 3;
 	}
-	if (!tex_manager->LoadGLTextures(assimp_manager->getScene()))
+	if (!tex_manager->LoadGLTextures(model_manager->getScene()))
 	{
 		return 4;
 	}
+
+	axes_manager = new AssimpManager(axesname);
+	if (!axes_manager->Import3DFromFile())
+	{
+		return 3;
+	}
+	if (!tex_manager->LoadGLTextures(axes_manager->getScene()))
+	{
+		return 4;
+	}
+
 	prepareShaderProgram();
-	genVAOsAndUniformBuffer(assimp_manager->getScene());
+	genVAOsAndUniformBuffer(model_manager->getScene(), model_meshes);
+	genVAOsAndUniformBuffer(axes_manager->getScene(), axes_meshes);
+
 	mShaderProgram.bind();
 	texUnit = mShaderProgram.uniformLocation("texUnit");
 	return 0;
@@ -46,11 +63,11 @@ void QtOpenGLScene::update(float t)
     Q_UNUSED(t);
 }
 
-void QtOpenGLScene::render(int rotModelX, int rotModelY, int rotModelZ, int posCamX, int posCamY, int posCamZ, int fovY)
+void QtOpenGLScene::render(int rotModelX, int rotModelY, int rotModelZ, int posCamX, int posCamY, int posCamZ, int fovY, int opacity)
 {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
-	renderScene(rotModelX, rotModelY, rotModelZ, posCamX, posCamY, posCamZ, fovY);
+	glClearColor(30.0f / 255.0f, 30.0f / 255.0f, 30.0f / 255.0f, 1.0f);
+	renderScene(rotModelX, rotModelY, rotModelZ, posCamX, posCamY, posCamZ, fovY, opacity);
 }
 
 void QtOpenGLScene::resize(int width, int height)
@@ -100,7 +117,7 @@ void QtOpenGLScene::color4_to_float4(const aiColor4D *c, float f[4])
 	f[3] = c->a;
 }
 
-void QtOpenGLScene::genVAOsAndUniformBuffer(const aiScene* sc)
+void QtOpenGLScene::genVAOsAndUniformBuffer(const aiScene* sc, vector<AssimpMesh>&	meshes)
 {
 	// For each mesh
 	for (unsigned int n = 0; n < sc->mNumMeshes; ++n)
@@ -111,6 +128,8 @@ void QtOpenGLScene::genVAOsAndUniformBuffer(const aiScene* sc)
 		aMesh.mVertexTextureBuffer = QOpenGLBuffer(QOpenGLBuffer::VertexBuffer);
 		aMesh.mFaceIndicesBuffer = QOpenGLBuffer(QOpenGLBuffer::IndexBuffer);
 		const aiMesh* mesh = sc->mMeshes[n];
+
+		qDebug() << "LOADING MESH: " << QString(mesh->mName.C_Str());
 
 		// create array with faces
 		// have to convert from Assimp format to array
@@ -183,6 +202,7 @@ void QtOpenGLScene::genVAOsAndUniformBuffer(const aiScene* sc)
 
 		// create material uniform buffer
 		aiMaterial *mtl = sc->mMaterials[mesh->mMaterialIndex];
+		
 
 		aiString texPath;	//contains filename of texture
 		if (AI_SUCCESS == mtl->GetTexture(aiTextureType_DIFFUSE, 0, &texPath))
@@ -195,15 +215,24 @@ void QtOpenGLScene::genVAOsAndUniformBuffer(const aiScene* sc)
 		else
 			aMesh.material.texCount = 0;
 
+		aiString name;
+		mtl->Get(AI_MATKEY_NAME, name);
+		qDebug() << "MATERIAL: " << name.C_Str();
+
 		float c[4];
 		set_float4(c, 0.8f, 0.8f, 0.8f, 1.0f);
 		aiColor4D diffuse;
 		if (AI_SUCCESS == aiGetMaterialColor(mtl, AI_MATKEY_COLOR_DIFFUSE, &diffuse))
 			color4_to_float4(&diffuse, c);
+		memcpy(aMesh.material.diffuse, c, sizeof(c));
 
-		//if (AI_SUCCESS == aiGetMaterialColor(mtl, AI_MATKEY_COLOR_TRANSPARENT), &)
-		//	memcpy(aMat.diffuse, c, sizeof(c));
-
+		float opacity;
+		if (AI_SUCCESS == aiGetMaterialFloat(mtl, AI_MATKEY_OPACITY, &opacity))
+		{
+			qDebug() << "OPACITY =" << opacity;
+			aMesh.material.opacity = opacity;
+		}
+		
 		set_float4(c, 0.2f, 0.2f, 0.2f, 1.0f);
 		aiColor4D ambient;
 		if (AI_SUCCESS == aiGetMaterialColor(mtl, AI_MATKEY_COLOR_AMBIENT, &ambient))
@@ -228,7 +257,7 @@ void QtOpenGLScene::genVAOsAndUniformBuffer(const aiScene* sc)
 		aMesh.material.shininess = shininess;
 
 		aMesh.pack();
-		myMeshes.push_back(aMesh);
+		meshes.push_back(aMesh);
 	}
 	glCheckError();
 }
@@ -294,7 +323,7 @@ void QtOpenGLScene::setCamera(float posX, float posY, float posZ, float lookAtX,
 	mShaderProgram.setUniformValue("viewMatrix", vm.transposed());
 }
 
-void QtOpenGLScene::recursive_render(const aiScene *sc, const aiNode* nd)
+void QtOpenGLScene::recursive_render(const aiScene *sc, const aiNode* nd, vector<AssimpMesh>& meshes)
 {
 	// Get node transformation matrix
 	aiMatrix4x4 m = nd->mTransformation;
@@ -310,28 +339,31 @@ void QtOpenGLScene::recursive_render(const aiScene *sc, const aiNode* nd)
 	for (unsigned int n = 0; n < nd->mNumMeshes; ++n)
 	{
 		// bind material uniform
-		mShaderProgram.setUniformValue("material", QMatrix4x4(myMeshes[nd->mMeshes[n]].material.material));
-		mShaderProgram.setUniformValue("texCount", (GLfloat)myMeshes[nd->mMeshes[n]].material.texCount);
-		mShaderProgram.setUniformValue("shininess", myMeshes[nd->mMeshes[n]].material.shininess);
+		mShaderProgram.setUniformValue("material", meshes[nd->mMeshes[n]].material.material);
+		mShaderProgram.setUniformValue("texCount", (GLfloat)meshes[nd->mMeshes[n]].material.texCount);
+		mShaderProgram.setUniformValue("shininess", meshes[nd->mMeshes[n]].material.shininess);
+		float op = meshes[nd->mMeshes[n]].material.opacity;
+		if ( op < 1.0f ) mShaderProgram.setUniformValue("opacity", opacity * op);
+		else mShaderProgram.setUniformValue("opacity", op);
 		// bind texture
-		glBindTexture(GL_TEXTURE_2D, myMeshes[nd->mMeshes[n]].texIndex);
+		glBindTexture(GL_TEXTURE_2D, meshes[nd->mMeshes[n]].texIndex);
 		// bind VAO
-		myMeshes[nd->mMeshes[n]].mVAO->bind();
+		meshes[nd->mMeshes[n]].mVAO->bind();
 		// draw
-		glDrawElements(GL_TRIANGLES, myMeshes[nd->mMeshes[n]].numFaces * 3, GL_UNSIGNED_INT, 0);
-		//myMeshes[nd->mMeshes[n]].mVAO->release();
+		glDrawElements(GL_TRIANGLES, meshes[nd->mMeshes[n]].numFaces * 3, GL_UNSIGNED_INT, 0);
+		//model_meshes[nd->mMeshes[n]].mVAO->release();
 		glCheckError();
 	}
 
 	// draw all children
 	for (unsigned int n = 0; n < nd->mNumChildren; ++n)
 	{
-		recursive_render(sc, nd->mChildren[n]);
+		recursive_render(sc, nd->mChildren[n], meshes);
 	}
 	popMatrix();
 }
 
-void QtOpenGLScene::renderScene(int rotModelX, int rotModelY, int rotModelZ, int posCamX, int posCamY, int posCamZ, int _fovY)
+void QtOpenGLScene::renderScene(int rotModelX, int rotModelY, int rotModelZ, int posCamX, int posCamY, int posCamZ, int _fovY, int _opacity)
 {
 	// Use our shader:
 	mShaderProgram.bind();
@@ -344,8 +376,24 @@ void QtOpenGLScene::renderScene(int rotModelX, int rotModelY, int rotModelZ, int
 	setCamera(camX, camY, camZ, 0, 0, 0);
 	// Set the model matrix to the identity Matrix:
 	modelMatrix = glm::mat4(1.0);
+	opacity = ((float)_opacity / 100.0f);
+	
+
 	// Sets the model matrix to a scale matrix so that the model fits in the window:
-	scale(assimp_manager->getScaleFactor(), assimp_manager->getScaleFactor(), assimp_manager->getScaleFactor());
+	scale(model_manager->getScaleFactor(), model_manager->getScaleFactor(), model_manager->getScaleFactor());
+	// Rotate the model:
+	//rotate((float)rotModelX, 1.0f, 0.0f, 0.0f);
+	//rotate((float)rotModelY, 0.0f, 1.0f, 0.0f);
+	//rotate((float)rotModelZ, 0.0f, 0.0f, 1.0f);
+	// We are only going to use texture unit 0.
+	// Unfortunately samplers can't reside in uniform blocks
+	// so we have set this uniform separately:
+	mShaderProgram.setUniformValue(texUnit, 0);
+	recursive_render(axes_manager->getScene(), axes_manager->getScene()->mRootNode, axes_meshes);
+
+
+	// Sets the model matrix to a scale matrix so that the model fits in the window:
+	//scale(model_manager->getScaleFactor(), model_manager->getScaleFactor(), model_manager->getScaleFactor());
 	// Rotate the model:
 	rotate((float)rotModelX, 1.0f, 0.0f, 0.0f);
 	rotate((float)rotModelY, 0.0f, 1.0f, 0.0f);
@@ -353,8 +401,9 @@ void QtOpenGLScene::renderScene(int rotModelX, int rotModelY, int rotModelZ, int
 	// We are only going to use texture unit 0.
 	// Unfortunately samplers can't reside in uniform blocks
 	// so we have set this uniform separately:
-	mShaderProgram.setUniformValue(texUnit, 0);
-	recursive_render(assimp_manager->getScene(), assimp_manager->getScene()->mRootNode);
+	//mShaderProgram.setUniformValue(texUnit, 0);
+	recursive_render(model_manager->getScene(), model_manager->getScene()->mRootNode, model_meshes);
+	
 	// FPS computation and display:
 	frame++;
 }

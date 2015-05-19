@@ -13,11 +13,8 @@ public:
 	QOpenGLContext* context() const { return mContext; }
 
 	virtual int initialize() = 0;
-
 	virtual void update(float t) = 0;
-
-	virtual void render(int rotModelX, int rotModelY, int rotModelZ, int posCamX, int posCamY, int posCamZ, int fovY) = 0;
-
+	virtual void render(int rotModelX, int rotModelY, int rotModelZ, int posCamX, int posCamY, int posCamZ, int fovY, int opacity) = 0;
 	virtual void resize(int width, int height) = 0;
 
 protected:

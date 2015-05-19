@@ -1,58 +1,58 @@
-newmtl lambert2SG
+newmtl arm:lambert2SG
 illum 4
-Kd 0.00 0.00 0.00
-Ka 0.00 0.00 0.00
+Kd 1.00 1.00 1.00
+Ka 0.10 0.10 0.10
 Tf 1.00 1.00 1.00
 map_Kd bones_texture2469.jpg
 Ni 1.00
-newmtl lambert4SG
+newmtl arm:lambert4SG
 illum 4
-Kd 0.00 0.00 0.00
-Ka 0.00 0.00 0.00
+Kd 1.00 1.00 1.00
+Ka 0.10 0.10 0.10
 Tf 0.24 0.24 0.24
 map_Kd 1390732.jpg
-bump -s 0.1 0.1 muscle-texture2.jpg -bm 0.299145
+d 0.24
 Ni 1.00
-newmtl lambert5SG
+newmtl arm:lambert5SG
 illum 4
-Kd 0.00 0.00 0.00
-Ka 0.00 0.00 0.00
+Kd 1.00 1.00 1.00
+Ka 0.10 0.10 0.10
 Tf 1.00 1.00 1.00
 map_Kd tendon.jpg
 Ni 1.00
-newmtl lambert7SG
+newmtl arm:lambert7SG
 illum 4
 Kd 0.00 0.00 1.00
-Ka 0.00 0.00 0.00
+Ka 0.00 0.00 0.10
 Tf 1.00 1.00 1.00
 Ni 1.00
-newmtl lambert8SG
+newmtl arm:lambert8SG
 illum 4
 Kd 0.00 1.00 0.00
-Ka 0.00 0.00 0.00
+Ka 0.00 0.10 0.00
 Tf 1.00 1.00 1.00
 Ni 1.00
-newmtl lambert9SG
+newmtl arm:lambert9SG
 illum 4
 Kd 1.00 0.00 1.00
-Ka 0.00 0.00 0.00
+Ka 1.00 0.00 0.10
 Tf 1.00 1.00 1.00
 Ni 1.00
-newmtl lambert10SG
+newmtl arm:lambert10SG
 illum 4
 Kd 0.00 1.00 1.00
-Ka 0.00 0.00 0.00
+Ka 0.00 0.10 0.10
 Tf 1.00 1.00 1.00
 Ni 1.00
-newmtl lambert11SG
+newmtl arm:lambert11SG
 illum 4
 Kd 1.00 1.00 0.00
-Ka 0.00 0.00 0.00
+Ka 0.10 0.10 0.00
 Tf 1.00 1.00 1.00
 Ni 1.00
-newmtl lambert12SG
+newmtl arm:lambert12SG
 illum 4
 Kd 0.50 0.50 0.50
-Ka 0.00 0.00 0.00
+Ka 0.05 0.05 0.05
 Tf 1.00 1.00 1.00
 Ni 1.00

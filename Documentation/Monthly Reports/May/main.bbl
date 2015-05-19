@@ -1,21 +1,21 @@
-\begin{thebibliography}{9}
+\begin{thebibliography}{10}
 \providecommand{\natexlab}[1]{#1}
 \providecommand{\url}[1]{\texttt{#1}}
 \expandafter\ifx\csname urlstyle\endcsname\relax
   \providecommand{\doi}[1]{doi: #1}\else
   \providecommand{\doi}{doi: \begingroup \urlstyle{rm}\Url}\fi
 
-\bibitem[Lee et~al.(2010)Lee, Glueck, Khan, Fiume, and Jackson]{lee2010survey}
-Dongwoon Lee, Michael Glueck, Khan, Eugene Fiume, and Ken Jackson.
-\newblock A survey of modeling and simulation of skeletal muscle.
-\newblock \emph{ACM Transactions on Graphics}, 28\penalty0 (4):\penalty0 162,
-  2010.
-
 \bibitem[Oatis(2009)]{oatis2009kynesiology}
 Carol Oatis.
 \newblock \emph{Kinesiology: The Mechanics and Pathomechanics of Human
   Movement}.
 \newblock Lippincott Williams \& Wilkins, 2th edition, 2009.
+
+\bibitem[Lee et~al.(2010)Lee, Glueck, Khan, Fiume, and Jackson]{lee2010survey}
+Dongwoon Lee, Michael Glueck, Khan, Eugene Fiume, and Ken Jackson.
+\newblock A survey of modeling and simulation of skeletal muscle.
+\newblock \emph{ACM Transactions on Graphics}, 28\penalty0 (4):\penalty0 162,
+  2010.
 
 \bibitem[Tang et~al.(2009)Tang, Zhang, and Tsui]{tang20093d}
 CY~Tang, G~Zhang, and CP~Tsui.
@@ -64,5 +64,13 @@ U.S. National~Library of~Medicine.
 \newblock \url{http://www.nlm.nih.gov/research/visible/visible_human.html},
   2003.
 \newblock Accesado: 2015-02-04.
+
+\bibitem[for Life~Science(2011)]{bodyParts3d}
+The Database~Center for Life~Science.
+\newblock Bodyparts3d.
+\newblock \url{http://dbarchive.biosciencedbc.jp/en/bodyparts3d/download.html},
+  2011.
+\newblock BodyParts3D, (c) The Database Center for Life Science licensed under
+  CC Attribution-Share Alike 2.1 Japan.
 
 \end{thebibliography}

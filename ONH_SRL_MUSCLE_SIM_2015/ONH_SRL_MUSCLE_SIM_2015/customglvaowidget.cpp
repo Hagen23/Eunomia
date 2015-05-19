@@ -1,23 +1,11 @@
 #include "customglvaowidget.h"
 
-static void infoGL()
-{
-	glCheckError();
-	const char *str;
-	qDebug() << "\nOpenGL info with GL functions:";
-	str = (const char*)glGetString(GL_RENDERER);
-	qDebug() << "Renderer : " << QString(str);
-	str = (const char*)glGetString(GL_VENDOR);
-	qDebug() << "Vendor : " << QString(str);
-	str = (const char*)glGetString(GL_VERSION);
-	qDebug() << "OpenGL Version : " << QString(str);
-	str = (const char*)glGetString(GL_SHADING_LANGUAGE_VERSION);
-	qDebug() << "GLSL Version : " << QString(str);
-	glCheckError();
-}
-
 CustomGLVAOWidget::CustomGLVAOWidget(QScreen *screen) : QWindow(screen), mScene(new QtOpenGLScene())
 {
+	logText = QString("");
+	appendToLog("ONH - SRL MUSCLE SIM 2015");
+	logSeparator();
+
 	xModelRot = 0;
 	yModelRot = 0;
 	zModelRot = 0;
@@ -57,6 +45,8 @@ CustomGLVAOWidget::CustomGLVAOWidget(QScreen *screen) : QWindow(screen), mScene(
 	QTimer *timer = new QTimer(this);
 	connect(timer, SIGNAL(timeout()), this, SLOT(updateScene()));
 	timer->start(16);
+
+	transpFactor = 50;
 }
 
 CustomGLVAOWidget::~CustomGLVAOWidget()
@@ -64,22 +54,44 @@ CustomGLVAOWidget::~CustomGLVAOWidget()
 
 }
 
+void CustomGLVAOWidget::infoGL()
+{
+	glCheckError();
+	const char *str;
+	qDebug() << "\nOpenGL info with GL functions:";
+	//appendToLog("OpenGL info with GL functions:");
+	str = (const char*)glGetString(GL_RENDERER);
+	qDebug() << "Renderer : " << QString(str);
+	appendToLog("Renderer : " + QString(str));
+	str = (const char*)glGetString(GL_VENDOR);
+	qDebug() << "Vendor : " << QString(str);
+	appendToLog("Vendor : " + QString(str));
+	str = (const char*)glGetString(GL_VERSION);
+	qDebug() << "OpenGL Version : " << QString(str);
+	appendToLog("OpenGL Version : " + QString(str));
+	str = (const char*)glGetString(GL_SHADING_LANGUAGE_VERSION);
+	qDebug() << "GLSL Version : " << QString(str);
+	appendToLog("GLSL Version : " + QString(str));
+	glCheckError();
+}
+
 void CustomGLVAOWidget::printContextInfos()
 {
 	if (!mContext->isValid())
+	{
 		qDebug() << "\nThe OpenGL context is invalid!\n";
-
+		appendToLog("The OpenGL context is invalid!");
+	}
 	mContext->makeCurrent(this);
 
-	qDebug() << "\nWindow format version is: "
-		<< format().majorVersion() << "."
-		<< format().minorVersion();
-
-	qDebug() << "Context format version is: "
-		<< mContext->format().majorVersion()
-		<< "." << mContext->format().minorVersion() << "\n";
-
+	QString fmt = "Window format version: " + QString::number(format().majorVersion()) + "." + QString::number(format().minorVersion());
+	qDebug() << "\nWindow format version is: " << format().majorVersion() << "." << format().minorVersion();
+	appendToLog(fmt);
+	QString ctx = "Context format version: " + QString::number(mContext->format().majorVersion()) + "." + QString::number(mContext->format().minorVersion());
+	qDebug() << "Context format version is: " << mContext->format().majorVersion() << "." << mContext->format().minorVersion() << "\n";
+	appendToLog(ctx);
 	infoGL();
+	logSeparator();
 }
 
 void CustomGLVAOWidget::initializeGl()
@@ -87,17 +99,21 @@ void CustomGLVAOWidget::initializeGl()
 	mContext->makeCurrent(this);
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_TEXTURE_2D);
-	glEnable(GL_CULL_FACE);
-	glCullFace(GL_BACK);
+	glDisable(GL_CULL_FACE);
+
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
 	mScene->initialize();
 	glCheckError();
+	resetView();
 }
 
 void CustomGLVAOWidget::paintGl()
 {
 	if (!isExposed()) return;
 	mContext->makeCurrent(this);
-	mScene->render(xModelRot, yModelRot, zModelRot, xCamPos, yCamPos, zCamPos, fovY);
+	mScene->render(xModelRot, yModelRot, zModelRot, xCamPos, yCamPos, zCamPos, fovY, transpFactor);
 	mContext->swapBuffers(this);
 	mContext->doneCurrent();
 }
@@ -116,7 +132,8 @@ void CustomGLVAOWidget::updateScene()
 
 static void qNormalizeAngle(int& angle)
 {
-	angle = angle % 181;
+	if (angle < -180) angle = 180;
+	else if (angle > 180) angle = -180;
 }
 
 void CustomGLVAOWidget::setXModelRotation(int angle)
@@ -192,6 +209,16 @@ void CustomGLVAOWidget::setFovY(int angle)
 	}
 }
 
+void CustomGLVAOWidget::setTranspFactor(int factor)
+{
+	if (factor != transpFactor)
+	{
+		transpFactor = factor;
+		emit transpFactorChanged(factor);
+		updateScene();
+	}
+}
+
 void CustomGLVAOWidget::mousePressEvent(QMouseEvent *event)
 {
 	lastPos = event->pos();
@@ -214,4 +241,36 @@ void CustomGLVAOWidget::mouseMoveEvent(QMouseEvent *event)
 	}
 
 	lastPos = event->pos();
+}
+
+void CustomGLVAOWidget::resetView()
+{
+	setXModelRotation(-180);
+	setYModelRotation(0);
+	setZModelRotation(0);
+	setXCamPosition(10);
+	setYCamPosition(10);
+	setZCamPosition(40);
+	setFovY(44);
+}
+
+void CustomGLVAOWidget::appendToLog(QString text)
+{
+	dateTime = QDateTime::currentDateTime();
+	logText.append(dateTime.toString("yyyyMMdd_hhmmss_zzz"));
+	logText.append(" ");
+	logText.append(text);
+	logText.append("\n");
+	emit logTextChanged(logText);
+}
+
+void CustomGLVAOWidget::logSeparator(void)
+{
+	logText.append("--------------------\n");
+	emit logTextChanged(logText);
+}
+
+void CustomGLVAOWidget::updateText()
+{
+	emit logTextChanged(logText);
 }

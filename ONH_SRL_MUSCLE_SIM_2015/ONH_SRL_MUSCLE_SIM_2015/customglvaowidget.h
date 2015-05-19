@@ -20,10 +20,16 @@ class CustomGLVAOWidget : public QWindow
 public:
 	explicit CustomGLVAOWidget(QScreen *screen = 0);
 	~CustomGLVAOWidget();
+	
+	void resetView();
+	void updateText();
 
 private:
-	void printContextInfos();
-	void initializeGl();
+	void logSeparator(void);
+	void appendToLog(QString text);
+	void printContextInfos(void);
+	void initializeGl(void);
+	void infoGL(void);
 
 	QOpenGLContext *mContext;
 	QScopedPointer<AbstractScene> mScene;
@@ -34,7 +40,10 @@ private:
 	int yCamPos;
 	int zCamPos;
 	int fovY;
+	int transpFactor;
 	QPoint lastPos;
+	QString logText;
+	QDateTime dateTime;
 
 protected:
 	void mousePressEvent(QMouseEvent *event);
@@ -55,6 +64,7 @@ public slots:
 	void setZCamPosition(int pos);
 
 	void setFovY(int angle);
+	void setTranspFactor(int factor);
 
 signals:
 	void xModelRotationChanged(int angle);
@@ -66,6 +76,8 @@ signals:
 	void zCamPositionChanged(int pos);
 
 	void fovYChanged(int angle);
+	void transpFactorChanged(int factor);
+	void logTextChanged(QString text);
 };
 
 #endif // CUSTOMGLVAOWIDGET_H

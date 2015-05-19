@@ -2,6 +2,7 @@
 
 //#define _USE_MATH_DEFINES
 #include <qmath.h>
+#include <qmatrix4x4.h>
 #define DEG2RAD M_PI/180.0f
 
 #define MatricesUniBufferSize sizeof(float) * 16 * 3
@@ -15,13 +16,15 @@
 // This is for a shader uniform block
 struct ShaderMaterial
 {
-	float	diffuse[4];
-	float	ambient[4];
-	float	specular[4];
-	float	emissive[4];
-	float	material[16];
-	float	shininess;
-	int		texCount;
+	//[0]diffuse,[1]ambient,[2]specular,[3]emmisive
+	float		diffuse[4];
+	float		ambient[4];
+	float		specular[4];
+	float		emissive[4];
+	QMatrix4x4	material;
+	float		shininess;
+	float		opacity;
+	int			texCount;
 };
 #endif /*SHADER_MATERIAL*/
 
