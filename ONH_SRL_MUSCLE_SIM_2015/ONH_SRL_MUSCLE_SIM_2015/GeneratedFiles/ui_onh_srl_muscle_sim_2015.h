@@ -20,6 +20,7 @@
 #include <QtWidgets/QLabel>
 #include <QtWidgets/QMainWindow>
 #include <QtWidgets/QMenuBar>
+#include <QtWidgets/QPlainTextEdit>
 #include <QtWidgets/QSlider>
 #include <QtWidgets/QStatusBar>
 #include <QtWidgets/QTabWidget>
@@ -58,7 +59,11 @@ public:
     QLCDNumber *lcdNumber;
     QLCDNumber *lcdNumber_2;
     QLCDNumber *lcdNumber_3;
+    QSlider *modelTranspSlider;
+    QLabel *label_8;
+    QLCDNumber *lcdNumber_8;
     QWidget *widget;
+    QPlainTextEdit *logPlainTextEdit;
     QMenuBar *menuBar;
     QToolBar *mainToolBar;
     QStatusBar *statusBar;
@@ -72,7 +77,7 @@ public:
         centralWidget->setObjectName(QStringLiteral("centralWidget"));
         tabWidget = new QTabWidget(centralWidget);
         tabWidget->setObjectName(QStringLiteral("tabWidget"));
-        tabWidget->setGeometry(QRect(10, 10, 351, 461));
+        tabWidget->setGeometry(QRect(10, 10, 350, 460));
         tab = new QWidget();
         tab->setObjectName(QStringLiteral("tab"));
         groupBox_2 = new QGroupBox(tab);
@@ -81,34 +86,36 @@ public:
         xCamPosSlider = new QSlider(groupBox_2);
         xCamPosSlider->setObjectName(QStringLiteral("xCamPosSlider"));
         xCamPosSlider->setGeometry(QRect(20, 30, 140, 20));
-        xCamPosSlider->setMinimum(-10);
-        xCamPosSlider->setMaximum(10);
+        xCamPosSlider->setMinimum(-50);
+        xCamPosSlider->setMaximum(50);
         xCamPosSlider->setPageStep(5);
+        xCamPosSlider->setValue(10);
         xCamPosSlider->setOrientation(Qt::Horizontal);
         xCamPosSlider->setTickPosition(QSlider::TicksAbove);
-        xCamPosSlider->setTickInterval(2);
+        xCamPosSlider->setTickInterval(5);
         zCamPosSlider = new QSlider(groupBox_2);
         zCamPosSlider->setObjectName(QStringLiteral("zCamPosSlider"));
         zCamPosSlider->setGeometry(QRect(20, 90, 140, 20));
-        zCamPosSlider->setMinimum(-30);
-        zCamPosSlider->setMaximum(30);
+        zCamPosSlider->setMinimum(-50);
+        zCamPosSlider->setMaximum(50);
         zCamPosSlider->setPageStep(5);
-        zCamPosSlider->setValue(-5);
+        zCamPosSlider->setValue(40);
         zCamPosSlider->setTracking(true);
         zCamPosSlider->setOrientation(Qt::Horizontal);
         zCamPosSlider->setInvertedAppearance(false);
         zCamPosSlider->setInvertedControls(false);
         zCamPosSlider->setTickPosition(QSlider::TicksAbove);
-        zCamPosSlider->setTickInterval(2);
+        zCamPosSlider->setTickInterval(5);
         yCamPosSlider = new QSlider(groupBox_2);
         yCamPosSlider->setObjectName(QStringLiteral("yCamPosSlider"));
         yCamPosSlider->setGeometry(QRect(20, 60, 140, 20));
-        yCamPosSlider->setMinimum(-10);
-        yCamPosSlider->setMaximum(10);
+        yCamPosSlider->setMinimum(-50);
+        yCamPosSlider->setMaximum(50);
         yCamPosSlider->setPageStep(5);
+        yCamPosSlider->setValue(10);
         yCamPosSlider->setOrientation(Qt::Horizontal);
         yCamPosSlider->setTickPosition(QSlider::TicksAbove);
-        yCamPosSlider->setTickInterval(2);
+        yCamPosSlider->setTickInterval(5);
         label_4 = new QLabel(groupBox_2);
         label_4->setObjectName(QStringLiteral("label_4"));
         label_4->setGeometry(QRect(0, 30, 16, 16));
@@ -130,25 +137,28 @@ public:
         lcdNumber_4->setFrameShadow(QFrame::Raised);
         lcdNumber_4->setSmallDecimalPoint(false);
         lcdNumber_4->setSegmentStyle(QLCDNumber::Flat);
+        lcdNumber_4->setProperty("value", QVariant(10));
         lcdNumber_5 = new QLCDNumber(groupBox_2);
         lcdNumber_5->setObjectName(QStringLiteral("lcdNumber_5"));
         lcdNumber_5->setGeometry(QRect(170, 60, 51, 23));
         lcdNumber_5->setStyleSheet(QLatin1String("color: rgb(0, 255, 0);\n"
 "background-color: rgb(0, 0, 0);"));
         lcdNumber_5->setSegmentStyle(QLCDNumber::Flat);
+        lcdNumber_5->setProperty("value", QVariant(10));
         lcdNumber_6 = new QLCDNumber(groupBox_2);
         lcdNumber_6->setObjectName(QStringLiteral("lcdNumber_6"));
         lcdNumber_6->setGeometry(QRect(170, 90, 51, 23));
         lcdNumber_6->setStyleSheet(QLatin1String("color: rgb(0, 255, 0);\n"
 "background-color: rgb(0, 0, 0);"));
         lcdNumber_6->setSegmentStyle(QLCDNumber::Flat);
+        lcdNumber_6->setProperty("value", QVariant(40));
         fovyDial = new QDial(tab);
         fovyDial->setObjectName(QStringLiteral("fovyDial"));
         fovyDial->setGeometry(QRect(270, 30, 50, 64));
         fovyDial->setMinimum(30);
         fovyDial->setMaximum(100);
         fovyDial->setPageStep(5);
-        fovyDial->setValue(45);
+        fovyDial->setValue(44);
         label_7 = new QLabel(tab);
         label_7->setObjectName(QStringLiteral("label_7"));
         label_7->setGeometry(QRect(270, 20, 51, 16));
@@ -159,6 +169,7 @@ public:
         lcdNumber_7->setStyleSheet(QLatin1String("color: rgb(0, 255, 0);\n"
 "background-color: rgb(0, 0, 0);"));
         lcdNumber_7->setSegmentStyle(QLCDNumber::Flat);
+        lcdNumber_7->setProperty("value", QVariant(44));
         tabWidget->addTab(tab, QString());
         tab_2 = new QWidget();
         tab_2->setObjectName(QStringLiteral("tab_2"));
@@ -170,6 +181,7 @@ public:
         xModelRotSlider->setGeometry(QRect(20, 30, 140, 20));
         xModelRotSlider->setMinimum(-180);
         xModelRotSlider->setMaximum(180);
+        xModelRotSlider->setValue(-160);
         xModelRotSlider->setOrientation(Qt::Horizontal);
         xModelRotSlider->setTickPosition(QSlider::TicksAbove);
         xModelRotSlider->setTickInterval(36);
@@ -213,6 +225,7 @@ public:
         lcdNumber->setFrameShadow(QFrame::Raised);
         lcdNumber->setSmallDecimalPoint(false);
         lcdNumber->setSegmentStyle(QLCDNumber::Flat);
+        lcdNumber->setProperty("value", QVariant(-160));
         lcdNumber_2 = new QLCDNumber(groupBox);
         lcdNumber_2->setObjectName(QStringLiteral("lcdNumber_2"));
         lcdNumber_2->setGeometry(QRect(170, 60, 51, 23));
@@ -225,11 +238,46 @@ public:
         lcdNumber_3->setStyleSheet(QLatin1String("color: rgb(0, 255, 0);\n"
 "background-color: rgb(0, 0, 0);"));
         lcdNumber_3->setSegmentStyle(QLCDNumber::Flat);
+        modelTranspSlider = new QSlider(tab_2);
+        modelTranspSlider->setObjectName(QStringLiteral("modelTranspSlider"));
+        modelTranspSlider->setGeometry(QRect(110, 150, 140, 20));
+        modelTranspSlider->setMinimum(0);
+        modelTranspSlider->setMaximum(200);
+        modelTranspSlider->setSingleStep(1);
+        modelTranspSlider->setValue(50);
+        modelTranspSlider->setOrientation(Qt::Horizontal);
+        modelTranspSlider->setTickPosition(QSlider::TicksAbove);
+        modelTranspSlider->setTickInterval(10);
+        label_8 = new QLabel(tab_2);
+        label_8->setObjectName(QStringLiteral("label_8"));
+        label_8->setGeometry(QRect(10, 150, 101, 20));
+        lcdNumber_8 = new QLCDNumber(tab_2);
+        lcdNumber_8->setObjectName(QStringLiteral("lcdNumber_8"));
+        lcdNumber_8->setGeometry(QRect(260, 150, 51, 23));
+        lcdNumber_8->setAutoFillBackground(false);
+        lcdNumber_8->setStyleSheet(QLatin1String("color: rgb(0, 255, 0);\n"
+"background-color: rgb(0, 0, 0);"));
+        lcdNumber_8->setFrameShadow(QFrame::Raised);
+        lcdNumber_8->setSmallDecimalPoint(false);
+        lcdNumber_8->setSegmentStyle(QLCDNumber::Flat);
+        lcdNumber_8->setProperty("value", QVariant(50));
         tabWidget->addTab(tab_2, QString());
         widget = new QWidget(centralWidget);
         widget->setObjectName(QStringLiteral("widget"));
         widget->setGeometry(QRect(370, 30, 800, 600));
         widget->setStyleSheet(QStringLiteral("background-color: rgb(0, 0, 0);"));
+        logPlainTextEdit = new QPlainTextEdit(centralWidget);
+        logPlainTextEdit->setObjectName(QStringLiteral("logPlainTextEdit"));
+        logPlainTextEdit->setGeometry(QRect(10, 480, 350, 150));
+        QFont font;
+        font.setFamily(QStringLiteral("Courier New"));
+        font.setPointSize(8);
+        logPlainTextEdit->setFont(font);
+        logPlainTextEdit->setStyleSheet(QLatin1String("background-color: rgb(0, 0, 0);\n"
+"color: rgb(0, 255, 0);"));
+        logPlainTextEdit->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
+        logPlainTextEdit->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
+        logPlainTextEdit->setLineWrapMode(QPlainTextEdit::NoWrap);
         ONH_SRL_MUSCLE_SIM_2015Class->setCentralWidget(centralWidget);
         menuBar = new QMenuBar(ONH_SRL_MUSCLE_SIM_2015Class);
         menuBar->setObjectName(QStringLiteral("menuBar"));
@@ -243,15 +291,16 @@ public:
         ONH_SRL_MUSCLE_SIM_2015Class->setStatusBar(statusBar);
 
         retranslateUi(ONH_SRL_MUSCLE_SIM_2015Class);
-        QObject::connect(xCamPosSlider, SIGNAL(valueChanged(int)), lcdNumber_4, SLOT(display(int)));
-        QObject::connect(yCamPosSlider, SIGNAL(valueChanged(int)), lcdNumber_5, SLOT(display(int)));
-        QObject::connect(zCamPosSlider, SIGNAL(valueChanged(int)), lcdNumber_6, SLOT(display(int)));
-        QObject::connect(xModelRotSlider, SIGNAL(valueChanged(int)), lcdNumber, SLOT(display(int)));
-        QObject::connect(yModelRotSlider, SIGNAL(valueChanged(int)), lcdNumber_2, SLOT(display(int)));
-        QObject::connect(zModelRotSlider, SIGNAL(valueChanged(int)), lcdNumber_3, SLOT(display(int)));
         QObject::connect(fovyDial, SIGNAL(valueChanged(int)), lcdNumber_7, SLOT(display(int)));
+        QObject::connect(xCamPosSlider, SIGNAL(valueChanged(int)), lcdNumber_4, SLOT(display(int)));
+        QObject::connect(xModelRotSlider, SIGNAL(valueChanged(int)), lcdNumber, SLOT(display(int)));
+        QObject::connect(yCamPosSlider, SIGNAL(valueChanged(int)), lcdNumber_5, SLOT(display(int)));
+        QObject::connect(yModelRotSlider, SIGNAL(valueChanged(int)), lcdNumber_2, SLOT(display(int)));
+        QObject::connect(zCamPosSlider, SIGNAL(valueChanged(int)), lcdNumber_6, SLOT(display(int)));
+        QObject::connect(zModelRotSlider, SIGNAL(valueChanged(int)), lcdNumber_3, SLOT(display(int)));
+        QObject::connect(modelTranspSlider, SIGNAL(valueChanged(int)), lcdNumber_8, SLOT(display(int)));
 
-        tabWidget->setCurrentIndex(0);
+        tabWidget->setCurrentIndex(1);
 
 
         QMetaObject::connectSlotsByName(ONH_SRL_MUSCLE_SIM_2015Class);
@@ -270,7 +319,10 @@ public:
         label->setText(QApplication::translate("ONH_SRL_MUSCLE_SIM_2015Class", "X", 0));
         label_2->setText(QApplication::translate("ONH_SRL_MUSCLE_SIM_2015Class", "Y", 0));
         label_3->setText(QApplication::translate("ONH_SRL_MUSCLE_SIM_2015Class", "Z", 0));
+        label_8->setText(QApplication::translate("ONH_SRL_MUSCLE_SIM_2015Class", "Transparency (%):", 0));
         tabWidget->setTabText(tabWidget->indexOf(tab_2), QApplication::translate("ONH_SRL_MUSCLE_SIM_2015Class", "Model", 0));
+        logPlainTextEdit->setDocumentTitle(QString());
+        logPlainTextEdit->setPlainText(QApplication::translate("ONH_SRL_MUSCLE_SIM_2015Class", "Hello", 0));
     } // retranslateUi
 
 };

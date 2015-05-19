@@ -11,16 +11,20 @@
 \usepackage[nodayofweek]{datetime}
 \usepackage{float}
 \usepackage{graphicx}
-\usepackage[scriptsize]{subfigure}
+%\usepackage[scriptsize]{subfigure}
 \usepackage{pdfpages}
 \usepackage{amsmath}
 \usepackage{amsmath,amsfonts,amssymb,amscd,xspace}
 \usepackage[centerlast,small,sc, margin=1cm]{caption}
+\usepackage{subcaption}
 \usepackage{afterpage}
 \usepackage[pdfpagemode={UseOutlines},bookmarks=true,bookmarksopen=true,
    bookmarksopenlevel=0,bookmarksnumbered=true,hypertexnames=false,
    colorlinks,linkcolor={blue},citecolor={blue},urlcolor={red},
    pdfstartview={FitV},unicode,breaklinks=true]{hyperref}
+%SRL
+\usepackage{booktabs}
+
 \hypersetup{urlcolor=blue, colorlinks=true}
 
 \newcommand{\fref}[1]{Figure~\ref{#1}}
@@ -43,7 +47,7 @@
 %----------------------------------------------------------------------------------------
 
 \title{Visualization of skeletal muscle based movement\\May Report}
-\author{Moises Alencastre-Miranda \and Octavio Navarro-Hinojosa \and Sergio Ruiz-Loza}
+\author{Moises Alencastre-Miranda \and Octavio Navarro-Hinojosa \and Sergio Ruiz Loza}
 \date{\today}
 \maketitle
 
@@ -65,7 +69,8 @@ In order to obtain realistic animations, simulations and/or visualizations of mu
 
 \input{./Chapters/Introduction}
 \input{./Chapters/LatticeBoltzmanSolver}
-
+\input{./Chapters/MUSCLE_SIM/MuscleSim}
+\input{./Chapters/FUTURE_WORK/FutureWork}
 
 %----------------------------------------------------------------------------------------
 %	BIBLIOGRAPHY

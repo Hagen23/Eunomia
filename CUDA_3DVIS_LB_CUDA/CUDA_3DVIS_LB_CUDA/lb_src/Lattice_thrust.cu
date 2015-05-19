@@ -1,3 +1,8 @@
+#pragma once
+
+#ifndef LATTICE_CU
+#define LATTICE_CU
+
 #include "Lattice_thrust.h"
 
 latticed3q19::latticed3q19(int width, int height, int depth, float tau)
@@ -6,8 +11,6 @@ latticed3q19::latticed3q19(int width, int height, int depth, float tau)
 	_stride = 19;
 	_numberLatticeElements = _width * _height * _depth;
 	_numberAllElements = _stride * _numberLatticeElements;
-
-	_c = (float)(1.0 / sqrt(3.0));
 
 	initThrust();
 }
@@ -19,11 +22,34 @@ latticed3q19::~latticed3q19()
 
 void latticed3q19::step(void)
 {
+	cudaEvent_t start, stop;
+	float time;
+	cudaEventCreate(&start);
+	cudaEventCreate(&stop);
+	
+
 	latticeSolidIndexes_d = latticeSolidIndexes_h;
 	velocityVector_d = velocityVector_h;
 
+	cudaEventRecord(start, 0);
+
 	stream();
+
+	cudaEventRecord(stop, 0);
+	cudaEventSynchronize(stop);
+
+	cudaEventElapsedTime(&time, start, stop);
+	printf("Time for stream: %f ms\n", time);
+
+	cudaEventRecord(start, 0);
+
 	collide();
+
+	cudaEventRecord(stop, 0);
+	cudaEventSynchronize(stop);
+
+	cudaEventElapsedTime(&time, start, stop);
+	printf("Time for collide: %f ms\n", time);
 
 	velocityVector_h = velocityVector_d;
 }
@@ -55,6 +81,10 @@ void latticed3q19::initThrust()
 	velocityVector_h = thrust::host_vector<float3>(_numberLatticeElements, make_float3(0,0,0));
 
 	velocityVector_d = thrust::device_vector<float3>(_numberLatticeElements, make_float3(0,0,0));
+
+	latticeWeights_d = latticeWeights_h;
+
+	speedDirection_d = speedDirection_h;
 }
 
 void latticed3q19::stream()
@@ -96,3 +126,4 @@ void latticed3q19::calculateInEquilibriumFunction(float3 _inVector, float inRo)
 						)
 					);
 }
+#endif

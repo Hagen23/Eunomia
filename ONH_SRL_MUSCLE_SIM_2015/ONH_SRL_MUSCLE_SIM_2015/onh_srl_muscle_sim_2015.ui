@@ -19,12 +19,12 @@
      <rect>
       <x>10</x>
       <y>10</y>
-      <width>351</width>
-      <height>461</height>
+      <width>350</width>
+      <height>460</height>
      </rect>
     </property>
     <property name="currentIndex">
-     <number>0</number>
+     <number>1</number>
     </property>
     <widget class="QWidget" name="tab">
      <attribute name="title">
@@ -52,13 +52,16 @@
         </rect>
        </property>
        <property name="minimum">
-        <number>-10</number>
+        <number>-50</number>
        </property>
        <property name="maximum">
-        <number>10</number>
+        <number>50</number>
        </property>
        <property name="pageStep">
         <number>5</number>
+       </property>
+       <property name="value">
+        <number>10</number>
        </property>
        <property name="orientation">
         <enum>Qt::Horizontal</enum>
@@ -67,7 +70,7 @@
         <enum>QSlider::TicksAbove</enum>
        </property>
        <property name="tickInterval">
-        <number>2</number>
+        <number>5</number>
        </property>
       </widget>
       <widget class="QSlider" name="zCamPosSlider">
@@ -80,16 +83,16 @@
         </rect>
        </property>
        <property name="minimum">
-        <number>-30</number>
+        <number>-50</number>
        </property>
        <property name="maximum">
-        <number>30</number>
+        <number>50</number>
        </property>
        <property name="pageStep">
         <number>5</number>
        </property>
        <property name="value">
-        <number>-5</number>
+        <number>40</number>
        </property>
        <property name="tracking">
         <bool>true</bool>
@@ -107,7 +110,7 @@
         <enum>QSlider::TicksAbove</enum>
        </property>
        <property name="tickInterval">
-        <number>2</number>
+        <number>5</number>
        </property>
       </widget>
       <widget class="QSlider" name="yCamPosSlider">
@@ -120,13 +123,16 @@
         </rect>
        </property>
        <property name="minimum">
-        <number>-10</number>
+        <number>-50</number>
        </property>
        <property name="maximum">
-        <number>10</number>
+        <number>50</number>
        </property>
        <property name="pageStep">
         <number>5</number>
+       </property>
+       <property name="value">
+        <number>10</number>
        </property>
        <property name="orientation">
         <enum>Qt::Horizontal</enum>
@@ -135,7 +141,7 @@
         <enum>QSlider::TicksAbove</enum>
        </property>
        <property name="tickInterval">
-        <number>2</number>
+        <number>5</number>
        </property>
       </widget>
       <widget class="QLabel" name="label_4">
@@ -211,6 +217,9 @@ background-color: rgb(0, 0, 0);</string>
        <property name="segmentStyle">
         <enum>QLCDNumber::Flat</enum>
        </property>
+       <property name="value" stdset="0">
+        <double>10.000000000000000</double>
+       </property>
       </widget>
       <widget class="QLCDNumber" name="lcdNumber_5">
        <property name="geometry">
@@ -228,6 +237,9 @@ background-color: rgb(0, 0, 0);</string>
        <property name="segmentStyle">
         <enum>QLCDNumber::Flat</enum>
        </property>
+       <property name="value" stdset="0">
+        <double>10.000000000000000</double>
+       </property>
       </widget>
       <widget class="QLCDNumber" name="lcdNumber_6">
        <property name="geometry">
@@ -244,6 +256,9 @@ background-color: rgb(0, 0, 0);</string>
        </property>
        <property name="segmentStyle">
         <enum>QLCDNumber::Flat</enum>
+       </property>
+       <property name="value" stdset="0">
+        <double>40.000000000000000</double>
        </property>
       </widget>
      </widget>
@@ -266,7 +281,7 @@ background-color: rgb(0, 0, 0);</string>
        <number>5</number>
       </property>
       <property name="value">
-       <number>45</number>
+       <number>44</number>
       </property>
      </widget>
      <widget class="QLabel" name="label_7">
@@ -301,6 +316,9 @@ background-color: rgb(0, 0, 0);</string>
       <property name="segmentStyle">
        <enum>QLCDNumber::Flat</enum>
       </property>
+      <property name="value" stdset="0">
+       <double>44.000000000000000</double>
+      </property>
      </widget>
     </widget>
     <widget class="QWidget" name="tab_2">
@@ -333,6 +351,9 @@ background-color: rgb(0, 0, 0);</string>
        </property>
        <property name="maximum">
         <number>180</number>
+       </property>
+       <property name="value">
+        <number>-160</number>
        </property>
        <property name="orientation">
         <enum>Qt::Horizontal</enum>
@@ -476,6 +497,9 @@ background-color: rgb(0, 0, 0);</string>
        <property name="segmentStyle">
         <enum>QLCDNumber::Flat</enum>
        </property>
+       <property name="value" stdset="0">
+        <double>-160.000000000000000</double>
+       </property>
       </widget>
       <widget class="QLCDNumber" name="lcdNumber_2">
        <property name="geometry">
@@ -512,6 +536,79 @@ background-color: rgb(0, 0, 0);</string>
        </property>
       </widget>
      </widget>
+     <widget class="QSlider" name="modelTranspSlider">
+      <property name="geometry">
+       <rect>
+        <x>110</x>
+        <y>150</y>
+        <width>140</width>
+        <height>20</height>
+       </rect>
+      </property>
+      <property name="minimum">
+       <number>0</number>
+      </property>
+      <property name="maximum">
+       <number>200</number>
+      </property>
+      <property name="singleStep">
+       <number>1</number>
+      </property>
+      <property name="value">
+       <number>50</number>
+      </property>
+      <property name="orientation">
+       <enum>Qt::Horizontal</enum>
+      </property>
+      <property name="tickPosition">
+       <enum>QSlider::TicksAbove</enum>
+      </property>
+      <property name="tickInterval">
+       <number>10</number>
+      </property>
+     </widget>
+     <widget class="QLabel" name="label_8">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>150</y>
+        <width>101</width>
+        <height>20</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Transparency (%):</string>
+      </property>
+     </widget>
+     <widget class="QLCDNumber" name="lcdNumber_8">
+      <property name="geometry">
+       <rect>
+        <x>260</x>
+        <y>150</y>
+        <width>51</width>
+        <height>23</height>
+       </rect>
+      </property>
+      <property name="autoFillBackground">
+       <bool>false</bool>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">color: rgb(0, 255, 0);
+background-color: rgb(0, 0, 0);</string>
+      </property>
+      <property name="frameShadow">
+       <enum>QFrame::Raised</enum>
+      </property>
+      <property name="smallDecimalPoint">
+       <bool>false</bool>
+      </property>
+      <property name="segmentStyle">
+       <enum>QLCDNumber::Flat</enum>
+      </property>
+      <property name="value" stdset="0">
+       <double>50.000000000000000</double>
+      </property>
+     </widget>
     </widget>
    </widget>
    <widget class="QWidget" name="widget" native="true">
@@ -525,6 +622,41 @@ background-color: rgb(0, 0, 0);</string>
     </property>
     <property name="styleSheet">
      <string notr="true">background-color: rgb(0, 0, 0);</string>
+    </property>
+   </widget>
+   <widget class="QPlainTextEdit" name="logPlainTextEdit">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>480</y>
+      <width>350</width>
+      <height>150</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <family>Courier New</family>
+      <pointsize>8</pointsize>
+     </font>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">background-color: rgb(0, 0, 0);
+color: rgb(0, 255, 0);</string>
+    </property>
+    <property name="verticalScrollBarPolicy">
+     <enum>Qt::ScrollBarAlwaysOn</enum>
+    </property>
+    <property name="horizontalScrollBarPolicy">
+     <enum>Qt::ScrollBarAlwaysOn</enum>
+    </property>
+    <property name="documentTitle">
+     <string/>
+    </property>
+    <property name="lineWrapMode">
+     <enum>QPlainTextEdit::NoWrap</enum>
+    </property>
+    <property name="plainText">
+     <string>Hello</string>
     </property>
    </widget>
   </widget>
@@ -554,9 +686,41 @@ background-color: rgb(0, 0, 0);</string>
  </resources>
  <connections>
   <connection>
+   <sender>fovyDial</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>lcdNumber_7</receiver>
+   <slot>display(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>306</x>
+     <y>126</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>307</x>
+     <y>176</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
    <sender>xCamPosSlider</sender>
    <signal>valueChanged(int)</signal>
    <receiver>lcdNumber_4</receiver>
+   <slot>display(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>111</x>
+     <y>114</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>217</x>
+     <y>116</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>xModelRotSlider</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>lcdNumber</receiver>
    <slot>display(int)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -586,38 +750,6 @@ background-color: rgb(0, 0, 0);</string>
    </hints>
   </connection>
   <connection>
-   <sender>zCamPosSlider</sender>
-   <signal>valueChanged(int)</signal>
-   <receiver>lcdNumber_6</receiver>
-   <slot>display(int)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>111</x>
-     <y>174</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>217</x>
-     <y>176</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>xModelRotSlider</sender>
-   <signal>valueChanged(int)</signal>
-   <receiver>lcdNumber</receiver>
-   <slot>display(int)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>111</x>
-     <y>114</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>217</x>
-     <y>116</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>yModelRotSlider</sender>
    <signal>valueChanged(int)</signal>
    <receiver>lcdNumber_2</receiver>
@@ -630,6 +762,22 @@ background-color: rgb(0, 0, 0);</string>
     <hint type="destinationlabel">
      <x>217</x>
      <y>146</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>zCamPosSlider</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>lcdNumber_6</receiver>
+   <slot>display(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>111</x>
+     <y>174</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>217</x>
+     <y>176</y>
     </hint>
    </hints>
   </connection>
@@ -650,18 +798,18 @@ background-color: rgb(0, 0, 0);</string>
    </hints>
   </connection>
   <connection>
-   <sender>fovyDial</sender>
+   <sender>modelTranspSlider</sender>
    <signal>valueChanged(int)</signal>
-   <receiver>lcdNumber_7</receiver>
+   <receiver>lcdNumber_8</receiver>
    <slot>display(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>306</x>
-     <y>126</y>
+     <x>191</x>
+     <y>224</y>
     </hint>
     <hint type="destinationlabel">
-     <x>307</x>
-     <y>176</y>
+     <x>297</x>
+     <y>226</y>
     </hint>
    </hints>
   </connection>

@@ -1,0 +1,8 @@
+newmtl OTHER_MUSCLES:lambert4SG
+illum 4
+Kd 0.50 0.50 0.50
+Ka 0.00 0.00 0.00
+Tf 1.00 1.00 1.00
+map_Kd 1390732.jpg
+d 0.5
+Ni 1.00

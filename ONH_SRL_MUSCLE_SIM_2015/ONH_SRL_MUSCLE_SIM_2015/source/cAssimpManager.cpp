@@ -1,6 +1,5 @@
 #include "cAssimpManager.h"
 
-
 AssimpManager::AssimpManager(string _mpath)
 {
 	scene = NULL;

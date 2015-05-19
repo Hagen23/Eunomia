@@ -214,3 +214,11 @@ pip-log.txt
 
 #Mr Developer
 .mr.developer.cfg
+*.aux
+Documentation/Monthly Reports/May/main.out
+*.out
+*.bbl
+*.gz
+*.gz
+Documentation/Monthly Reports/May/main.synctex.gz
+Documentation/Monthly Reports/May/main.pdf

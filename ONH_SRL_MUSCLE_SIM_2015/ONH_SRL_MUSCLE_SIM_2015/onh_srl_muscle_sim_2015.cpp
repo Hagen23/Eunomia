@@ -27,6 +27,14 @@ ONH_SRL_MUSCLE_SIM_2015::ONH_SRL_MUSCLE_SIM_2015(QWidget *parent)
 
 	connect(vaoWidget, SIGNAL(fovYChanged(int)), ui.fovyDial, SLOT(setValue(int)));
 	connect(ui.fovyDial, SIGNAL(valueChanged(int)), vaoWidget, SLOT(setFovY(int)));
+
+	connect(vaoWidget, SIGNAL(transpFactorChanged(int)), ui.modelTranspSlider, SLOT(setValue(int)));
+	connect(ui.modelTranspSlider, SIGNAL(valueChanged(int)), vaoWidget, SLOT(setTranspFactor(int)));
+
+	connect(vaoWidget, SIGNAL(logTextChanged(QString)), ui.logPlainTextEdit, SLOT(setPlainText(QString)));
+
+	vaoWidget->resetView();
+	vaoWidget->updateText();
 }
 
 ONH_SRL_MUSCLE_SIM_2015::~ONH_SRL_MUSCLE_SIM_2015()

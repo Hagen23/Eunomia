@@ -103,6 +103,9 @@
     <CustomBuild Include="customglvaowidget.h">
       <Filter>Header Files</Filter>
     </CustomBuild>
+    <CustomBuild Include="qtopenglscene.h">
+      <Filter>Header Files</Filter>
+    </CustomBuild>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GeneratedFiles\ui_onh_srl_muscle_sim_2015.h">
@@ -112,9 +115,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="glassert.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="qtopenglscene.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="header\cAssimpManager.h">
