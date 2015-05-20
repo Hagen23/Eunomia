@@ -1,23 +1,19 @@
 
 \section{Future Work}
-Intro
-%----------------------------------------------------------------------------------------
+\label{sec:futureWork}
+In addition to the Lattice Boltzmann Solver and Visualization integration, we have identified several future work opportunities:
 
-\begin{itemize}
-\item 
-Octrees (PCL)
-\item
-LOD
-\item
-Clipping
-\item
-Simulation control
-\item
-Fiber generation
-\item
-Bidomain simulation
-\item
-Inter mesh Collision
-\item
-Muscle-Bone Hierarchy
-\end{itemize}
+\begin{description}
+\item[Octrees]
+Vertex identification as part of a simulated muscle will be efficient by means of a specialized data structure. We will begin integrating the Point Cloud Library (PCL) to our rendering engine to make use of its parallel octree implementation.
+\item[Level of Detail]
+As computational resources become scarce due to real-time simulation and rendering requirements, implementation of a Level of Detail technique will improve hardware performance.
+\item[Clipping]
+Sections of a virtual extended arm will be useful to calculate intermuscular space from different poses, as an extension of the muscular simulation.
+\item[Simulation control]
+LBM simulations require fine tuning of viscosity and grid size parameters. Future work will extend the user interface to facilitate parameter adjustment in real-time.
+\item[Fiber generation]
+\item[Bidomain simulation]
+\item[Inter mesh Collision]
+\item[Muscle-Bone Hierarchy]
+\end{description}
