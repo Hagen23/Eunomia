@@ -9,8 +9,8 @@
 
 #pragma once
 
-# ifndef LATTICE
-# define LATTICE
+# ifndef LATTICE_H
+# define LATTICE_H
 
 //Macro to linearly go over the arrays
 #define I3D(width, height,i,j,k)				width*(j+height*k)+i
@@ -24,22 +24,22 @@ static float dot(float3 a, float3 b)
 	return a.x*b.x + a.y*b.y + a.z * b.z;
 }
 
-//__device__  float latticeWeights[19] =
-//{
-//	1.f / 9.f,
-//	1.f / 18.f, 1.f / 18.f, 1.f / 18.f, 1.f / 18.f, 1.f / 18.f, 1.f / 18.f,
-//	1.f / 36.f, 1.f / 36.f, 1.f / 36.f, 1.f / 36.f, 1.f / 36.f, 1.f / 36.f,
-//	1.f / 36.f, 1.f / 36.f, 1.f / 36.f, 1.f / 36.f, 1.f / 36.f, 1.f / 36.f
-//};
-
-__device__ __constant__ float3 speedDirection[19] =
+static float latticeWeights_in[19] =
 {
-	{0, 0, 0},
-	{1, 0, 0}, {-1, 0, 0}, {0, 1, 0}, {0, -1, 0},
-	{0, 0, 1}, {0, 0, -1}, {1, 1, 0}, {1, -1, 0},
-	{1, 0, 1}, {1, 0, -1}, {-1, 1, 0}, {-1, -1, 0},
-	{-1, 0, 1}, {-1, 0, -1}, {0, 1, 1}, {0, 1, -1},
-	{0, -1, 1}, {0, -1, -1}
+	1.f / 9.f,
+	1.f / 18.f, 1.f / 18.f, 1.f / 18.f, 1.f / 18.f, 1.f / 18.f, 1.f / 18.f,
+	1.f / 36.f, 1.f / 36.f, 1.f / 36.f, 1.f / 36.f, 1.f / 36.f, 1.f / 36.f,
+	1.f / 36.f, 1.f / 36.f, 1.f / 36.f, 1.f / 36.f, 1.f / 36.f, 1.f / 36.f
+};
+
+static float3 speedDirection_in[19] =
+{
+	{ 0, 0, 0 },
+	{ 1, 0, 0 }, { -1, 0, 0 }, { 0, 1, 0 }, { 0, -1, 0 },
+	{ 0, 0, 1 }, { 0, 0, -1 }, { 1, 1, 0 }, { 1, -1, 0 },
+	{ 1, 0, 1 }, { 1, 0, -1 }, { -1, 1, 0 }, { -1, -1, 0 },
+	{ -1, 0, 1 }, { -1, 0, -1 }, { 0, 1, 1 }, { 0, 1, -1 },
+	{ 0, -1, 1 }, { 0, -1, -1 }
 };
 
 struct latticeStream
@@ -47,15 +47,17 @@ struct latticeStream
 	float			*f, *ftemp;
 	unsigned int	width, height, depth, stride;
 	unsigned int	*solid;
+	float3			speedDirection[19];
 
 	latticeStream(	float* _f, float *_ftemp,
 					unsigned int _width, unsigned int _height, unsigned int _depth, unsigned int _stride, 
-					unsigned int *_solid) :
+					unsigned int *_solid):
 					f(_f), ftemp(_ftemp), 
 					width(_width), height(_height), depth(_depth), stride(_stride), 
 					solid(_solid)
 	{
-
+		for (int i = 0; i < 19; i++)
+			speedDirection[i] = speedDirection_in[i];
 	}
 
 	__device__
@@ -91,33 +93,30 @@ struct latticeStream
 				ftemp[iBase] = f[iAdvected];
 			//}
 		}
-
-		// We will have to copy the ftemp to f in host using thrust::copy before launching collide
-		//for (int i0 = 0; i0 < _numberAllElements; i0++)
-			//f[i0] = ftemp[i0];
 	}
 };
 
 struct latticeCollide
 {
 	float			*f, *feq;
-	float3			*velocityVector;
+	float3			*velocityVector, speedDirection[19];
 	float			ro, rovx, rovy, rovz, tau, c;
 	unsigned int	width, height, stride;
 	unsigned int	*solid;
-
 	float latticeWeights[19];
 
 	latticeCollide(	float* _f, 
-					float3* _velocityVector,
-					unsigned int _width, unsigned int _height, unsigned int _stride, float _tau, unsigned int *_solid):
+					float3* _velocityVector, 
+					unsigned int _width, unsigned int _height, unsigned int _stride, float _tau, unsigned int *_solid) :
 					f(_f), velocityVector(_velocityVector), width(_width), height(_height), stride(_stride), tau(_tau), solid(_solid)
 	{
 		cudaMalloc((void**)&feq, sizeof(float)*stride);
 
 		for (int i = 0; i < 19; i++)
-			latticeWeights[i] = 1.f / 10.f;
-
+		{
+			speedDirection[i] = speedDirection_in[i];
+			latticeWeights[i] = latticeWeights_in[i];
+		}
 	}
 
 	__device__
@@ -211,11 +210,10 @@ struct latticeCollide
 struct latticeInEq
 {
 	float			*f, *ftemp;
-	float3			inVector;
+	float3			inVector, speedDirection[19];
 	float			ro, c;
 	unsigned int	width, height, stride;
-	
-	float latticeWeights[19];
+	float			latticeWeights[19];
 
 	latticeInEq(float* _f, float *_ftemp, float3 _inVector,
 		unsigned int _width, unsigned int _height, unsigned int _stride, float _ro, float _c) :
@@ -224,7 +222,10 @@ struct latticeInEq
 	{
 
 		for (int i = 0; i < 19; i++)
-			latticeWeights[i] = 1.f / 10.f;
+		{
+			speedDirection[i] = speedDirection_in[i];
+			latticeWeights[i] = latticeWeights_in[i];
+		}
 	}
 
 	__device__
@@ -268,6 +269,14 @@ private:
 	thrust::device_vector<unsigned int>		latticeSolidIndexes_d;
 
 	thrust::device_vector<float3>			velocityVector_d;
+
+	//Lattice weights
+	thrust::host_vector<float>				latticeWeights_h;
+	thrust::device_vector<float>			latticeWeights_d;
+
+	//Lattice speed direction
+	thrust::host_vector<float3>				speedDirection_h;
+	thrust::device_vector<float3>			speedDirection_d;
 
 	// Stores the lattice information
 	thrust::device_vector<float>			f_d, ftemp_d;

@@ -1,4 +1,4 @@
-//#pragma once
+#pragma once
 
 // includes, system
 #include <stdlib.h>
@@ -36,7 +36,7 @@
 #include <helper_cuda.h>         // helper functions for CUDA error check
 #include <helper_cuda_gl.h>      // helper functions for CUDA/GL interop
 
-#include "lb_src\Lattice_thrust.h"
+#include "lb_src/Lattice_thrust.h"
 
 using namespace std;
 
@@ -45,7 +45,7 @@ using namespace std;
 #define BUFFER_OFFSET( i )			((char *)NULL + ( i ))
 #define LOCATION_OFFSET				BUFFER_OFFSET(  0 )
 #define COLOR_OFFSET				BUFFER_OFFSET( 16 )
-#define LATTICE_DIM					10
+#define LATTICE_DIM					30
 
 // global variables that will store handles to the data we
 // intend to share between OpenGL and CUDA calculated data.
@@ -183,7 +183,7 @@ void idle(void)
 	cudaEventSynchronize(stop);
 
 	cudaEventElapsedTime(&time, start, stop);
-	//printf("Time for the kernel: %f ms\n", time);
+	printf("Time for the kernel: %f ms\n", time);
 
 	if(keypressed)
 	{
