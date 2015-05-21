@@ -74,7 +74,7 @@ unsigned int *cmap_rgba, *plot_rgba;  //rgba arrays for plotting
 unsigned int latticeWidth = LATTICE_DIM, latticeHeight = LATTICE_DIM, latticeDepth = LATTICE_DIM, ncol;
 float latticeTau = 1.5f, roIn = 0.1f;
 bool withSolid = false, keypressed = false;
-float3 vectorIn = { 0.f, 0.f, 0.f };
+float3 vectorIn = make_float3(0,0,0);
 latticed3q19 *lattice; 
 
 float cubeFaces[24][3] = 
@@ -132,21 +132,21 @@ void display (void)
 
 			if(!lattice->latticeSolidIndexes_h[i0])
 			{
-				x = getValueFromRelation(lattice->velocityVector_h[i0].x);
-				y = getValueFromRelation(lattice->velocityVector_h[i0].y);
-				z = getValueFromRelation(lattice->velocityVector_h[i0].z);
+				x = getValueFromRelation(lattice->velocityVector_h[i0*3]);
+				y = getValueFromRelation(lattice->velocityVector_h[i0*3+1]);
+				z = getValueFromRelation(lattice->velocityVector_h[i0*3+2]);
 
-				vx = lattice->velocityVector_h[i0].x;
-				vy = lattice->velocityVector_h[i0].y;
-				vz = lattice->velocityVector_h[i0].z;
+				vx = lattice->velocityVector_h[i0*3];
+				vy = lattice->velocityVector_h[i0*3+1];
+				vz = lattice->velocityVector_h[i0*3+2];
 
 				glColor3f(x,y,z);
 				normMag = sqrtf(vx*vx + vy*vy + vz*vz)*10; 
 
 				glBegin(GL_LINES);
 					glVertex3f(posX, posY, posZ);
-					glVertex3f(posX + lattice->velocityVector_h[i0].x / normMag, posY + lattice->velocityVector_h[i0].y / normMag,
-						posZ + lattice->velocityVector_h[i0].z / normMag);
+					glVertex3f(posX + lattice->velocityVector_h[i0*3] / normMag, posY + lattice->velocityVector_h[i0*3+1] / normMag,
+						posZ + lattice->velocityVector_h[i0*3+2] / normMag);
 				glEnd();
 			}
 			else
