@@ -1,4 +1,0 @@
-TEXINPUTS=./Packages/:$TEXINPUTS pdflatex *.tex
-bibtex main.aux
-TEXINPUTS=./Packages/:$TEXINPUTS pdflatex *.tex
-TEXINPUTS=./Packages/:$TEXINPUTS pdflatex *.tex
