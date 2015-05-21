@@ -15,7 +15,7 @@ latticed3q19::latticed3q19(int width, int height, int depth, float tau)
 
 	initThrust();
 }
-	
+
 latticed3q19::~latticed3q19()
 {
 
@@ -27,7 +27,7 @@ void latticed3q19::step(void)
 	float time;
 	cudaEventCreate(&start);
 	cudaEventCreate(&stop);
-	
+
 
 	latticeSolidIndexes_d = latticeSolidIndexes_h;
 	velocityVector_d = velocityVector_h;
@@ -40,7 +40,7 @@ void latticed3q19::step(void)
 	cudaEventSynchronize(stop);
 
 	cudaEventElapsedTime(&time, start, stop);
-	printf("Time for stream: %f ms\n", time);
+	printf("\nTime for stream: %f ms\n", time);
 
 	cudaEventRecord(start, 0);
 
@@ -56,7 +56,20 @@ void latticed3q19::step(void)
 }
 
 void latticed3q19::initThrust()
-{	
+{
+
+	for (unsigned int i = 0; i < 19 * 3; i++)
+	{
+		speedDirection_d.push_back(speedDirection_in[i]);
+	}
+	speedDirection_d_ptr = thrust::raw_pointer_cast(speedDirection_d.data());
+
+	for (unsigned int i = 0; i < 19; i++)
+	{
+		latticeWeights_d.push_back(latticeWeights_in[i]);
+	}
+	latticeWeights_d_ptr = thrust::raw_pointer_cast(latticeWeights_d.data());
+
 
 	try
 	{
@@ -74,13 +87,22 @@ void latticed3q19::initThrust()
 		{
 			for (unsigned int i = 0; i < _width; i++)
 			{
-				for (unsigned int l = 0; l < 19; l++)
-					latticeIndexes_h.push_back(make_uint4(i, j, k, l));
+				for (unsigned int w = 0; w < 19; w++)
+				{
+					//latticeIndexes_h.push_back(make_uint4(i, j, k, w));
+					latticeIndexes_hi.push_back(i);
+					latticeIndexes_hj.push_back(j);
+					latticeIndexes_hk.push_back(k);
+					latticeIndexes_hw.push_back(w);
+				}
 			}
 		}
 	}
 
-	latticeIndexes_d = latticeIndexes_h;
+	latticeIndexes_di = latticeIndexes_hi;
+	latticeIndexes_dj = latticeIndexes_hj;
+	latticeIndexes_dk = latticeIndexes_hk;
+	latticeIndexes_dw = latticeIndexes_hw;
 
 	ftemp_d = thrust::device_vector<float>(_numberAllElements, 0.0f);
 
@@ -88,15 +110,11 @@ void latticed3q19::initThrust()
 
 	latticeSolidIndexes_d = thrust::device_vector<unsigned int>(_numberLatticeElements, 0);
 
-	//velocityVector_h = thrust::host_vector<float3>(_numberLatticeElements, make_float3(0,0,0));
-	velocityVector_h = thrust::host_vector<float>(_numberLatticeElements*3, 0.0f);
+	velocityVector_h = thrust::host_vector<float>(_numberLatticeElements * 3, 0.0f);
 
-	//velocityVector_d = thrust::device_vector<float3>(_numberLatticeElements, make_float3(0,0,0));
-	velocityVector_d = thrust::device_vector<float>(_numberLatticeElements*3, 0.0f);
+	velocityVector_d = thrust::device_vector<float>(_numberLatticeElements * 3, 0.0f);
 
 	latticeWeights_d = latticeWeights_h;
-
-	speedDirection_d = speedDirection_h;
 }
 
 void latticed3q19::stream()
@@ -104,18 +122,30 @@ void latticed3q19::stream()
 	float* f_d_ptr = thrust::raw_pointer_cast(f_d.data());
 	float* ftemp_d_ptr = thrust::raw_pointer_cast(ftemp_d.data());
 	unsigned int* lsi_ptr = thrust::raw_pointer_cast(latticeSolidIndexes_d.data());
-	thrust::for_each(	
-						latticeIndexes_d.begin(), latticeIndexes_d.end(),
-						latticeStream(	
-										f_d_ptr,
-										ftemp_d_ptr,
-										_width, _height, _depth, _stride,
-										lsi_ptr
-									 )
-					);
-	f_d = ftemp_d;
-	
-	//thrust::copy(ftemp_d.begin(), ftemp_d.end(), f_d.begin());
+	thrust::for_each(
+		thrust::make_zip_iterator(
+			thrust::make_tuple(
+				latticeIndexes_di.begin(),
+				latticeIndexes_dj.begin(),
+				latticeIndexes_dk.begin(),
+				latticeIndexes_dw.begin()
+			)
+		),
+		thrust::make_zip_iterator(
+			thrust::make_tuple(
+				latticeIndexes_di.end(),
+				latticeIndexes_dj.end(),
+				latticeIndexes_dk.end(),
+				latticeIndexes_dw.end()
+			)
+		),
+		latticeStream(
+			f_d_ptr, ftemp_d_ptr, speedDirection_d_ptr,
+			_width, _height, _depth, _stride,
+			lsi_ptr
+		)
+	);
+	thrust::copy(ftemp_d.begin(), ftemp_d.end(), f_d.begin());
 }
 
 void latticed3q19::collide(void)
@@ -124,25 +154,57 @@ void latticed3q19::collide(void)
 	float* vv_ptr = thrust::raw_pointer_cast(velocityVector_d.data());
 	unsigned int* lsi_ptr = thrust::raw_pointer_cast(latticeSolidIndexes_d.data());
 	thrust::for_each(
-						latticeIndexes_d.begin(), latticeIndexes_d.end(),
-						latticeCollide(
-										f_d_ptr,
-										vv_ptr,
-										_width, _height, _stride, _tau,
-										lsi_ptr
-									  )
-					);
+		thrust::make_zip_iterator(
+			thrust::make_tuple(
+				latticeIndexes_di.begin(),
+				latticeIndexes_dj.begin(),
+				latticeIndexes_dk.begin(),
+				latticeIndexes_dw.begin()
+			)
+		),
+		thrust::make_zip_iterator(
+			thrust::make_tuple(
+				latticeIndexes_di.end(),
+				latticeIndexes_dj.end(),
+				latticeIndexes_dk.end(),
+				latticeIndexes_dw.end()
+			)
+		),
+		latticeCollide(
+			f_d_ptr,
+			vv_ptr,
+			speedDirection_d_ptr,
+			latticeWeights_d_ptr,
+			_width, _height, _stride, _tau,
+			lsi_ptr
+		)
+	);
 }
 
 void latticed3q19::calculateInEquilibriumFunction(float3 _inVector, float inRo)
 {
 	thrust::for_each(
-						latticeIndexes_d.begin(), latticeIndexes_d.end(),
-						latticeInEq(
-										thrust::raw_pointer_cast(f_d.data()),
-										thrust::raw_pointer_cast(ftemp_d.data()),
-										_inVector, _width, _height, _stride, inRo, _c
-						)
-					);
+		thrust::make_zip_iterator(
+			thrust::make_tuple(
+				latticeIndexes_di.begin(),
+				latticeIndexes_dj.begin(),
+				latticeIndexes_dk.begin(),
+				latticeIndexes_dw.begin()
+			)
+		),
+		thrust::make_zip_iterator(
+			thrust::make_tuple(
+				latticeIndexes_di.end(),
+				latticeIndexes_dj.end(),
+				latticeIndexes_dk.end(),
+				latticeIndexes_dw.end()
+			)
+		),
+		latticeInEq(
+			thrust::raw_pointer_cast(f_d.data()),
+			thrust::raw_pointer_cast(ftemp_d.data()),
+			_inVector, _width, _height, _stride, inRo, _c
+		)
+	);
 }
 #endif

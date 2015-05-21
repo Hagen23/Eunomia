@@ -372,7 +372,7 @@ int main( int argc, const char **argv ) {
 	glutInitDisplayMode (GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
 	glutInitWindowSize (500, 500); 
 	glutInitWindowPosition (100, 100);
-	glutCreateWindow ("1048576 points");
+	glutCreateWindow ("CUDA 3DVIS LB");
 	glutReshapeFunc (reshape);
 	glutKeyboardFunc (keys);
 	glutMouseFunc(mouse);

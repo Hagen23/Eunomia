@@ -105,13 +105,10 @@ copy "$(CudaToolkitBinDir)\cudart*.dll" "$(OutDir)"</Command>
     </PostBuildEvent>
     <CudaCompile>
       <Include>C:\ProgramData\NVIDIA Corporation\CUDA Samples\v6.5\common\inc</Include>
-<<<<<<< HEAD
       <TargetMachinePlatform>32</TargetMachinePlatform>
       <CodeGeneration>compute_20,sm_20</CodeGeneration>
-=======
       <TargetMachinePlatform>64</TargetMachinePlatform>
-      <CodeGeneration>compute_30,sm_30;%(CodeGeneration)</CodeGeneration>
->>>>>>> origin/master
+      <CodeGeneration>compute_20,sm_20</CodeGeneration>
       <GPUDebugInfo>false</GPUDebugInfo>
     </CudaCompile>
   </ItemDefinitionGroup>
@@ -142,6 +139,7 @@ copy "$(CudaToolkitBinDir)\cudart*.dll" "$(OutDir)"</Command>
       </FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>C:\ProgramData\NVIDIA Corporation\CUDA Samples\v6.5\common\inc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
