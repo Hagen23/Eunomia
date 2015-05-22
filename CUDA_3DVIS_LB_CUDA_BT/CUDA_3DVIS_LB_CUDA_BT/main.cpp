@@ -43,7 +43,7 @@ using namespace std;
 #define BUFFER_OFFSET( i )			((char *)NULL + ( i ))
 #define LOCATION_OFFSET				BUFFER_OFFSET(  0 )
 #define COLOR_OFFSET				BUFFER_OFFSET( 16 )
-#define LATTICE_DIM					30
+#define LATTICE_DIM					54
 
 // global variables that will store handles to the data we
 // intend to share between OpenGL and CUDA calculated data.
@@ -130,23 +130,21 @@ void display (void)
 
 			if(!lattice->solid[i0])
 			{
+				x = getValueFromRelation(lattice->velocityVector[i0*3]);
+				y = getValueFromRelation(lattice->velocityVector[i0*3+1]);
+				z = getValueFromRelation(lattice->velocityVector[i0*3+2]);
 
-//				cout << posX << " " << posY << " " << posZ << endl;
-				x = getValueFromRelation(lattice->velocityVector[i0].x);
-				y = getValueFromRelation(lattice->velocityVector[i0].y);
-				z = getValueFromRelation(lattice->velocityVector[i0].z);
-
-				vx = lattice->velocityVector[i0].x;
-				vy = lattice->velocityVector[i0].y;
-				vz = lattice->velocityVector[i0].z;
+				vx = lattice->velocityVector[i0*3];
+				vy = lattice->velocityVector[i0*3+1];
+				vz = lattice->velocityVector[i0*3+2];
 
 				glColor3f(x,y,z);
 				normMag = sqrtf(vx*vx + vy*vy + vz*vz)*10; 
 
 				glBegin(GL_LINES);
 					glVertex3f(posX, posY, posZ);
-					glVertex3f(posX + lattice->velocityVector[i0].x / normMag, posY + lattice->velocityVector[i0].y / normMag,
-						posZ + lattice->velocityVector[i0].z / normMag);
+					glVertex3f(posX + lattice->velocityVector[i0*3] / normMag, posY + lattice->velocityVector[i0*3+1] / normMag,
+						posZ + lattice->velocityVector[i0*3+2] / normMag);
 				glEnd();
 			}
 			else
@@ -159,7 +157,7 @@ void display (void)
 			}
 		}
 	glPopMatrix();
-	
+
 	glutSwapBuffers();
 }
 
