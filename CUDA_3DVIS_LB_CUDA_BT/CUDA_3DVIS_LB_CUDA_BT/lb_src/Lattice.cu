@@ -18,10 +18,11 @@ latticed3q19::latticed3q19(int width, int height, int depth, float tau)
 	ftemp = new float[_numberAllElements]();
 	feq = new float[_stride]();
 	solid = new unsigned int[_numberLatticeElements]();
-	velocityVector = new float3[_numberLatticeElements]();
+	velocityVector = new float[_numberLatticeElements*3]();
 
 	outputFile.open("cuda_global_times_1.cvs");
-	outputFile << "Lattice Width " << _width << ";Lattice Height " << _height << ";Lattice Depth " << _depth << std::endl;
+	outputFile << "Lattice Width " << _width << ";Lattice Height " << _height << ";Lattice Depth " << _depth << ";Total cells" << std::endl;
+	outputFile << _width << ";" << _height << ";" << _depth << ";" << _numberLatticeElements << std::endl << std::endl;
 	outputFile << "Stream;Collide.\n";
 	initCUDA();
 
@@ -41,14 +42,14 @@ void latticed3q19::initCUDA()
 		sD[i*3+2] = speedDirection[i].z;
 	}
 
-	cudaMalloc((void**)&f_d, _numberAllElements*sizeof(float));
-	cudaMalloc((void**)&ftemp_d, _numberAllElements*sizeof(float));
-	cudaMalloc((void**)&solid_d, _numberLatticeElements*sizeof(float));
-	cudaMalloc((void**)&velocityVector_d, _numberLatticeElements*sizeof(float3));
+	checkCudaErrors(cudaMalloc((void**)&f_d, _numberAllElements*sizeof(float)));
+	checkCudaErrors(cudaMalloc((void**)&ftemp_d, _numberAllElements*sizeof(float)));
+	checkCudaErrors(cudaMalloc((void**)&solid_d, _numberLatticeElements*sizeof(float)));
+	checkCudaErrors(cudaMalloc((void**)&velocityVector_d, _numberLatticeElements*sizeof(float) * 3));
 
-	cudaMemcpyToSymbol( dims, dimens, sizeof(int)*4);
-	cudaMemcpyToSymbol( speedDirection_c, sD, sizeof(float)*19*3 );
-	cudaMemcpyToSymbol( latticeWeights_c, lW, sizeof(float)*19 );
+	checkCudaErrors(cudaMemcpyToSymbol(dims, dimens, sizeof(int) * 4));
+	checkCudaErrors(cudaMemcpyToSymbol(speedDirection_c, sD, sizeof(float) * 19 * 3));
+	checkCudaErrors(cudaMemcpyToSymbol(latticeWeights_c, lW, sizeof(float) * 19));
 }
 	
 latticed3q19::~latticed3q19()
@@ -114,25 +115,25 @@ void latticed3q19::stream()
 	dim3 	blocks(_width, _height, 1);
 	dim3	threads(_depth, 19,1);
 
-	cudaMemcpy(f_d, f, _numberAllElements*sizeof(float), cudaMemcpyHostToDevice);
-	cudaMemcpy(ftemp_d, ftemp, _numberAllElements*sizeof(float), cudaMemcpyHostToDevice);
-	cudaMemcpy(solid_d, solid, _numberLatticeElements*sizeof(unsigned int), cudaMemcpyHostToDevice);
+	checkCudaErrors(cudaMemcpy(f_d, f, _numberAllElements*sizeof(float), cudaMemcpyHostToDevice));
+	checkCudaErrors(cudaMemcpy(ftemp_d, ftemp, _numberAllElements*sizeof(float), cudaMemcpyHostToDevice));
+	checkCudaErrors(cudaMemcpy(solid_d, solid, _numberLatticeElements*sizeof(unsigned int), cudaMemcpyHostToDevice));
 
-	cudaEventRecord(start, 0);
+	checkCudaErrors(cudaEventRecord(start, 0));
 
 	stream_device<<<blocks, threads>>>(f_d, ftemp_d, solid_d);
 
 	cudaEventRecord(stop, 0);
 	cudaEventSynchronize(stop);
 
-	cudaEventElapsedTime(&time, start, stop);
+	checkCudaErrors(cudaEventElapsedTime(&time, start, stop));
 	//printf("Time for stream: %f ms\n", time);
 	outputFile << time << ";";
 	
-	cudaMemcpy(f, ftemp_d, _numberAllElements*sizeof(float), cudaMemcpyDeviceToHost);
+	checkCudaErrors(cudaMemcpy(f, ftemp_d, _numberAllElements*sizeof(float), cudaMemcpyDeviceToHost));
 }
 
-__device__ float calculateSpeedVector_device(int index, float *f, float3 *velocityVector_d)
+__device__ float calculateSpeedVector_device(int index, float *f, float *velocityVector_d)
 {
 	float ro = 0, rovx = 0, rovy = 0, rovz = 0; 
 	int i0 = 0;
@@ -146,38 +147,37 @@ __device__ float calculateSpeedVector_device(int index, float *f, float3 *veloci
 		rovz += f[i0] * speedDirection_c[i*3+2];
 	}
 
-	velocityVector_d[index].x = rovx / ro;
-	//printf("%f %f %f \n", velocityVector_d[index].x, ro, rovx);
-	velocityVector_d[index].y = rovy / ro;
-	velocityVector_d[index].z = rovz / ro;
 	// In order to check that ro is not NaN you check if it is equal to itself: if it is a Nan, the comparison is false
-	/*if (ro == ro && ro != 0.0)
+	if (ro == ro && ro != 0.0)
 	{
-		velocityVector_d[index].x = rovx / ro;
-		velocityVector_d[index].y = rovy / ro;
-		velocityVector_d[index].z = rovz / ro;
+		velocityVector_d[index*3] = rovx / ro;
+		velocityVector_d[index*3+1] = rovy / ro;
+		velocityVector_d[index*3+2] = rovz / ro;
 	}
 	else
 	{
-		velocityVector_d[index].x = 0;
-		velocityVector_d[index].y = 0;
-		velocityVector_d[index].z = 0;
-	}*/
+		printf("ERROR!\n");
+		velocityVector_d[index*3] = 0;
+		velocityVector_d[index*3+1] = 0;
+		velocityVector_d[index*3+2] = 0;
+	}
 
 	return ro;
 }
 
-__device__ void calculateEquilibriumFunction_device(int index, float *feq, int ro, float c, float3 *velocityVector_d)
+__device__ void calculateEquilibriumFunction_device(int index, float *feq, int ro, float c, float *velocityVector_d)
 {
 	float w;
 	float eiU = 0;	// Dot product between speed direction and velocity
 	float eiUsq = 0; // Dot product squared
-	float uSq = dot(velocityVector_d[index], velocityVector_d[index]);	//Velocity squared
+	float uSq = dot(velocityVector_d[index * 3], velocityVector_d[index * 3 + 1], velocityVector_d[index * 3 +2],
+					velocityVector_d[index * 3], velocityVector_d[index * 3 + 1], velocityVector_d[index * 3 + 2]);	//Velocity squared
 
 	for (int i = 0; i<dims[3]; i++)
 	{
 		w = latticeWeights_c[i];
-		eiU = dot(speedDirection_c[i*3], speedDirection_c[i*3+1], speedDirection_c[i*3+2], velocityVector_d[index]);
+		eiU = dot(speedDirection_c[i*3], speedDirection_c[i*3+1], speedDirection_c[i*3+2], 
+					velocityVector_d[index * 3], velocityVector_d[index * 3 + 1], velocityVector_d[index * 3 + 2]);
 		eiUsq = eiU * eiU;
 
 		feq[i] = w * ro * (1.f + (eiU) / (c*c) + (eiUsq) / (2 * c * c * c * c) - (uSq) / (2 * c * c));
@@ -199,7 +199,7 @@ __device__ void solid_BC_device(int i0, float *f)
 	temp = f[i0*dims[3]+16];	f[i0*dims[3]+16] = f[i0*dims[3]+17];	f[i0*dims[3]+17] = temp;		// f16	<-> f17
 }
 
-__global__ void collide_device(float *f, unsigned int *solid, float tau, float c, float3 *velocityVector_d)
+__global__ void collide_device(float *f, unsigned int *solid, float tau, float c, float *velocityVector_d)
 {
 	int 	index = I3D(dims[0], dims[1], blockIdx.x, blockIdx.y, threadIdx.x);
 	int		iBase;
@@ -209,12 +209,7 @@ __global__ void collide_device(float *f, unsigned int *solid, float tau, float c
 	{
 		ro = calculateSpeedVector_device(index, f, velocityVector_d);
 		calculateEquilibriumFunction_device(index, feq, ro, c, velocityVector_d);
-		
-//			for (int l = 0; l < 19; l++)
-//			{
-//				iBase = index * dims[3] + l;
-//				f[iBase] = f[iBase] - (f[iBase] - feq[l]) / tau;
-//			}
+
 		iBase = index * dims[3] + threadIdx.y;
 		f[iBase] = f[iBase] - (f[iBase] - feq[threadIdx.y]) / tau;
 	}
@@ -232,11 +227,10 @@ void latticed3q19::collide(void)
 	dim3 	blocks(_width, _height, 1);
 	dim3	threads(_depth, 19,1);
 
-	cudaMemcpy(f_d, f, _numberAllElements*sizeof(float), cudaMemcpyHostToDevice);
-	//cudaMemcpy(solid_d, solid, _numberLatticeElements*sizeof(unsigned int), cudaMemcpyHostToDevice);
-	cudaMemcpy(velocityVector_d, velocityVector, _numberLatticeElements*sizeof(float3), cudaMemcpyHostToDevice);
+	checkCudaErrors(cudaMemcpy(f_d, f, _numberAllElements*sizeof(float), cudaMemcpyHostToDevice));
+	checkCudaErrors(cudaMemcpy(velocityVector_d, velocityVector, _numberLatticeElements*sizeof(float3), cudaMemcpyHostToDevice));
 
-	cudaEventRecord(start, 0);
+	checkCudaErrors(cudaEventRecord(start, 0));
 
 	collide_device<<<blocks, threads>>>(f_d, solid_d, _tau, c, velocityVector_d);
 
@@ -247,76 +241,8 @@ void latticed3q19::collide(void)
 	//printf("Time for collide: %f ms\n", time);
 	outputFile << time << "\n";
 	
-	cudaMemcpy(f, f_d, _numberAllElements*sizeof(float), cudaMemcpyDeviceToHost);
-	cudaMemcpy(velocityVector, velocityVector_d, _numberLatticeElements*sizeof(float3), cudaMemcpyDeviceToHost);
-}
-
-void latticed3q19::applyBoundaryConditions()
-{
-	//in_BC(vector3d(0.0,0.0, -0.6));
-}
-
-void latticed3q19::solid_BC(int i0)
-{
-	float temp;
-
-	temp = f[i0*_stride+1]; 	f[i0*_stride+1] = f[i0*_stride+2];		f[i0*_stride+2] = temp;		// f1	<-> f2
-	temp = f[i0*_stride+3];		f[i0*_stride+3] = f[i0*_stride+4];		f[i0*_stride+4] = temp;		// f3	<-> f4
-	temp = f[i0*_stride+5];		f[i0*_stride+5] = f[i0*_stride+6];		f[i0*_stride+6] = temp;		// f5	<-> f6
-	temp = f[i0*_stride+7];		f[i0*_stride+7] = f[i0*_stride+12];		f[i0*_stride+12] = temp;		// f7	<-> f12
-	temp = f[i0*_stride+8];		f[i0*_stride+8] = f[i0*_stride+11];		f[i0*_stride+11] = temp;		// f8	<-> f11
-	temp = f[i0*_stride+9];		f[i0*_stride+9] = f[i0*_stride+14];		f[i0*_stride+14] = temp;		// f9	<-> f14
-	temp = f[i0*_stride+10];	f[i0*_stride+10] = f[i0*_stride+13];	f[i0*_stride+13] = temp;		// f10	<-> f13
-	temp = f[i0*_stride+15];	f[i0*_stride+15] = f[i0*_stride+18];	f[i0*_stride+18] = temp;		// f15	<-> f18
-	temp = f[i0*_stride+16];	f[i0*_stride+16] = f[i0*_stride+17];	f[i0*_stride+17] = temp;		// f16	<-> f17
-}
-
-void latticed3q19::calculateSpeedVector(int index)
-{
-	//calculateRo();
-	//rovx = rovy = rovz = 0; 
-
-	ro = rovx = rovy = rovz = 0;
-	int i0 = 0;
-	for (int i = 0; i<_stride; i++)
-	{
-		i0 = index * _stride + i;
-		ro += f[i0];
-		rovx += f[i0] * speedDirection[i].x;
-		rovy += f[i0] * speedDirection[i].y;
-		rovz += f[i0] * speedDirection[i].z;
-	}
-
-	// In order to check that ro is not NaN you check if it is equal to itself: if it is a Nan, the comparison is false
-	if (ro == ro && ro != 0.0)
-	{
-		velocityVector[index].x = rovx / ro;
-		velocityVector[index].y = rovy / ro;
-		velocityVector[index].z = rovz / ro;
-	}
-	else
-	{
-		velocityVector[index].x = 0;
-		velocityVector[index].y = 0;
-		velocityVector[index].z = 0;
-	}
-}
-
-void latticed3q19::calculateEquilibriumFunction(int index)
-{
-	float w;
-	float eiU = 0;	// Dot product between speed direction and velocity
-	float eiUsq = 0; // Dot product squared
-	float uSq = dot(velocityVector[index], velocityVector[index]);	//Velocity squared
-
-	for (int i = 0; i<_stride; i++)
-	{
-		w = latticeWeights[i];
-		eiU = dot(speedDirection[i], velocityVector[index]);
-		eiUsq = eiU * eiU;
-
-		feq[i] = w * ro * (1.f + (eiU) / (c*c) + (eiUsq) / (2 * c * c * c * c) - (uSq) / (2 * c * c));
-	}
+	checkCudaErrors(cudaMemcpy(f, f_d, _numberAllElements*sizeof(float), cudaMemcpyDeviceToHost));
+	checkCudaErrors(cudaMemcpy(velocityVector, velocityVector_d, _numberLatticeElements*sizeof(float3), cudaMemcpyDeviceToHost));
 }
 
 void latticed3q19::calculateInEquilibriumFunction(int index, float3 inVector, float inRo)

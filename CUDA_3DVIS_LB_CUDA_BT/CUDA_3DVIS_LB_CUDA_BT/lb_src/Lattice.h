@@ -6,6 +6,7 @@
 #include <cmath>
 #include <vector>
 #include <vector_types.h>
+#include <helper_cuda.h>  
 
 //Macro to linearly go over the arrays
 __host__ __device__
@@ -21,10 +22,10 @@ static float dot(float3 a, float3 b)
 	return a.x*b.x + a.y*b.y + a.z * b.z;
 }
 
-__device__
-static float dot(float ax, float ay, float az, float3 b)
+__host__ __device__
+static float dot(float ax, float ay, float az, float bx, float by, float bz)
 {
-	return ax * b.x + ay * b.y + az * b.z;
+	return ax * bx + ay * by + az * bz;
 }
 
 static float latticeWeights[19] =
@@ -54,7 +55,7 @@ private:
 
 	float			*f, *ftemp, *feq, *f_d, *ftemp_d;
 
-	float3			*velocityVector_d;
+	float			*velocityVector_d;
 	
 	float			_tau, c;
 	
@@ -90,7 +91,7 @@ private:
 public:
 
 	unsigned int	*solid;
-	float3	*velocityVector;
+	float			*velocityVector;
 
 	void calculateInEquilibriumFunction(int index, float3 inVector, float inRo);
 	
