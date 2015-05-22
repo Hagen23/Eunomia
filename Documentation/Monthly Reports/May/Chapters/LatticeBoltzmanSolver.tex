@@ -44,8 +44,7 @@ the notions of streaming in space and billiard-like collision interactions.
 		f_a(x + e_a \Delta t, t + \Delta t) = f_a(x,t)
 	\end{equation}
 	where $x$ is the lattice node position, $e_a$ is the direction index, $t$ is the time step, and $\Delta t$ is the next step in the simulation.
-	\item Collision: Collision of the fluid particles is considered as a relaxation towards a lo-
-cal equilibrium. The collision equations are as follows:
+	\item Collision: Collision of the fluid particles is considered as a relaxation towards a local equilibrium. The collision equations are as follows:
 	\begin{equation}
 		f_a(x,t) = f_a(x,t) - \frac{f_a(x,t)-f_a^{eq}(x,t)}{\tau}
 	\end{equation}
@@ -80,7 +79,7 @@ cal equilibrium. The collision equations are as follows:
     \end{subfigure}
 
     \caption{Implementation of the 3D Lattice Boltzmann method using CUDA.}
-    \label{fig:d2q9}
+    \label{fig:d3q19}
 \end{figure}
 
 \paragraph{}We tested two different approaches for the CUDA implementation of the Lattice Boltzmann Solver. The first approach was using Thrust. Thrust is a C++ template library for CUDA based on the Standard Template Library (STL). It allows the implementation of high performance parallel applications with minimal programming effort through a high-level interface that is fully interoperable with CUDA C \citep{nvidia2015thrust}. Using thrust the development of the solver was straightforward. After a CPU version was developed, we used the \textit{thrust::for\_each} algorithm to map the different steps of the solver to each lattice node. 

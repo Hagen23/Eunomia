@@ -222,3 +222,10 @@ Documentation/Monthly Reports/May/main.out
 *.gz
 Documentation/Monthly Reports/May/main.synctex.gz
 Documentation/Monthly Reports/May/main.pdf
+CUDA_3DVIS_LB_CUDA/CUDA_3DVIS_LB_CUDA/CUDA_3DVIS_LB_CUDA.vcxproj
+*.aux
+Documentation/Monthly Reports/May/main.bbl
+Documentation/Monthly Reports/May/main.pdf
+Documentation/Monthly Reports/May/main.aux
+Documentation/Monthly Reports/May/main.out
+Documentation/Monthly Reports/May/main.synctex.gz

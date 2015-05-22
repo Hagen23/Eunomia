@@ -1,5 +1,3 @@
-#pragma once
-
 // includes, system
 #include <stdlib.h>
 #include <stdio.h>
@@ -36,7 +34,7 @@
 #include <helper_cuda.h>         // helper functions for CUDA error check
 #include <helper_cuda_gl.h>      // helper functions for CUDA/GL interop
 
-#include "lb_src/Lattice_thrust.h"
+#include "lb_src/Lattice.h"
 
 using namespace std;
 
@@ -45,8 +43,7 @@ using namespace std;
 #define BUFFER_OFFSET( i )			((char *)NULL + ( i ))
 #define LOCATION_OFFSET				BUFFER_OFFSET(  0 )
 #define COLOR_OFFSET				BUFFER_OFFSET( 16 )
-#define LATTICE_DIM					30
-
+#define LATTICE_DIM					54
 // global variables that will store handles to the data we
 // intend to share between OpenGL and CUDA calculated data.
 // handle for OpenGL side:
@@ -74,7 +71,7 @@ unsigned int *cmap_rgba, *plot_rgba;  //rgba arrays for plotting
 unsigned int latticeWidth = LATTICE_DIM, latticeHeight = LATTICE_DIM, latticeDepth = LATTICE_DIM, ncol;
 float latticeTau = 1.5f, roIn = 0.1f;
 bool withSolid = false, keypressed = false;
-float3 vectorIn = make_float3(0,0,0);
+float3 vectorIn = { 0.f, 0.f, 0.f };
 latticed3q19 *lattice; 
 
 float cubeFaces[24][3] = 
@@ -130,23 +127,25 @@ void display (void)
 
 			posX = i / (float)latticeWidth; posY =  j / (float)latticeHeight; posZ = k / (float)latticeDepth;
 
-			if(!lattice->latticeSolidIndexes_h[i0])
+			if(!lattice->solid[i0])
 			{
-				x = getValueFromRelation(lattice->velocityVector_h[i0*3]);
-				y = getValueFromRelation(lattice->velocityVector_h[i0*3+1]);
-				z = getValueFromRelation(lattice->velocityVector_h[i0*3+2]);
 
-				vx = lattice->velocityVector_h[i0*3];
-				vy = lattice->velocityVector_h[i0*3+1];
-				vz = lattice->velocityVector_h[i0*3+2];
+//				cout << posX << " " << posY << " " << posZ << endl;
+				x = getValueFromRelation(lattice->velocityVector[i0].x);
+				y = getValueFromRelation(lattice->velocityVector[i0].y);
+				z = getValueFromRelation(lattice->velocityVector[i0].z);
+
+				vx = lattice->velocityVector[i0].x;
+				vy = lattice->velocityVector[i0].y;
+				vz = lattice->velocityVector[i0].z;
 
 				glColor3f(x,y,z);
 				normMag = sqrtf(vx*vx + vy*vy + vz*vz)*10; 
 
 				glBegin(GL_LINES);
 					glVertex3f(posX, posY, posZ);
-					glVertex3f(posX + lattice->velocityVector_h[i0*3] / normMag, posY + lattice->velocityVector_h[i0*3+1] / normMag,
-						posZ + lattice->velocityVector_h[i0*3+2] / normMag);
+					glVertex3f(posX + lattice->velocityVector[i0].x / normMag, posY + lattice->velocityVector[i0].y / normMag,
+						posZ + lattice->velocityVector[i0].z / normMag);
 				glEnd();
 			}
 			else
@@ -183,7 +182,7 @@ void idle(void)
 	cudaEventSynchronize(stop);
 
 	cudaEventElapsedTime(&time, start, stop);
-	printf("Time for the kernel: %f ms\n", time);
+	//printf("Time for the kernel: %f ms\n", time);
 
 	if(keypressed)
 	{
@@ -195,7 +194,7 @@ void idle(void)
 					for(int i = latticeWidth/4; i< latticeWidth/2.0 + latticeWidth/4; i++)
 					{
 						int i0 = I3D(latticeWidth, latticeHeight, i, j, k);
-						lattice->latticeSolidIndexes_h[i0] = 1;
+						lattice->solid[i0] = 1;
 					}
 
 			keypressed = false;
@@ -208,7 +207,7 @@ void idle(void)
 					for(int i = latticeWidth/4; i< latticeWidth/2.0 + latticeWidth/4; i++)
 					{
 						int i0 = I3D(latticeWidth, latticeHeight, i, j, k);
-						lattice->latticeSolidIndexes_h[i0] = 0;
+						lattice->solid[i0] = 0;
 					}
 
 			keypressed = false;
@@ -253,8 +252,9 @@ void keys (unsigned char key, int x, int y)
 	switch (key) {
 		case 27:
             // clean up OpenGL and CUDA
-            unregRes( &resource1 );
-            glDeleteBuffers( 1, &vbo );
+            //unregRes( &resource1 );
+            //glDeleteBuffers( 1, &vbo );
+			lattice->~latticed3q19();
             exit(0);
 			break;
 		case 'a':
@@ -298,8 +298,8 @@ void initGL ()
 
 void initCUDA (int ARGC, const char **ARGV)
 {
-	int i0 = 0;
-    chooseDev( ARGC, ARGV );
+//	int i0 = 0;
+//    chooseDev( ARGC, ARGV );
 	//creating a vertex buffer object in OpenGL and storing the handle in our global
 	//variable GLuint vbo
    /* glGenBuffers( 1, &vbo );
@@ -331,19 +331,12 @@ void initCUDA (int ARGC, const char **ARGV)
 	//runCuda(&resource1, devPtr, DIM, dt);
 }
 
-int init(void)
+void init(void)
 {
 	lattice = new latticed3q19(latticeWidth, latticeHeight, latticeDepth, latticeTau);
 
-	lattice->calculateInEquilibriumFunction(vectorIn, roIn);
-
-	//for(int k = latticeDepth/4; k < latticeDepth/2.0 + latticeDepth/4; k++)
-	//	for(int j = latticeHeight/4; j< latticeHeight/2.0 +latticeHeight/4; j++)
-	//		for(int i = latticeWidth/4; i< latticeWidth/2.0 + latticeWidth/4; i++)
-	//		{
-	//			int i0 = I3D(latticeWidth, latticeHeight, i, j, k);
-	//			lattice->latticeElements[i0].isSolid = true;
-	//		}
+	for(int i = 0; i<lattice->getNumElements(); i++)
+		lattice->calculateInEquilibriumFunction(i, vectorIn, roIn);
 
 	for (unsigned int k = 0; k < latticeDepth; k++)
 	{
@@ -354,12 +347,11 @@ int init(void)
 				if (k == 0 || k == (latticeDepth -1) || i == 0 || i == latticeWidth -1 || j == 0 || j == latticeHeight -1)
 				{
 					int i0 = I3D(latticeWidth, latticeHeight, i, j, k);
-					lattice->latticeSolidIndexes_h[i0] = 1;
+					lattice->solid[i0] = 1;
 				}
 			}
 		}
 	}
-	return 0;
 }
 
 int main( int argc, const char **argv ) {
@@ -380,11 +372,7 @@ int main( int argc, const char **argv ) {
 	initGL ();
 	initCUDA(argc, argv);
 
-	if(init()==-1) 
-	{
-		cout << "Error opening color file\n";
-		return 0;
-	}
+	init();
 
 	glutDisplayFunc(display); 
 	glutIdleFunc (idle);

@@ -24,6 +24,12 @@ static float dot(float3 a, float3 b)
 	return a.x*b.x + a.y*b.y + a.z * b.z;
 }
 
+__host__ __device__
+static float dotFlat(float* a, float* b)
+{
+	return a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
+}
+
 static float latticeWeights_in[19] =
 {
 	1.f / 9.f,
@@ -99,14 +105,14 @@ struct latticeStream
 struct latticeCollide
 {
 	float			*f, *feq;
-	float3			*velocityVector, speedDirection[19];
+	float			*velocityVector, speedDirection[19*3];
 	float			ro, rovx, rovy, rovz, tau, c;
 	unsigned int	width, height, stride;
 	unsigned int	*solid;
 	float latticeWeights[19];
 
 	latticeCollide(	float* _f, 
-					float3* _velocityVector, 
+					float* _velocityVector, 
 					unsigned int _width, unsigned int _height, unsigned int _stride, float _tau, unsigned int *_solid) :
 					f(_f), velocityVector(_velocityVector), width(_width), height(_height), stride(_stride), tau(_tau), solid(_solid)
 	{
@@ -114,7 +120,9 @@ struct latticeCollide
 
 		for (int i = 0; i < 19; i++)
 		{
-			speedDirection[i] = speedDirection_in[i];
+			speedDirection[i*3] = speedDirection_in[i].x;
+			speedDirection[i * 3 + 1] = speedDirection_in[i].y;
+			speedDirection[i * 3 + 2] = speedDirection_in[i].z;
 			latticeWeights[i] = latticeWeights_in[i];
 		}
 	}
@@ -129,23 +137,23 @@ struct latticeCollide
 		{
 			i0 = index * stride + i;
 			ro += f[i0];
-			rovx += f[i0] * speedDirection[i].x;
-			rovy += f[i0] * speedDirection[i].y;
-			rovz += f[i0] * speedDirection[i].z;
+			rovx += f[i0] * speedDirection[i*3];
+			rovy += f[i0] * speedDirection[i*3+1];
+			rovz += f[i0] * speedDirection[i*3+2];
 		}
 
 		// In order to check that ro is not NaN you check if it is equal to itself: if it is a Nan, the comparison is false
 		if (ro == ro && ro != 0.0)
 		{
-			velocityVector[index].x = rovx / ro;
-			velocityVector[index].y = rovy / ro;
-			velocityVector[index].z = rovz / ro;
+			velocityVector[index*3] = rovx / ro;
+			velocityVector[index*3+1] = rovy / ro;
+			velocityVector[index*3+2] = rovz / ro;
 		}
 		else
 		{
-			velocityVector[index].x = 0;
-			velocityVector[index].y = 0;
-			velocityVector[index].z = 0;
+			velocityVector[index*3] = 0;
+			velocityVector[index*3+1] = 0;
+			velocityVector[index*3+2] = 0;
 		}
 	}
 
@@ -155,13 +163,13 @@ struct latticeCollide
 		float w;
 		float eiU = 0;	// Dot product between speed direction and velocity
 		float eiUsq = 0; // Dot product squared
-		float uSq = dot(velocityVector[index], velocityVector[index]);	//Velocity squared
+		float uSq = dotFlat(&velocityVector[index], &velocityVector[index]);	//Velocity squared
 		
 		//#pragma unroll
 		for (unsigned int i = 0; i<stride; i++)
 		{
 			w = latticeWeights[i];
-			eiU = dot(speedDirection[i], velocityVector[index]);
+			eiU = dotFlat(&speedDirection[i], &velocityVector[index]);
 			eiUsq = eiU * eiU;
 
 			feq[i] = w * ro * (1.f + (eiU) / (c*c) + (eiUsq) / (2 * c * c * c * c) - (uSq) / (2 * c * c));
@@ -210,7 +218,8 @@ struct latticeCollide
 struct latticeInEq
 {
 	float			*f, *ftemp;
-	float3			inVector, speedDirection[19];
+	float3			inVector;
+	float			speedDirection[19 * 3];
 	float			ro, c;
 	unsigned int	width, height, stride;
 	float			latticeWeights[19];
@@ -223,7 +232,9 @@ struct latticeInEq
 
 		for (int i = 0; i < 19; i++)
 		{
-			speedDirection[i] = speedDirection_in[i];
+			speedDirection[i * 3 + 0] = speedDirection_in[i].x;
+			speedDirection[i * 3 + 1] = speedDirection_in[i].y;
+			speedDirection[i * 3 + 2] = speedDirection_in[i].z;
 			latticeWeights[i] = latticeWeights_in[i];
 		}
 	}
@@ -234,7 +245,10 @@ struct latticeInEq
 		float w;
 		float eiU = 0;	// Dot product between speed direction and velocity
 		float eiUsq = 0; // Dot product squared
-		float uSq = dot(inVector, inVector);	//Velocity squared
+		//printf("HADO! 0\n");
+		//float uSq = 0.0f;// inVector[0] * inVector[0] + inVector[1] * inVector[1] + inVector[2] * inVector[2];//dotFlat(inVector, inVector);	//Velocity squared
+		float uSq = inVector.x * inVector.x + inVector.y * inVector.y + inVector.z * inVector.z;
+		//printf("HADO! 1\n");
 
 		int iBase = 0;
 		unsigned int index = I3D(width, height, t.x, t.y, t.z);
@@ -243,10 +257,12 @@ struct latticeInEq
 		/*for (unsigned int i = 0; i<stride; i++)
 		{*/
 			w = latticeWeights[t.w];
-			eiU = dot(speedDirection[t.w], inVector);
+			//printf("HADO! 2\n");
+			//eiU = 1.0f;
+			eiU = speedDirection[t.w * 3] * inVector.x +speedDirection[t.w * 3+1] * inVector.y + speedDirection[t.w * 3+2] * inVector.z; //dotFlat(speedDirection[t.w*3], inVector);
 			eiUsq = eiU * eiU;
 
-			iBase = index*stride + t.w;
+			iBase = (index*stride + t.w);
 			//ftemp[i] = f[i] = w * ro * ( 1 + 3 * (eiU) + 4.5 * (eiUsq) -1.5 * (uSq));
 			ftemp[iBase] = f[iBase] = w * ro * (1.f + (eiU) / (c*c) + (eiUsq) / (2 * c * c * c * c) - (uSq) / (2 * c * c));
 		//}
@@ -268,18 +284,18 @@ private:
 	//Stores whether the lattice element is solid or not
 	thrust::device_vector<unsigned int>		latticeSolidIndexes_d;
 
-	thrust::device_vector<float3>			velocityVector_d;
+	thrust::device_vector<float>			velocityVector_d;
 
 	//Lattice weights
 	thrust::host_vector<float>				latticeWeights_h;
 	thrust::device_vector<float>			latticeWeights_d;
 
 	//Lattice speed direction
-	thrust::host_vector<float3>				speedDirection_h;
-	thrust::device_vector<float3>			speedDirection_d;
+	thrust::host_vector<float>				speedDirection_h;
+	thrust::device_vector<float>			speedDirection_d;
 
 	// Stores the lattice information
-	thrust::device_vector<float>			f_d, ftemp_d;
+	//thrust::device_vector<float>			f_d, ftemp_d;
 	
 	//Initialized thrust variables
 	void initThrust(void);
@@ -293,8 +309,10 @@ private:
 
 public:
 
+	thrust::device_vector<float>			f_d, ftemp_d;
+
 	thrust::host_vector<unsigned int>		latticeSolidIndexes_h;
-	thrust::host_vector<float3>				velocityVector_h;
+	thrust::host_vector<float>				velocityVector_h;
 
 	void calculateInEquilibriumFunction(float3 inVector, float inRo);
 	
