@@ -320,5 +320,7 @@ public:
 	{ 
 		return _numberLatticeElements; 
 	}
+	unsigned int update_number;
+	float update_time;
 };
 #endif

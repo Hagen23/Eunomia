@@ -45,7 +45,7 @@ using namespace std;
 #define BUFFER_OFFSET( i )			((char *)NULL + ( i ))
 #define LOCATION_OFFSET				BUFFER_OFFSET(  0 )
 #define COLOR_OFFSET				BUFFER_OFFSET( 16 )
-#define LATTICE_DIM					30
+#define LATTICE_DIM					16
 
 // global variables that will store handles to the data we
 // intend to share between OpenGL and CUDA calculated data.
@@ -69,6 +69,9 @@ float translate_z = -3.0;
 
 Vertex* devPtr;
 float dt = 0;
+
+int oldTimeSinceStart = 0;
+int accumulatedTime = 0;
 
 unsigned int *cmap_rgba, *plot_rgba;  //rgba arrays for plotting
 unsigned int latticeWidth = LATTICE_DIM, latticeHeight = LATTICE_DIM, latticeDepth = LATTICE_DIM, ncol;
@@ -171,19 +174,32 @@ float getValueFromRelation(float value, float minColorVar, float maxColorVar, fl
 
 void idle(void)
 {
-	cudaEvent_t start, stop;
-	float time;
-	cudaEventCreate(&start);
-	cudaEventCreate(&stop);
-	cudaEventRecord(start, 0);
+	//cudaEvent_t start, stop;
+	//float time;
+	//cudaEventCreate(&start);
+	//cudaEventCreate(&stop);
+	//cudaEventRecord(start, 0);
 
 	lattice->step();
 
-	cudaEventRecord(stop, 0);
-	cudaEventSynchronize(stop);
+	int timeSinceStart = glutGet(GLUT_ELAPSED_TIME);
+	int deltaTime = timeSinceStart - oldTimeSinceStart;
+	oldTimeSinceStart = timeSinceStart;
+	accumulatedTime += deltaTime;
+	if (accumulatedTime >= 1000)
+	{
+		float MLUPS = (float)(lattice->getNumElements() * lattice->update_number * 10e-6) / lattice->update_time;
+		printf("\n--------------------------------------\n");
+		printf("MLUPS: %.6f for %i elements.\n", MLUPS, lattice->getNumElements());
+		printf("--------------------------------------\n");
+		accumulatedTime = 0;
+	}
 
-	cudaEventElapsedTime(&time, start, stop);
-	printf("Time for the kernel: %f ms\n", time);
+	//cudaEventRecord(stop, 0);
+	//cudaEventSynchronize(stop);
+
+	//cudaEventElapsedTime(&time, start, stop);
+	//printf("Time for the kernel: %f ms\n", time);
 
 	if(keypressed)
 	{
