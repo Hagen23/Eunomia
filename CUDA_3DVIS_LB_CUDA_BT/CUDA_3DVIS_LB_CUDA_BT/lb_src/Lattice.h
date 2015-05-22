@@ -2,6 +2,7 @@
 # define LATTICE_H
 
 #include <iostream>
+#include <fstream>
 #include <cmath>
 #include <vector>
 #include <vector_types.h>
@@ -53,11 +54,13 @@ private:
 
 	float			*f, *ftemp, *feq, *f_d, *ftemp_d;
 
-	float3		*velocityVector_d;
+	float3			*velocityVector_d;
 	
 	float			_tau, c;
 	
 	unsigned int 	*solid_d;
+
+	std::ofstream		outputFile;
 
 	// Dirichlet and Neumann Boundary Conditions
 	void boundary_BC(float3 inVector);

@@ -107,6 +107,7 @@ copy "$(CudaToolkitBinDir)\cudart*.dll" "$(OutDir)"</Command>
       <Include>C:\ProgramData\NVIDIA Corporation\CUDA Samples\v6.5\common\inc</Include>
       <TargetMachinePlatform>64</TargetMachinePlatform>
       <CodeGeneration>compute_30,sm_30;%(CodeGeneration)</CodeGeneration>
+      <GPUDebugInfo>false</GPUDebugInfo>
     </CudaCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
