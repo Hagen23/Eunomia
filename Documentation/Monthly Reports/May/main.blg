@@ -1,8 +1,46 @@
-This is BibTeX, Version 0.99dThe top-level auxiliary file: main.aux
+This is BibTeX, Version 0.99d (TeX Live 2013/Debian)
+Capacity: max_strings=35307, hash_size=35307, hash_prime=30011
+The top-level auxiliary file: main.aux
 The style file: unsrtnat.bst
 Database file #1: Bibliography.bib
-Name 3 in "Lee, Dongwoon and Glueck, Michael and Khan, and Fiume, Eugene and Jackson, Ken" has a comma at the end for entry lee2010survey
-while executing---line 1315 of file unsrtnat.bst
-Name 3 in "Lee, Dongwoon and Glueck, Michael and Khan, and Fiume, Eugene and Jackson, Ken" has a comma at the end for entry lee2010survey
-while executing---line 1315 of file unsrtnat.bst
-(There were 2 error messages)
+You've used 14 entries,
+            2481 wiz_defined-function locations,
+            644 strings with 6893 characters,
+and the built_in function-call counts, 4716 in all, are:
+= -- 395
+> -- 220
+< -- 9
++ -- 92
+- -- 64
+* -- 340
+:= -- 776
+add.period$ -- 46
+call.type$ -- 14
+change.case$ -- 26
+chr.to.int$ -- 14
+cite$ -- 14
+duplicate$ -- 245
+empty$ -- 450
+format.name$ -- 80
+if$ -- 989
+int.to.chr$ -- 1
+int.to.str$ -- 15
+missing$ -- 12
+newline$ -- 82
+num.names$ -- 42
+pop$ -- 117
+preamble$ -- 1
+purify$ -- 14
+quote$ -- 0
+skip$ -- 148
+stack$ -- 0
+substring$ -- 155
+swap$ -- 30
+text.length$ -- 1
+text.prefix$ -- 0
+top$ -- 0
+type$ -- 92
+warning$ -- 0
+while$ -- 38
+width$ -- 0
+write$ -- 194

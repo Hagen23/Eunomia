@@ -223,5 +223,16 @@ Documentation/Monthly Reports/May/main.out
 Documentation/Monthly Reports/May/main.synctex.gz
 Documentation/Monthly Reports/May/main.pdf
 CUDA_3DVIS_LB_CUDA/CUDA_3DVIS_LB_CUDA/CUDA_3DVIS_LB_CUDA.vcxproj
+<<<<<<< HEAD
+*.aux
+Documentation/Monthly Reports/May/main.bbl
+Documentation/Monthly Reports/May/main.pdf
+Documentation/Monthly Reports/May/main.aux
+Documentation/Monthly Reports/May/main.out
+Documentation/Monthly Reports/May/main.synctex.gz
+=======
 CUDA_3DVIS_LB_CUDA/CUDA_3DVIS_LB_CUDA/CUDA_3DVIS_LB_CUDA.vcxproj
 CUDA_3DVIS_LB_CUDA/CUDA_3DVIS_LB_CUDA/CUDA_3DVIS_LB_CUDA.vcxproj
+>>>>>>> e1aebb593d6b136157c838904162e3f61d8c0ba6
+CUDA_3DVIS_LB_CUDA_BT/CUDA_3DVIS_LB_CUDA_BT/cuda_global_times_1.cvs
+*.bkp

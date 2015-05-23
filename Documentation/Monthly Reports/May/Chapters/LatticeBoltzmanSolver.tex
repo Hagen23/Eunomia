@@ -1,4 +1,4 @@
-\section{Lattice Boltzmann Solver}
+\section{Lattice Boltzmann Models}
 \label{LBS}
 
 \paragraph{}Lattice Boltzmann models (LBM) is a class of computational fluid dynamics (CFD) methods for fluid simulation. Instead of solving the Navier–Stokes equations, the discrete Boltzmann equation is solved to simulate the flow of a Newtonian fluid with collision models such as Bhatnagar-Gross-Krook (BGK). By simulating streaming and collision processes across a limited number of particles, the intrinsic particle interactions create a flow behavior applicable across an entire lattice.
@@ -6,15 +6,87 @@
 \paragraph{}Lattice Gas Cellular Automaton (LGCA) models were the harbingers of LBM. LGCA were presented as a viable means of solving the Navier-Stokes equations of fluid motion. Ludwig Boltzmann used these models to introduce the Boltzmann Gas Concept, where the idea is that a gas is composed of interacting particles that can be described by classical mechanics, and, because there are so many particles, a statistical treatment is necessary and appropriate. The mechanics can be extremely simple and encapsulated by just
 the notions of streaming in space and billiard-like collision interactions.
 
-\paragraph{}LBM vastly simplify Boltzmann’s original conceptual view by reducing the number of possible particle spatial positions and microscopic momenta from a continuum to just a handful and similarly discretizing time into distinct steps. Particle positions are confined to the nodes of the lattice. Variations in momenta that could have been due to a continuum of velocity directions and magnitudes and varying particle mass are reduced (in the simple 2-D model we focus on here) to 8 directions, 3 magnitudes, and a single particle mass \citep{sukop2006lattice}. \fref{fig:d2q9} shows the Cartesian lattice and the velocities $e_a$ where a = 0, 1, \dots , 8 is a direction index and $e_0$ = 0 denotes particles at rest. This model is known as D2Q9 as it is 2 dimensional and contains 9 velocities.
+\paragraph{}LBM vastly simplify Boltzmann’s original conceptual view by reducing the number of possible particle spatial positions and microscopic momenta from a continuum to just a handful and similarly discretizing time into distinct steps. Particle positions are confined to the nodes of the lattice. Variations in momenta that could have been due to a continuum of velocity directions and magnitudes and varying particle mass are reduced, in the simple 2-D model, to 8 microscopic velocity directions, and a single particle mass \citep{sukop2006lattice}. 
 
-\begin{figure}[t!]
-	\centering
-		\includegraphics[scale=0.7]{d2q9.png}
-	\caption{D2Q9 lattice and velocities. Adapted from \citep{sukop2006lattice}.}
-	\label{fig:d2q9}
+\paragraph{}Using these microscopic velocities, we can obtain a macroscopic velocity, which is the one that dictates the flow within a lattice. \fref{fig:d2q9} shows the Cartesian lattice and the velocities $e_a$ where a = 0, 1, \dots , 8 is a direction index and $e_0$ = 0 denotes particles at rest. This model is known as D2Q9 as it is 2 dimensional and contains 9 velocities. The lattice unit (lu) is the fundamental measure of length in the LBM models and time steps (ts) are the time unit. 
+
+\paragraph{}Other fundamental element of the LBM is the single-particle distribution function $f$. The distribution function can be thought of as a typical histogram representing a frequency of occurrence. The frequencies can be considered to be direction-specific fluid densities.
+
+\begin{figure}[t]
+    \centering
+    \begin{subfigure}[t!]{0.45\textwidth}
+        \centering
+        \includegraphics[scale=0.7]{d2q9.png}
+        \caption{A sample 2D Lattice. The dots represent the nodes of the lattice.}
+        \label{fig:2Dlattice}
+    \end{subfigure}
+	\hfill
+    \begin{subfigure}[t!]{0.45\textwidth}
+        \centering
+        \includegraphics[scale = 0.7]{LatticeElement.png}
+        \caption{Each Lattice node has 8 possible velocity directions. }
+        \label{fig:latticeElement}
+    \end{subfigure}
+
+    \caption{D2Q9 lattice. Adapted from \citep{sukop2006lattice}.}
+    \label{fig:d2q9}
 \end{figure}
 
-Because particle mass is uniform (1 mass unit or mu in the simplest approach), these microscopic velocities and momenta are always effectively equivalent. The lattice unit (lu) is the fundamental measure of length in the LBM models and time steps (ts) are the time unit. 
+\paragraph{}These models can also be implemented in three dimensions. The main difference with the two dimension models are the amount of velocities and their directions. There are several possibilities, from models that use twenty seven direction, to models that use only thirteen. However, the most used model is the one that has nineteen velocities, the d3q19 model, because it yields the best equilibrium between precision and used memory \citep{rinaldi2011modelos}. 
 
-The velocity magnitude of $e_1$ through $e_4$ is 1 lattice unit per time step or 1 lu ${ts}^{-1}$, and the velocity magnitude of $e_5$ through $e_8$ is $\sqrt{2}$ lu ${ts}^{-1}$. (While this is probably the most common velocity indexing scheme, be aware that others are in use.) These velocities are exceptionally convenient in that all of their $x$ and $y$ components are either $0$ or $\pm 1$.
+\subsection{Lattice Boltzmann Solver}
+
+\paragraph{}In order to develop a LBM solver, we have to take into account the basic parts and equations that define the models. These are:
+
+\begin{itemize}
+	\item Streaming: Each node's distribution function is updated in relation to the other nodes in the lattice. Specifically, the direction-specific densities $f_a$ to the nearest neighbor lattice nodes. The streaming equation is as follows:
+	\begin{equation}
+		f_a(x + e_a \Delta t, t + \Delta t) = f_a(x,t)
+	\end{equation}
+	where $x$ is the lattice node position, $e_a$ is the direction index, $t$ is the time step, and $\Delta t$ is the next step in the simulation.
+	\item Collision: Collision of the fluid particles is considered as a relaxation towards a local equilibrium. The collision equations are as follows:
+	\begin{equation}
+		f_a(x,t) = f_a(x,t) - \frac{f_a(x,t)-f_a^{eq}(x,t)}{\tau}
+	\end{equation}
+	where $f_a^{eq}$ is the equilibrium function, and $\tau$ is a relaxation parameter that controls the fluid viscosity. The equilibrium function is defined as:
+	\begin{equation}
+		f_a^{eq}(x,t) = w_a \rho(x)[1 + \frac{e_a \cdot u}{c^2} + \frac{(e_a \cdot u)^2}{2 c^4} - \frac{u^2}{2 c^2}]
+	\end{equation}
+	where $w_a$ are weights corresponding to each lattice velocity, $\rho$ is the macroscopic density, and $c$ is the basic speed of the lattice.
+	\item Boundary Condition: We have to take into account the boundaries of the lattice since the nodes situated at the edges have no neighbor cells from which to obtain a distribution in the streaming step. We can also incorporate solid boundaries in the models, in order to simulate realistic porous media, for example.
+\end{itemize} 
+
+\paragraph{}For more details on the formulation of LBM and its equations, refer to \citep{sukop2006lattice, rinaldi2011modelos} and the references mentioned within.
+
+\paragraph{}We have implemented the d3q19 model using the CUDA API. Since we want to simulate biological tissue, normal boundary conditions do not apply; we only need the solid boundary conditions. We surrounded the lattice with solid elements, which serve as a container, in order to get the fluid to "flow" inside said container. 
+
+\paragraph{}\fref{fig:lb_cuda} shows a sample lattice were the the macroscopic velocities are displayed. To better represent the flow within the sample lattice, we induced the flow by defining a direction vector, and applying it at a determinate point of the lattice. We created a cube within the lattice in order for the macroscopic velocities to move around said cube. \fref{fig:lb_cuda_noflow} shows a different lattice, where no flow direction vector is added. We found that this lattice is in an equilibrium state, and all the macroscopic velocities flow toward the outside of the lattice. This is a property of the LBM that will enable us to create tissues that are able to preserve their volume.
+
+\begin{figure}[t]
+    \centering
+    \begin{subfigure}[h]{0.45\textwidth}
+        \centering
+    		\includegraphics[scale=0.7]{lb_cuda.png}
+    		\caption{A 3D lattice with an external flow.}
+    		\label{fig:lb_cuda}
+    \end{subfigure}
+	\hfill
+    \begin{subfigure}[h]{0.45\textwidth}
+        \centering
+        \includegraphics[scale = 0.6]{lb_cuda_noflow.png}
+        \caption{A 3D lattice without an external flow.}
+        \label{fig:lb_cuda_noflow}
+    \end{subfigure}
+
+    \caption{Implementation of the 3D Lattice Boltzmann method using CUDA.}
+    \label{fig:d3q19}
+\end{figure}
+
+\paragraph{}We tested two different approaches for the CUDA implementation of the Lattice Boltzmann Solver. The first approach was using Thrust. Thrust is a C++ template library for CUDA based on the Standard Template Library (STL). It allows the implementation of high performance parallel applications with minimal programming effort through a high-level interface that is fully interoperable with CUDA C \citep{nvidia2015thrust}. Using thrust the development of the solver was straightforward. After a CPU version was developed, we used the \textit{thrust::for\_each} algorithm to map the different steps of the solver to each lattice node. 
+
+%Add speeds table for thrust
+
+\paragraph{}The second approach was using CUDA C directly. This will most likely be the preferred approach not only because it solved the lattice with better times than the thrust implementation, but also because it gives us more control of the way in which we process the lattice.
+
+%Add speeds table for CUDA C
+

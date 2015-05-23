@@ -13,6 +13,8 @@ latticed3q19::latticed3q19(int width, int height, int depth, float tau)
 	_numberAllElements = _stride * _numberLatticeElements;
 	_c = 1 / sqrtf(3.0f);
 
+	update_number = 0;
+	update_time = 0.0f;
 	initThrust();
 }
 
@@ -28,7 +30,6 @@ void latticed3q19::step(void)
 	cudaEventCreate(&start);
 	cudaEventCreate(&stop);
 
-
 	latticeSolidIndexes_d = latticeSolidIndexes_h;
 	velocityVector_d = velocityVector_h;
 
@@ -40,7 +41,8 @@ void latticed3q19::step(void)
 	cudaEventSynchronize(stop);
 
 	cudaEventElapsedTime(&time, start, stop);
-	printf("\nTime for stream: %f ms\n", time);
+	//printf("\nTime for stream: %f ms\n", time);
+	update_time += time;
 
 	cudaEventRecord(start, 0);
 
@@ -50,9 +52,11 @@ void latticed3q19::step(void)
 	cudaEventSynchronize(stop);
 
 	cudaEventElapsedTime(&time, start, stop);
-	printf("Time for collide: %f ms\n", time);
+	//printf("Time for collide: %f ms\n", time);
+	update_time += time;
 
 	velocityVector_h = velocityVector_d;
+	update_number++;
 }
 
 void latticed3q19::initThrust()
