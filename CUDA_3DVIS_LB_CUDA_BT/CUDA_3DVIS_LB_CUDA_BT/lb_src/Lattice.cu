@@ -65,8 +65,11 @@ latticed3q19::~latticed3q19()
 
 void latticed3q19::step(void)
 {
+	cudaDeviceSynchronize();
 	stream();
+	cudaDeviceSynchronize();
 	collide();
+	cudaDeviceSynchronize();
 	//applyBoundaryConditions();
 }
 
@@ -78,30 +81,36 @@ __global__ void stream_device(float *f, float* ftemp, unsigned int *solid)
 	int i = blockIdx.x, j = blockIdx.y, k = threadIdx.x;
 	int l = threadIdx.y;
 
-	iSolid = //blockDim.x * (j + blockDim.y * k) + i; 
-					 I3D(dims[0], dims[1], i, j, k);
-
-	if(solid[iSolid] == 0)
+	while (k < dims[2])
 	{
-		newI = (int)( i + speedDirection_c[l*3] );
-		newJ = (int)( j + speedDirection_c[l*3+1] );
-		newK = (int)( k + speedDirection_c[l*3+2] );
+		iSolid = I3D(dims[0], dims[1], i, j, k);
 
-		//Checking for exit boundaries
-		if (newI >(dims[0]- 1)) newI = 0;
-		else if (newI <= 0) newI = dims[0] - 1;
+		/*for (int l = 0; l < 19; l++)
+		{*/
+			if (solid[iSolid] == 0)
+			{
+				newI = (int)(i + speedDirection_c[l * 3]);
+				newJ = (int)(j + speedDirection_c[l * 3 + 1]);
+				newK = (int)(k + speedDirection_c[l * 3 + 2]);
 
-		if (newJ > (dims[1] - 1)) newJ = 0;
-		else if (newJ <= 0) newJ = dims[1] - 1;
+				//Checking for exit boundaries
+				if (newI >(dims[0] - 1)) newI = 0;
+				else if (newI <= 0) newI = dims[0] - 1;
 
-		if (newK > (dims[2] - 1)) newK = 0;
-		else if (newK <= 0) newK = dims[2] - 1;
+				if (newJ > (dims[1] - 1)) newJ = 0;
+				else if (newJ <= 0) newJ = dims[1] - 1;
 
-		iBase = iSolid*dims[3] + l;
-		iAdvected = //(blockDim.x * (newJ + blockDim.y * newK) + newI) * gridDim.y + l;
-								I3D_S(dims[0], dims[1], dims[3],  newI, newJ , newK, l );
+				if (newK > (dims[2] - 1)) newK = 0;
+				else if (newK <= 0) newK = dims[2] - 1;
 
-		ftemp[iBase] = f[iAdvected];
+				iBase = iSolid*dims[3] + l;
+				iAdvected = //(blockDim.x * (newJ + blockDim.y * newK) + newI) * gridDim.y + l;
+					I3D_S(dims[0], dims[1], dims[3], newI, newJ, newK, l);
+
+				ftemp[iBase] = f[iAdvected];
+			}
+		//}
+		k += blockDim.x;
 	}
 }
 
@@ -112,8 +121,8 @@ void latticed3q19::stream()
 	cudaEventCreate(&start);
 	cudaEventCreate(&stop);
 
-	dim3 	blocks(_width, _height, 1);
-	dim3	threads(_depth, 19,1);
+	dim3 	blocks(_width, _height);
+	dim3	threads(8, 19);
 
 	checkCudaErrors(cudaMemcpy(f_d, f, _numberAllElements*sizeof(float), cudaMemcpyHostToDevice));
 	checkCudaErrors(cudaMemcpy(ftemp_d, ftemp, _numberAllElements*sizeof(float), cudaMemcpyHostToDevice));
@@ -201,20 +210,30 @@ __device__ void solid_BC_device(int i0, float *f)
 
 __global__ void collide_device(float *f, unsigned int *solid, float tau, float c, float *velocityVector_d)
 {
-	int 	index = I3D(dims[0], dims[1], blockIdx.x, blockIdx.y, threadIdx.x);
+	int 	index = 0;
 	int		iBase;
 	float	feq[19], ro;
-
-	if(solid[index] == 0)
+	int		k = threadIdx.x;
+	
+	while (k < dims[2])
 	{
-		ro = calculateSpeedVector_device(index, f, velocityVector_d);
-		calculateEquilibriumFunction_device(index, feq, ro, c, velocityVector_d);
+		index = I3D(dims[0], dims[1], blockIdx.x, blockIdx.y, k);
+		if (solid[index] == 0)
+		{
+			ro = calculateSpeedVector_device(index, f, velocityVector_d);
+			calculateEquilibriumFunction_device(index, feq, ro, c, velocityVector_d);
 
-		iBase = index * dims[3] + threadIdx.y;
-		f[iBase] = f[iBase] - (f[iBase] - feq[threadIdx.y]) / tau;
+			for (int l = 0; l < 19; l++)
+			{
+				iBase = index * dims[3] + l;
+				f[iBase] = f[iBase] - (f[iBase] - feq[l]) / tau;
+			}
+		}
+		else
+			solid_BC_device(index, f);
+
+		k += blockDim.x;
 	}
-	else
-		solid_BC_device(index, f);
 }
 
 void latticed3q19::collide(void)
@@ -224,8 +243,8 @@ void latticed3q19::collide(void)
 	cudaEventCreate(&start);
 	cudaEventCreate(&stop);
 
-	dim3 	blocks(_width, _height, 1);
-	dim3	threads(_depth, 19,1);
+	dim3 	blocks(_width, _height);
+	dim3	threads(_depth);
 
 	checkCudaErrors(cudaMemcpy(f_d, f, _numberAllElements*sizeof(float), cudaMemcpyHostToDevice));
 	checkCudaErrors(cudaMemcpy(velocityVector_d, velocityVector, _numberLatticeElements*sizeof(float3), cudaMemcpyHostToDevice));

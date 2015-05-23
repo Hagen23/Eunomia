@@ -1,35 +1,25 @@
-# ifndef LATTICE_H
-# define LATTICE_H
-
 #include <iostream>
-#include <fstream>
-#include <cmath>
 #include <vector>
 #include <vector_types.h>
-#include <helper_cuda.h> 
 #include <cuda_runtime.h>
-#include <device_launch_parameters.h>
-#include <cuda_runtime_api.h>
-#include <cuda_device_runtime_api.h>
+#include <ctime>
+
+#pragma once
+
+# ifndef LATTICE
+# define LATTICE
+
+using namespace std;
 
 //Macro to linearly go over the arrays
-__host__ __device__
 #define I3D(width, height,i,j,k)				width*(j+height*k)+i
 
 //Macro to go over arrays that have a stride other than 1
-__host__ __device__
 #define I3D_S(width, height, stride, i,j,k,l)	(width*(j+height*k)+i)*stride+l
 
-__host__ 
 static float dot(float3 a, float3 b)
 {
 	return a.x*b.x + a.y*b.y + a.z * b.z;
-}
-
-__host__ __device__
-static float dot(float ax, float ay, float az, float bx, float by, float bz)
-{
-	return ax * bx + ay * by + az * bz;
 }
 
 static float latticeWeights[19] =
@@ -57,16 +47,10 @@ private:
 
 	float			ro, rovx, rovy, rovz, v_sq_term;
 
-	float			*f, *ftemp, *feq, *f_d, *ftemp_d;
-
-	float			*velocityVector_d;
+	float			*f, *ftemp, *feq;
 	
 	float			_tau, c;
 	
-	unsigned int 	*solid_d;
-
-	std::ofstream		outputFile;
-
 	// Dirichlet and Neumann Boundary Conditions
 	void boundary_BC(float3 inVector);
 
@@ -89,13 +73,12 @@ private:
 
 	void calculateEquilibriumFunction(int index);
 
-	void initCUDA();
 	
 
 public:
 
 	unsigned int	*solid;
-	float			*velocityVector;
+	float3			*velocityVector;
 
 	void calculateInEquilibriumFunction(int index, float3 inVector, float inRo);
 	
