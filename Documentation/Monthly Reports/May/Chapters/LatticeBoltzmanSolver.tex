@@ -86,13 +86,30 @@ the notions of streaming in space and billiard-like collision interactions.
 
 \paragraph{}We tested two different approaches for the CUDA implementation of the Lattice Boltzmann Solver. The first approach was using Thrust. Thrust is a C++ template library for CUDA based on the Standard Template Library (STL). It allows the implementation of high performance parallel applications with minimal programming effort through a high-level interface that is fully interoperable with CUDA C \citep{nvidia2015thrust}. Using thrust the development of the solver was straightforward. After a CPU version was developed, we used the \textit{thrust::for\_each} algorithm to map the different steps of the solver to each lattice node using different kernels.
 
-\paragraph{} The second approach was using the CUDA API directly. For that approach, we designed two main kernels, one for the streaming and one for the collide steps. Both kernels use global memory, and are configured using a bi dimensional array of blocks defined by the lattice width and height, and a bi dimensional array of threads. We varied the size of the thread array to try to obtain optimal execution times. For the collision step, we found that using fixed block and thread sizes we obtained the best results. We used a bi dimensional array of blocks defined by the lattice width and height, and a number of threads equal to the lattice depth. 
+\paragraph{} The second approach was using the CUDA API directly. For that approach, we designed two main kernels, one for the streaming and one for the collide steps. The stream kernel is configured using a bidimensional array of blocks defined by the lattice width and height, and a bidimensional array of threads; this array will vary in one dimension, and will be fixed to nineteen in the other, this because the first dimension will process the lattice depth, and the nineteen additional threads will process each lattice element velocities. We varied the size of the thread array to try to obtain optimal execution times. For the collision step, we found that using fixed block and thread sizes we obtained the best results. We used a bidimensional array of blocks defined by the lattice width and height, and a number of threads equal to the lattice depth. 
 
-\paragraph{}In order to test the performance of our solution, we limited a simulation to a thousand iterations of the solver, and we measured the execution times of the streaming and collide steps for different grid sizes. We also measured the the performance in terms of Million Lattices Updates Ser Second (MLUPS) and GPU/CPU speedup. Here, the MLUPS is given by:
+\paragraph{}In order to test the performance of our solution, we limited a simulation to a thousand iterations of the solver, and we measured the execution times of the streaming and collide steps for different grid sizes. We also measured the performance in terms of Million Lattices Updates Per Second (MLUPS) and GPU/CPU speedup. Here, the MLUPS is given by:
 
 \begin{equation}
 	MLUPS = \frac{grid Size * 10^{-6}}{iteration time (s)}
 \end{equation}
+
+\paragraph{}All our test were performed on a PC with the following specifications:
+
+\begin{table}[htbp]
+  \centering
+    \begin{tabular}{rl}
+    \toprule
+    \multicolumn{2}{c}{\textbf{Testing PC specifications}} \\
+    \midrule
+    \textbf{Processor} & Intel Core i5, 3.0 MHz \\
+    \textbf{RAM} & 8192.0 MB\\
+    \textbf{GPU} & NVIDIA GeForce GTX 670, 1344 CUDA Cores\\
+    \textbf{OS} & Windows 7\\
+    \bottomrule
+    \end{tabular}%
+  \label{tab:thirdSw}%
+\end{table}%
 
 \paragraph{}Table \ref{tab:lbm_cpu} shows the average times of a simulation of the solver in CPU. 
 
@@ -113,7 +130,7 @@ the notions of streaming in space and billiard-like collision interactions.
   \label{tab:lbm_cpu}%
 \end{table}%
 
-\paragraph{}Based on the times obtained using just the CPU, in Table \ref{tab:lbm_gpu_thrust} we present the average times, speedup, and MLUPS for a simulation using CUDA THRUST. As it will be seen in the following tables, the thrust implementation yielded good results, but as we give up a certain amount of control, we can not control the simulation as much as needed to improve performance.
+\paragraph{}Based on the times obtained using just the CPU, in Table \ref{tab:lbm_gpu_thrust} we present the average times, speedup, and MLUPS for a simulation using CUDA THRUST. As it will be seen in the following tables, the thrust implementation yielded good results, but as we give up a certain amount of control, we can not control the simulation as much as needed to improve performance. Another issue was that we were not able to process lattices with sizes greater than one hundred because of a thrust defined error. We will need to check if said mistake can be resolved.
 
 \begin{table}[htbp]
   \centering
@@ -123,16 +140,15 @@ the notions of streaming in space and billiard-like collision interactions.
     \midrule
     \textbf{Lattice Size	} & \textbf{Stream Avg (ms)} &	\textbf{ Collide Avg (ms)} & \textbf{Total Avg (ms)} & \textbf{MLUPS Avg} &\textbf{Speedup}\\
     30x30x30	&0.2751 &	3.9406 	&4.2158 	&6.4045 	&1.6164 \\
-50x50x50&	1.2667 &	17.1502 	&18.4169 &	1.4686 &	1.8453 \\
-100x100x100&	12.5523 	&135.9719 &	148.5243&	6.7342 &	2.0806  \\
-
+	50x50x50 &1.2667&	17.1502&	18.4169&	6.7992&	1.8453\\
+	100x	100x100&	12.5523 	&135.9719 &	148.5243&	6.7342 &	2.0806  \\
     \bottomrule
     \end{tabular}%
        \caption{LBM simulation times using the GPU and the CUDA Thrust template library.}
   \label{tab:lbm_gpu_thrust}%
 \end{table}%
 
-\paragraph{}In Table \ref{tab:lbm_gpu_8} we present the average times, speedup, and MLUPS for a simulation using an array of 8 by 19 threads for the streaming step. Table \ref{tab:lbm_gpu_53} shows the results for  an array of 53 by 19 threads.
+\paragraph{}In Table \ref{tab:lbm_gpu_8} we present the average times, speedup, and MLUPS for a simulation using the CUDA API and an array of 8 by 19 threads for the streaming step. Table \ref{tab:lbm_gpu_53} shows the results of the same simulation for an array of 53 by 19 threads.
 
 %\begin{table}[htbp]
 %  \centering
@@ -162,7 +178,7 @@ the notions of streaming in space and billiard-like collision interactions.
 	132x132x132	&27.3471&86.4619&	113.8091&20.2109&6.3588\\
     \bottomrule
     \end{tabular}%
-	\caption{LBM simulation times using the GPU and an array of 8 by 19 threads to calculate the streaming step.}
+	\caption{LBM simulation times using the GPU with the CUDA API and an array of 8 by 19 threads to calculate the streaming step.}
 	\label{tab:lbm_gpu_8}%
 \end{table}%
 
@@ -179,9 +195,9 @@ the notions of streaming in space and billiard-like collision interactions.
 
     \bottomrule
     \end{tabular}%
-       \caption{LBM simulation times using the GPU and an array of 53 by 19 threads to calculate the streaming step.}
+       \caption{LBM simulation times using the GPU with the CUDA API and an array of 53 by 19 threads to calculate the streaming step.}
   \label{tab:lbm_gpu_53}%
 \end{table}%
 
-\paragraph{}As can bee seen from the performance of the solver from the several tables, we still have some work to do in order to improve its performance and achieve interactive execution times for both a large lattice and for the solution of several lattices. We will modify the solver in order to use the shared memory of the GPU and try to improve performance even further. 
+\paragraph{}As can be seen from the performance of the solver from the several tables, we still have some work to do in order to improve its performance and achieve interactive execution times for both a large lattice and for the solution of several lattices. We will modify the solver in order to use the shared memory of the GPU and try to improve performance even further. 
 
