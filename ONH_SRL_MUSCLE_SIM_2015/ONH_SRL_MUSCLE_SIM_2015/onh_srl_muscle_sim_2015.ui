@@ -24,7 +24,7 @@
      </rect>
     </property>
     <property name="currentIndex">
-     <number>1</number>
+     <number>0</number>
     </property>
     <widget class="QWidget" name="tab">
      <attribute name="title">
@@ -272,29 +272,35 @@ background-color: rgb(0, 0, 0);</string>
        </rect>
       </property>
       <property name="minimum">
-       <number>30</number>
+       <number>-15</number>
       </property>
       <property name="maximum">
-       <number>100</number>
+       <number>17</number>
       </property>
       <property name="pageStep">
-       <number>5</number>
+       <number>1</number>
       </property>
       <property name="value">
-       <number>44</number>
+       <number>0</number>
+      </property>
+      <property name="notchTarget">
+       <double>2.000000000000000</double>
+      </property>
+      <property name="notchesVisible">
+       <bool>true</bool>
       </property>
      </widget>
      <widget class="QLabel" name="label_7">
       <property name="geometry">
        <rect>
         <x>270</x>
-        <y>20</y>
+        <y>10</y>
         <width>51</width>
         <height>16</height>
        </rect>
       </property>
       <property name="text">
-       <string>FOVY</string>
+       <string>ZOOM</string>
       </property>
       <property name="alignment">
        <set>Qt::AlignCenter</set>
@@ -317,7 +323,20 @@ background-color: rgb(0, 0, 0);</string>
        <enum>QLCDNumber::Flat</enum>
       </property>
       <property name="value" stdset="0">
-       <double>44.000000000000000</double>
+       <double>0.000000000000000</double>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="resetView_button">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>140</y>
+        <width>311</width>
+        <height>23</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Reset View</string>
       </property>
      </widget>
     </widget>
@@ -536,11 +555,11 @@ background-color: rgb(0, 0, 0);</string>
        </property>
       </widget>
      </widget>
-     <widget class="QSlider" name="modelTranspSlider">
+     <widget class="QSlider" name="OTHER_TranspSlider">
       <property name="geometry">
        <rect>
-        <x>110</x>
-        <y>150</y>
+        <x>160</x>
+        <y>330</y>
         <width>140</width>
         <height>20</height>
        </rect>
@@ -549,7 +568,7 @@ background-color: rgb(0, 0, 0);</string>
        <number>0</number>
       </property>
       <property name="maximum">
-       <number>200</number>
+       <number>100</number>
       </property>
       <property name="singleStep">
        <number>1</number>
@@ -570,8 +589,8 @@ background-color: rgb(0, 0, 0);</string>
      <widget class="QLabel" name="label_8">
       <property name="geometry">
        <rect>
-        <x>10</x>
-        <y>150</y>
+        <x>180</x>
+        <y>180</y>
         <width>101</width>
         <height>20</height>
        </rect>
@@ -580,33 +599,302 @@ background-color: rgb(0, 0, 0);</string>
        <string>Transparency (%):</string>
       </property>
      </widget>
-     <widget class="QLCDNumber" name="lcdNumber_8">
+     <widget class="QCheckBox" name="ANCONEUS_checkBox">
       <property name="geometry">
        <rect>
-        <x>260</x>
-        <y>150</y>
-        <width>51</width>
-        <height>23</height>
+        <x>30</x>
+        <y>210</y>
+        <width>120</width>
+        <height>20</height>
        </rect>
       </property>
-      <property name="autoFillBackground">
-       <bool>false</bool>
+      <property name="text">
+       <string>ANCONEUS</string>
       </property>
-      <property name="styleSheet">
-       <string notr="true">color: rgb(0, 255, 0);
-background-color: rgb(0, 0, 0);</string>
+      <property name="checked">
+       <bool>true</bool>
       </property>
-      <property name="frameShadow">
-       <enum>QFrame::Raised</enum>
+     </widget>
+     <widget class="QCheckBox" name="BRACHIALIS_checkBox">
+      <property name="geometry">
+       <rect>
+        <x>30</x>
+        <y>230</y>
+        <width>120</width>
+        <height>20</height>
+       </rect>
       </property>
-      <property name="smallDecimalPoint">
-       <bool>false</bool>
+      <property name="text">
+       <string>BRACHIALIS</string>
       </property>
-      <property name="segmentStyle">
-       <enum>QLCDNumber::Flat</enum>
+      <property name="checked">
+       <bool>true</bool>
       </property>
-      <property name="value" stdset="0">
-       <double>50.000000000000000</double>
+     </widget>
+     <widget class="QCheckBox" name="BRACHIORDIALIS_checkBox">
+      <property name="geometry">
+       <rect>
+        <x>30</x>
+        <y>250</y>
+        <width>120</width>
+        <height>20</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>BRACHIORDIALIS</string>
+      </property>
+      <property name="checked">
+       <bool>true</bool>
+      </property>
+     </widget>
+     <widget class="QCheckBox" name="PRONATOR_TERES_checkBox">
+      <property name="geometry">
+       <rect>
+        <x>30</x>
+        <y>270</y>
+        <width>120</width>
+        <height>20</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>PRONATOR TERES</string>
+      </property>
+      <property name="checked">
+       <bool>true</bool>
+      </property>
+     </widget>
+     <widget class="QCheckBox" name="BICEPS_BRACHII_checkBox">
+      <property name="geometry">
+       <rect>
+        <x>30</x>
+        <y>290</y>
+        <width>120</width>
+        <height>20</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>BICEPS BRACHII</string>
+      </property>
+      <property name="checked">
+       <bool>true</bool>
+      </property>
+     </widget>
+     <widget class="QCheckBox" name="TRICEPS_BRACHII_checkBox">
+      <property name="geometry">
+       <rect>
+        <x>30</x>
+        <y>310</y>
+        <width>120</width>
+        <height>20</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>TRICEPS BRACHII</string>
+      </property>
+      <property name="checked">
+       <bool>true</bool>
+      </property>
+     </widget>
+     <widget class="QSlider" name="ANCONEUS_TranspSlider">
+      <property name="geometry">
+       <rect>
+        <x>160</x>
+        <y>210</y>
+        <width>140</width>
+        <height>20</height>
+       </rect>
+      </property>
+      <property name="minimum">
+       <number>0</number>
+      </property>
+      <property name="maximum">
+       <number>100</number>
+      </property>
+      <property name="singleStep">
+       <number>1</number>
+      </property>
+      <property name="value">
+       <number>50</number>
+      </property>
+      <property name="orientation">
+       <enum>Qt::Horizontal</enum>
+      </property>
+      <property name="tickPosition">
+       <enum>QSlider::TicksAbove</enum>
+      </property>
+      <property name="tickInterval">
+       <number>10</number>
+      </property>
+     </widget>
+     <widget class="QCheckBox" name="OTHER_checkBox">
+      <property name="geometry">
+       <rect>
+        <x>30</x>
+        <y>330</y>
+        <width>120</width>
+        <height>20</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>OTHER GEOMETRY</string>
+      </property>
+      <property name="checked">
+       <bool>true</bool>
+      </property>
+     </widget>
+     <widget class="QSlider" name="BRACHIALIS_TranspSlider">
+      <property name="geometry">
+       <rect>
+        <x>160</x>
+        <y>230</y>
+        <width>140</width>
+        <height>20</height>
+       </rect>
+      </property>
+      <property name="minimum">
+       <number>0</number>
+      </property>
+      <property name="maximum">
+       <number>100</number>
+      </property>
+      <property name="singleStep">
+       <number>1</number>
+      </property>
+      <property name="value">
+       <number>50</number>
+      </property>
+      <property name="orientation">
+       <enum>Qt::Horizontal</enum>
+      </property>
+      <property name="tickPosition">
+       <enum>QSlider::TicksAbove</enum>
+      </property>
+      <property name="tickInterval">
+       <number>10</number>
+      </property>
+     </widget>
+     <widget class="QSlider" name="BRACHIORDIALIS_TranspSlider">
+      <property name="geometry">
+       <rect>
+        <x>160</x>
+        <y>250</y>
+        <width>140</width>
+        <height>20</height>
+       </rect>
+      </property>
+      <property name="minimum">
+       <number>0</number>
+      </property>
+      <property name="maximum">
+       <number>100</number>
+      </property>
+      <property name="singleStep">
+       <number>1</number>
+      </property>
+      <property name="value">
+       <number>50</number>
+      </property>
+      <property name="orientation">
+       <enum>Qt::Horizontal</enum>
+      </property>
+      <property name="tickPosition">
+       <enum>QSlider::TicksAbove</enum>
+      </property>
+      <property name="tickInterval">
+       <number>10</number>
+      </property>
+     </widget>
+     <widget class="QSlider" name="PRONATOR_TERES_TranspSlider">
+      <property name="geometry">
+       <rect>
+        <x>160</x>
+        <y>270</y>
+        <width>140</width>
+        <height>20</height>
+       </rect>
+      </property>
+      <property name="minimum">
+       <number>0</number>
+      </property>
+      <property name="maximum">
+       <number>100</number>
+      </property>
+      <property name="singleStep">
+       <number>1</number>
+      </property>
+      <property name="value">
+       <number>50</number>
+      </property>
+      <property name="orientation">
+       <enum>Qt::Horizontal</enum>
+      </property>
+      <property name="tickPosition">
+       <enum>QSlider::TicksAbove</enum>
+      </property>
+      <property name="tickInterval">
+       <number>10</number>
+      </property>
+     </widget>
+     <widget class="QSlider" name="BICEPS_BRACHII_TranspSlider">
+      <property name="geometry">
+       <rect>
+        <x>160</x>
+        <y>290</y>
+        <width>140</width>
+        <height>20</height>
+       </rect>
+      </property>
+      <property name="minimum">
+       <number>0</number>
+      </property>
+      <property name="maximum">
+       <number>100</number>
+      </property>
+      <property name="singleStep">
+       <number>1</number>
+      </property>
+      <property name="value">
+       <number>50</number>
+      </property>
+      <property name="orientation">
+       <enum>Qt::Horizontal</enum>
+      </property>
+      <property name="tickPosition">
+       <enum>QSlider::TicksAbove</enum>
+      </property>
+      <property name="tickInterval">
+       <number>10</number>
+      </property>
+     </widget>
+     <widget class="QSlider" name="TRICEPS_BRACHII_TranspSlider">
+      <property name="geometry">
+       <rect>
+        <x>160</x>
+        <y>310</y>
+        <width>140</width>
+        <height>20</height>
+       </rect>
+      </property>
+      <property name="minimum">
+       <number>0</number>
+      </property>
+      <property name="maximum">
+       <number>100</number>
+      </property>
+      <property name="singleStep">
+       <number>1</number>
+      </property>
+      <property name="value">
+       <number>50</number>
+      </property>
+      <property name="orientation">
+       <enum>Qt::Horizontal</enum>
+      </property>
+      <property name="tickPosition">
+       <enum>QSlider::TicksAbove</enum>
+      </property>
+      <property name="tickInterval">
+       <number>10</number>
       </property>
      </widget>
     </widget>
@@ -794,22 +1082,6 @@ color: rgb(0, 255, 0);</string>
     <hint type="destinationlabel">
      <x>217</x>
      <y>176</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>modelTranspSlider</sender>
-   <signal>valueChanged(int)</signal>
-   <receiver>lcdNumber_8</receiver>
-   <slot>display(int)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>191</x>
-     <y>224</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>297</x>
-     <y>226</y>
     </hint>
    </hints>
   </connection>

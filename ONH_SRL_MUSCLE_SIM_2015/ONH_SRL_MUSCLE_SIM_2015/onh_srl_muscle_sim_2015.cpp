@@ -28,8 +28,18 @@ ONH_SRL_MUSCLE_SIM_2015::ONH_SRL_MUSCLE_SIM_2015(QWidget *parent)
 	connect(vaoWidget, SIGNAL(fovYChanged(int)), ui.fovyDial, SLOT(setValue(int)));
 	connect(ui.fovyDial, SIGNAL(valueChanged(int)), vaoWidget, SLOT(setFovY(int)));
 
-	connect(vaoWidget, SIGNAL(transpFactorChanged(int)), ui.modelTranspSlider, SLOT(setValue(int)));
-	connect(ui.modelTranspSlider, SIGNAL(valueChanged(int)), vaoWidget, SLOT(setTranspFactor(int)));
+	connect(vaoWidget, SIGNAL(transpFactorChanged(int)), ui.OTHER_TranspSlider, SLOT(setValue(int)));
+	connect(ui.OTHER_TranspSlider, SIGNAL(valueChanged(int)), vaoWidget, SLOT(setTranspFactor(int)));
+
+	connect(ui.resetView_button, SIGNAL(clicked()), vaoWidget, SLOT(resetView()));
+
+	connect(ui.ANCONEUS_checkBox, SIGNAL(toggled(bool)), vaoWidget, SLOT(toggle_ANCONEUS(bool)));
+	connect(ui.BRACHIALIS_checkBox, SIGNAL(toggled(bool)), vaoWidget, SLOT(toggle_BRACHIALIS(bool)));
+	connect(ui.BRACHIORDIALIS_checkBox, SIGNAL(toggled(bool)), vaoWidget, SLOT(toggle_BRACHIORDIALIS(bool)));
+	connect(ui.PRONATOR_TERES_checkBox, SIGNAL(toggled(bool)), vaoWidget, SLOT(toggle_PRONATOR_TERES(bool)));
+	connect(ui.BICEPS_BRACHII_checkBox, SIGNAL(toggled(bool)), vaoWidget, SLOT(toggle_BICEPS_BRACHII(bool)));
+	connect(ui.TRICEPS_BRACHII_checkBox, SIGNAL(toggled(bool)), vaoWidget, SLOT(toggle_TRICEPS_BRACHII(bool)));
+	connect(ui.OTHER_checkBox, SIGNAL(toggled(bool)), vaoWidget, SLOT(toggle_OTHER(bool)));
 
 	connect(vaoWidget, SIGNAL(logTextChanged(QString)), ui.logPlainTextEdit, SLOT(setPlainText(QString)));
 
@@ -40,6 +50,11 @@ ONH_SRL_MUSCLE_SIM_2015::ONH_SRL_MUSCLE_SIM_2015(QWidget *parent)
 ONH_SRL_MUSCLE_SIM_2015::~ONH_SRL_MUSCLE_SIM_2015()
 {
 
+}
+
+void ONH_SRL_MUSCLE_SIM_2015::loadModels(void)
+{
+	vaoWidget->loadModels();
 }
 
 void ONH_SRL_MUSCLE_SIM_2015::keyPressEvent(QKeyEvent *e)

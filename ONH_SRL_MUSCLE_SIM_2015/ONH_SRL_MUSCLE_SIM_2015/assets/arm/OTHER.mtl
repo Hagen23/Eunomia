@@ -1,0 +1,39 @@
+# 
+# Wavefront material file
+# Converted by the DEEP Exploration  Deep Exploration 6.5 x64 6.5.0.9182
+# Right Hemisphere, LTD
+# http://www.righthemisphere.com/
+# 
+
+newmtl arm_lambert2SG
+Ka 0 0 0
+Kd 0.568627 0.568627 0.568627
+Ks 0.5 0.5 0.5
+illum 2
+Ns 8
+map_Kd bones_texture2469.png
+map_bump 
+bump 
+map_opacity 
+map_d 
+refl 
+map_kS 
+map_kA 
+map_Ns 
+
+newmtl OTHER_MUSCLES_lambert4SG
+Ka 0 0 0
+Kd 0.5 0.5 0.5
+Ks 0.5 0.5 0.5
+illum 2
+Ns 8
+d 0.5
+map_Kd 1390732.png
+map_bump 
+bump 
+map_opacity 
+map_d 
+refl 
+map_kS 
+map_kA 
+map_Ns 

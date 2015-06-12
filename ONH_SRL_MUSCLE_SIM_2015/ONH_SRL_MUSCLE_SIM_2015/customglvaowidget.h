@@ -21,8 +21,8 @@ public:
 	explicit CustomGLVAOWidget(QScreen *screen = 0);
 	~CustomGLVAOWidget();
 	
-	void resetView();
 	void updateText();
+	void loadModels();
 
 private:
 	void logSeparator(void);
@@ -45,9 +45,18 @@ private:
 	QString logText;
 	QDateTime dateTime;
 
+	bool show_ANCONEUS;
+	bool show_BRACHIALIS;
+	bool show_BRACHIORDIALIS;
+	bool show_PRONATOR_TERES;
+	bool show_BICEPS_BRACHII;
+	bool show_TRICEPS_BRACHII;
+	bool show_OTHER;
+
 protected:
 	void mousePressEvent(QMouseEvent *event);
 	void mouseMoveEvent(QMouseEvent *event);
+	void wheelEvent(QWheelEvent *event);
 
 protected slots :
 	void resizeGl();
@@ -65,6 +74,15 @@ public slots:
 
 	void setFovY(int angle);
 	void setTranspFactor(int factor);
+	void resetView(void);
+
+	void toggle_ANCONEUS(bool val);
+	void toggle_BRACHIALIS(bool val);
+	void toggle_BRACHIORDIALIS(bool val);
+	void toggle_PRONATOR_TERES(bool val);
+	void toggle_BICEPS_BRACHII(bool val);
+	void toggle_TRICEPS_BRACHII(bool val);
+	void toggle_OTHER(bool val);
 
 signals:
 	void xModelRotationChanged(int angle);

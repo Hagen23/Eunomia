@@ -13,6 +13,7 @@
 #include <QtWidgets/QAction>
 #include <QtWidgets/QApplication>
 #include <QtWidgets/QButtonGroup>
+#include <QtWidgets/QCheckBox>
 #include <QtWidgets/QDial>
 #include <QtWidgets/QGroupBox>
 #include <QtWidgets/QHeaderView>
@@ -21,6 +22,7 @@
 #include <QtWidgets/QMainWindow>
 #include <QtWidgets/QMenuBar>
 #include <QtWidgets/QPlainTextEdit>
+#include <QtWidgets/QPushButton>
 #include <QtWidgets/QSlider>
 #include <QtWidgets/QStatusBar>
 #include <QtWidgets/QTabWidget>
@@ -48,6 +50,7 @@ public:
     QDial *fovyDial;
     QLabel *label_7;
     QLCDNumber *lcdNumber_7;
+    QPushButton *resetView_button;
     QWidget *tab_2;
     QGroupBox *groupBox;
     QSlider *xModelRotSlider;
@@ -59,9 +62,21 @@ public:
     QLCDNumber *lcdNumber;
     QLCDNumber *lcdNumber_2;
     QLCDNumber *lcdNumber_3;
-    QSlider *modelTranspSlider;
+    QSlider *OTHER_TranspSlider;
     QLabel *label_8;
-    QLCDNumber *lcdNumber_8;
+    QCheckBox *ANCONEUS_checkBox;
+    QCheckBox *BRACHIALIS_checkBox;
+    QCheckBox *BRACHIORDIALIS_checkBox;
+    QCheckBox *PRONATOR_TERES_checkBox;
+    QCheckBox *BICEPS_BRACHII_checkBox;
+    QCheckBox *TRICEPS_BRACHII_checkBox;
+    QSlider *ANCONEUS_TranspSlider;
+    QCheckBox *OTHER_checkBox;
+    QSlider *BRACHIALIS_TranspSlider;
+    QSlider *BRACHIORDIALIS_TranspSlider;
+    QSlider *PRONATOR_TERES_TranspSlider;
+    QSlider *BICEPS_BRACHII_TranspSlider;
+    QSlider *TRICEPS_BRACHII_TranspSlider;
     QWidget *widget;
     QPlainTextEdit *logPlainTextEdit;
     QMenuBar *menuBar;
@@ -155,13 +170,15 @@ public:
         fovyDial = new QDial(tab);
         fovyDial->setObjectName(QStringLiteral("fovyDial"));
         fovyDial->setGeometry(QRect(270, 30, 50, 64));
-        fovyDial->setMinimum(30);
-        fovyDial->setMaximum(100);
-        fovyDial->setPageStep(5);
-        fovyDial->setValue(44);
+        fovyDial->setMinimum(-15);
+        fovyDial->setMaximum(17);
+        fovyDial->setPageStep(1);
+        fovyDial->setValue(0);
+        fovyDial->setNotchTarget(2);
+        fovyDial->setNotchesVisible(true);
         label_7 = new QLabel(tab);
         label_7->setObjectName(QStringLiteral("label_7"));
-        label_7->setGeometry(QRect(270, 20, 51, 16));
+        label_7->setGeometry(QRect(270, 10, 51, 16));
         label_7->setAlignment(Qt::AlignCenter);
         lcdNumber_7 = new QLCDNumber(tab);
         lcdNumber_7->setObjectName(QStringLiteral("lcdNumber_7"));
@@ -169,7 +186,10 @@ public:
         lcdNumber_7->setStyleSheet(QLatin1String("color: rgb(0, 255, 0);\n"
 "background-color: rgb(0, 0, 0);"));
         lcdNumber_7->setSegmentStyle(QLCDNumber::Flat);
-        lcdNumber_7->setProperty("value", QVariant(44));
+        lcdNumber_7->setProperty("value", QVariant(0));
+        resetView_button = new QPushButton(tab);
+        resetView_button->setObjectName(QStringLiteral("resetView_button"));
+        resetView_button->setGeometry(QRect(10, 140, 311, 23));
         tabWidget->addTab(tab, QString());
         tab_2 = new QWidget();
         tab_2->setObjectName(QStringLiteral("tab_2"));
@@ -238,29 +258,107 @@ public:
         lcdNumber_3->setStyleSheet(QLatin1String("color: rgb(0, 255, 0);\n"
 "background-color: rgb(0, 0, 0);"));
         lcdNumber_3->setSegmentStyle(QLCDNumber::Flat);
-        modelTranspSlider = new QSlider(tab_2);
-        modelTranspSlider->setObjectName(QStringLiteral("modelTranspSlider"));
-        modelTranspSlider->setGeometry(QRect(110, 150, 140, 20));
-        modelTranspSlider->setMinimum(0);
-        modelTranspSlider->setMaximum(200);
-        modelTranspSlider->setSingleStep(1);
-        modelTranspSlider->setValue(50);
-        modelTranspSlider->setOrientation(Qt::Horizontal);
-        modelTranspSlider->setTickPosition(QSlider::TicksAbove);
-        modelTranspSlider->setTickInterval(10);
+        OTHER_TranspSlider = new QSlider(tab_2);
+        OTHER_TranspSlider->setObjectName(QStringLiteral("OTHER_TranspSlider"));
+        OTHER_TranspSlider->setGeometry(QRect(160, 330, 140, 20));
+        OTHER_TranspSlider->setMinimum(0);
+        OTHER_TranspSlider->setMaximum(100);
+        OTHER_TranspSlider->setSingleStep(1);
+        OTHER_TranspSlider->setValue(50);
+        OTHER_TranspSlider->setOrientation(Qt::Horizontal);
+        OTHER_TranspSlider->setTickPosition(QSlider::TicksAbove);
+        OTHER_TranspSlider->setTickInterval(10);
         label_8 = new QLabel(tab_2);
         label_8->setObjectName(QStringLiteral("label_8"));
-        label_8->setGeometry(QRect(10, 150, 101, 20));
-        lcdNumber_8 = new QLCDNumber(tab_2);
-        lcdNumber_8->setObjectName(QStringLiteral("lcdNumber_8"));
-        lcdNumber_8->setGeometry(QRect(260, 150, 51, 23));
-        lcdNumber_8->setAutoFillBackground(false);
-        lcdNumber_8->setStyleSheet(QLatin1String("color: rgb(0, 255, 0);\n"
-"background-color: rgb(0, 0, 0);"));
-        lcdNumber_8->setFrameShadow(QFrame::Raised);
-        lcdNumber_8->setSmallDecimalPoint(false);
-        lcdNumber_8->setSegmentStyle(QLCDNumber::Flat);
-        lcdNumber_8->setProperty("value", QVariant(50));
+        label_8->setGeometry(QRect(180, 180, 101, 20));
+        ANCONEUS_checkBox = new QCheckBox(tab_2);
+        ANCONEUS_checkBox->setObjectName(QStringLiteral("ANCONEUS_checkBox"));
+        ANCONEUS_checkBox->setGeometry(QRect(30, 210, 120, 20));
+        ANCONEUS_checkBox->setChecked(true);
+        BRACHIALIS_checkBox = new QCheckBox(tab_2);
+        BRACHIALIS_checkBox->setObjectName(QStringLiteral("BRACHIALIS_checkBox"));
+        BRACHIALIS_checkBox->setGeometry(QRect(30, 230, 120, 20));
+        BRACHIALIS_checkBox->setChecked(true);
+        BRACHIORDIALIS_checkBox = new QCheckBox(tab_2);
+        BRACHIORDIALIS_checkBox->setObjectName(QStringLiteral("BRACHIORDIALIS_checkBox"));
+        BRACHIORDIALIS_checkBox->setGeometry(QRect(30, 250, 120, 20));
+        BRACHIORDIALIS_checkBox->setChecked(true);
+        PRONATOR_TERES_checkBox = new QCheckBox(tab_2);
+        PRONATOR_TERES_checkBox->setObjectName(QStringLiteral("PRONATOR_TERES_checkBox"));
+        PRONATOR_TERES_checkBox->setGeometry(QRect(30, 270, 120, 20));
+        PRONATOR_TERES_checkBox->setChecked(true);
+        BICEPS_BRACHII_checkBox = new QCheckBox(tab_2);
+        BICEPS_BRACHII_checkBox->setObjectName(QStringLiteral("BICEPS_BRACHII_checkBox"));
+        BICEPS_BRACHII_checkBox->setGeometry(QRect(30, 290, 120, 20));
+        BICEPS_BRACHII_checkBox->setChecked(true);
+        TRICEPS_BRACHII_checkBox = new QCheckBox(tab_2);
+        TRICEPS_BRACHII_checkBox->setObjectName(QStringLiteral("TRICEPS_BRACHII_checkBox"));
+        TRICEPS_BRACHII_checkBox->setGeometry(QRect(30, 310, 120, 20));
+        TRICEPS_BRACHII_checkBox->setChecked(true);
+        ANCONEUS_TranspSlider = new QSlider(tab_2);
+        ANCONEUS_TranspSlider->setObjectName(QStringLiteral("ANCONEUS_TranspSlider"));
+        ANCONEUS_TranspSlider->setGeometry(QRect(160, 210, 140, 20));
+        ANCONEUS_TranspSlider->setMinimum(0);
+        ANCONEUS_TranspSlider->setMaximum(100);
+        ANCONEUS_TranspSlider->setSingleStep(1);
+        ANCONEUS_TranspSlider->setValue(50);
+        ANCONEUS_TranspSlider->setOrientation(Qt::Horizontal);
+        ANCONEUS_TranspSlider->setTickPosition(QSlider::TicksAbove);
+        ANCONEUS_TranspSlider->setTickInterval(10);
+        OTHER_checkBox = new QCheckBox(tab_2);
+        OTHER_checkBox->setObjectName(QStringLiteral("OTHER_checkBox"));
+        OTHER_checkBox->setGeometry(QRect(30, 330, 120, 20));
+        OTHER_checkBox->setChecked(true);
+        BRACHIALIS_TranspSlider = new QSlider(tab_2);
+        BRACHIALIS_TranspSlider->setObjectName(QStringLiteral("BRACHIALIS_TranspSlider"));
+        BRACHIALIS_TranspSlider->setGeometry(QRect(160, 230, 140, 20));
+        BRACHIALIS_TranspSlider->setMinimum(0);
+        BRACHIALIS_TranspSlider->setMaximum(100);
+        BRACHIALIS_TranspSlider->setSingleStep(1);
+        BRACHIALIS_TranspSlider->setValue(50);
+        BRACHIALIS_TranspSlider->setOrientation(Qt::Horizontal);
+        BRACHIALIS_TranspSlider->setTickPosition(QSlider::TicksAbove);
+        BRACHIALIS_TranspSlider->setTickInterval(10);
+        BRACHIORDIALIS_TranspSlider = new QSlider(tab_2);
+        BRACHIORDIALIS_TranspSlider->setObjectName(QStringLiteral("BRACHIORDIALIS_TranspSlider"));
+        BRACHIORDIALIS_TranspSlider->setGeometry(QRect(160, 250, 140, 20));
+        BRACHIORDIALIS_TranspSlider->setMinimum(0);
+        BRACHIORDIALIS_TranspSlider->setMaximum(100);
+        BRACHIORDIALIS_TranspSlider->setSingleStep(1);
+        BRACHIORDIALIS_TranspSlider->setValue(50);
+        BRACHIORDIALIS_TranspSlider->setOrientation(Qt::Horizontal);
+        BRACHIORDIALIS_TranspSlider->setTickPosition(QSlider::TicksAbove);
+        BRACHIORDIALIS_TranspSlider->setTickInterval(10);
+        PRONATOR_TERES_TranspSlider = new QSlider(tab_2);
+        PRONATOR_TERES_TranspSlider->setObjectName(QStringLiteral("PRONATOR_TERES_TranspSlider"));
+        PRONATOR_TERES_TranspSlider->setGeometry(QRect(160, 270, 140, 20));
+        PRONATOR_TERES_TranspSlider->setMinimum(0);
+        PRONATOR_TERES_TranspSlider->setMaximum(100);
+        PRONATOR_TERES_TranspSlider->setSingleStep(1);
+        PRONATOR_TERES_TranspSlider->setValue(50);
+        PRONATOR_TERES_TranspSlider->setOrientation(Qt::Horizontal);
+        PRONATOR_TERES_TranspSlider->setTickPosition(QSlider::TicksAbove);
+        PRONATOR_TERES_TranspSlider->setTickInterval(10);
+        BICEPS_BRACHII_TranspSlider = new QSlider(tab_2);
+        BICEPS_BRACHII_TranspSlider->setObjectName(QStringLiteral("BICEPS_BRACHII_TranspSlider"));
+        BICEPS_BRACHII_TranspSlider->setGeometry(QRect(160, 290, 140, 20));
+        BICEPS_BRACHII_TranspSlider->setMinimum(0);
+        BICEPS_BRACHII_TranspSlider->setMaximum(100);
+        BICEPS_BRACHII_TranspSlider->setSingleStep(1);
+        BICEPS_BRACHII_TranspSlider->setValue(50);
+        BICEPS_BRACHII_TranspSlider->setOrientation(Qt::Horizontal);
+        BICEPS_BRACHII_TranspSlider->setTickPosition(QSlider::TicksAbove);
+        BICEPS_BRACHII_TranspSlider->setTickInterval(10);
+        TRICEPS_BRACHII_TranspSlider = new QSlider(tab_2);
+        TRICEPS_BRACHII_TranspSlider->setObjectName(QStringLiteral("TRICEPS_BRACHII_TranspSlider"));
+        TRICEPS_BRACHII_TranspSlider->setGeometry(QRect(160, 310, 140, 20));
+        TRICEPS_BRACHII_TranspSlider->setMinimum(0);
+        TRICEPS_BRACHII_TranspSlider->setMaximum(100);
+        TRICEPS_BRACHII_TranspSlider->setSingleStep(1);
+        TRICEPS_BRACHII_TranspSlider->setValue(50);
+        TRICEPS_BRACHII_TranspSlider->setOrientation(Qt::Horizontal);
+        TRICEPS_BRACHII_TranspSlider->setTickPosition(QSlider::TicksAbove);
+        TRICEPS_BRACHII_TranspSlider->setTickInterval(10);
         tabWidget->addTab(tab_2, QString());
         widget = new QWidget(centralWidget);
         widget->setObjectName(QStringLiteral("widget"));
@@ -298,9 +396,8 @@ public:
         QObject::connect(yModelRotSlider, SIGNAL(valueChanged(int)), lcdNumber_2, SLOT(display(int)));
         QObject::connect(zCamPosSlider, SIGNAL(valueChanged(int)), lcdNumber_6, SLOT(display(int)));
         QObject::connect(zModelRotSlider, SIGNAL(valueChanged(int)), lcdNumber_3, SLOT(display(int)));
-        QObject::connect(modelTranspSlider, SIGNAL(valueChanged(int)), lcdNumber_8, SLOT(display(int)));
 
-        tabWidget->setCurrentIndex(1);
+        tabWidget->setCurrentIndex(0);
 
 
         QMetaObject::connectSlotsByName(ONH_SRL_MUSCLE_SIM_2015Class);
@@ -313,13 +410,21 @@ public:
         label_4->setText(QApplication::translate("ONH_SRL_MUSCLE_SIM_2015Class", "X", 0));
         label_5->setText(QApplication::translate("ONH_SRL_MUSCLE_SIM_2015Class", "Y", 0));
         label_6->setText(QApplication::translate("ONH_SRL_MUSCLE_SIM_2015Class", "Z", 0));
-        label_7->setText(QApplication::translate("ONH_SRL_MUSCLE_SIM_2015Class", "FOVY", 0));
+        label_7->setText(QApplication::translate("ONH_SRL_MUSCLE_SIM_2015Class", "ZOOM", 0));
+        resetView_button->setText(QApplication::translate("ONH_SRL_MUSCLE_SIM_2015Class", "Reset View", 0));
         tabWidget->setTabText(tabWidget->indexOf(tab), QApplication::translate("ONH_SRL_MUSCLE_SIM_2015Class", "Camera", 0));
         groupBox->setTitle(QApplication::translate("ONH_SRL_MUSCLE_SIM_2015Class", "Rotation", 0));
         label->setText(QApplication::translate("ONH_SRL_MUSCLE_SIM_2015Class", "X", 0));
         label_2->setText(QApplication::translate("ONH_SRL_MUSCLE_SIM_2015Class", "Y", 0));
         label_3->setText(QApplication::translate("ONH_SRL_MUSCLE_SIM_2015Class", "Z", 0));
         label_8->setText(QApplication::translate("ONH_SRL_MUSCLE_SIM_2015Class", "Transparency (%):", 0));
+        ANCONEUS_checkBox->setText(QApplication::translate("ONH_SRL_MUSCLE_SIM_2015Class", "ANCONEUS", 0));
+        BRACHIALIS_checkBox->setText(QApplication::translate("ONH_SRL_MUSCLE_SIM_2015Class", "BRACHIALIS", 0));
+        BRACHIORDIALIS_checkBox->setText(QApplication::translate("ONH_SRL_MUSCLE_SIM_2015Class", "BRACHIORDIALIS", 0));
+        PRONATOR_TERES_checkBox->setText(QApplication::translate("ONH_SRL_MUSCLE_SIM_2015Class", "PRONATOR TERES", 0));
+        BICEPS_BRACHII_checkBox->setText(QApplication::translate("ONH_SRL_MUSCLE_SIM_2015Class", "BICEPS BRACHII", 0));
+        TRICEPS_BRACHII_checkBox->setText(QApplication::translate("ONH_SRL_MUSCLE_SIM_2015Class", "TRICEPS BRACHII", 0));
+        OTHER_checkBox->setText(QApplication::translate("ONH_SRL_MUSCLE_SIM_2015Class", "OTHER GEOMETRY", 0));
         tabWidget->setTabText(tabWidget->indexOf(tab_2), QApplication::translate("ONH_SRL_MUSCLE_SIM_2015Class", "Model", 0));
         logPlainTextEdit->setDocumentTitle(QString());
         logPlainTextEdit->setPlainText(QApplication::translate("ONH_SRL_MUSCLE_SIM_2015Class", "Hello", 0));

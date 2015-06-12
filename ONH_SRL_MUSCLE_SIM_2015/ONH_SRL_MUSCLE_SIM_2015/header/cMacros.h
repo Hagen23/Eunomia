@@ -3,6 +3,7 @@
 //#define _USE_MATH_DEFINES
 #include <qmath.h>
 #include <qmatrix4x4.h>
+
 #define DEG2RAD M_PI/180.0f
 
 #define MatricesUniBufferSize sizeof(float) * 16 * 3
@@ -33,4 +34,13 @@ struct ShaderMaterial
 #define aisgl_min(x,y) (x<y?x:y)
 #define aisgl_max(x,y) (y>x?y:x)
 #endif /*AISGL_MINMAX*/
+
+#ifndef ARM_PARTS
+#define ARM_PARTS
+static enum ARM_PART{ AP_ANCONEUS, AP_BRACHIALIS, AP_BRACHIORDIALIS, AP_PRONATOR_TERES, AP_BICEPS_BRACHII, AP_TRICEPS_BRACHII, AP_OTHER };
+#endif /*ARM_PARTS*/
+
+#ifndef NUM_ARM_PARTS
+	#define NUM_ARM_PARTS 7
+#endif /*NUM_ARM_PARTS*/
 

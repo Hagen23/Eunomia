@@ -6,5 +6,6 @@ int main(int argc, char *argv[])
 	QApplication a(argc, argv);
 	ONH_SRL_MUSCLE_SIM_2015 w;
 	w.show();
+	w.loadModels();
 	return a.exec();
 }

@@ -6,10 +6,18 @@ QtOpenGLScene::QtOpenGLScene() : mShaderProgram()
 	camX = 0.0f;
 	camY = 0.0f;
 	camZ = 4.0f;
-	fovY = 53.13f;
+	fovY = 44.0f;
+	lastFovY = fovY;
 	nearP = 0.09f;
 	farP = 100.0f;
 	ratio = 4 / 3.0f;
+
+	arm_parts.resize(NUM_ARM_PARTS);
+	for (unsigned int i = 0; i < NUM_ARM_PARTS; i++)
+	{
+		arm_parts[i].model_loaded = false;
+		arm_parts[i].model_shown = true;
+	}
 }
 
 int QtOpenGLScene::initialize()
@@ -20,43 +28,222 @@ int QtOpenGLScene::initialize()
 	//modelname = "assets/spider.obj";
 	//modelname = "assets/testmixed.obj";
 	//modelname = "assets/WusonOBJ.obj";
-	
-	modelname = "assets/arm.obj";
-	//modelname = "assets/arm/OTHER_MUSCLES.obj";
-	//modelname = "assets/arm/ANCONEUS.obj";
-	axesname = "assets/arm/axes.obj";
 
-	string basepath = StringUtils::getBasePath(modelname);
+
+	axes.model_path = string("assets/arm/axes.obj");
+	axes.model_loaded = false;
+	axes.model_manager = new AssimpManager(axes.model_path);
+	if (!axes.model_manager->Import3DFromFile())
+	{
+		return 3;
+	}
+	string basepath = StringUtils::getBasePath(axes.model_path);
 	tex_manager = new TextureManager(basepath);
-	
-	model_manager = new AssimpManager(modelname);
-	if (!model_manager->Import3DFromFile())
-	{
-		return 3;
-	}
-	if (!tex_manager->LoadGLTextures(model_manager->getScene()))
+	if (!tex_manager->LoadGLTextures(axes.model_manager->getScene()))
 	{
 		return 4;
 	}
-
-	axes_manager = new AssimpManager(axesname);
-	if (!axes_manager->Import3DFromFile())
-	{
-		return 3;
-	}
-	if (!tex_manager->LoadGLTextures(axes_manager->getScene()))
-	{
-		return 4;
-	}
+	axes.model_loaded = true;
+	axes.model_shown = true;
 
 	prepareShaderProgram();
-	genVAOsAndUniformBuffer(model_manager->getScene(), model_meshes);
-	genVAOsAndUniformBuffer(axes_manager->getScene(), axes_meshes);
+
+	genVAOsAndUniformBuffer(axes.model_manager->getScene(), axes.model_meshes);
 
 	mShaderProgram.bind();
 	texUnit = mShaderProgram.uniformLocation("texUnit");
 	return 0;
 }
+
+int QtOpenGLScene::load_ANCONEUS()
+{
+	//ANCONEUS
+	MODEL_SECTION anconeus;
+	anconeus.model_loaded = false;
+	anconeus.model_path = string("assets/arm/anconeus.obj");
+	anconeus.model_manager = new AssimpManager(anconeus.model_path);
+	if (!anconeus.model_manager->Import3DFromFile())
+	{
+		return 3;
+	}
+	if (!tex_manager->LoadGLTextures(anconeus.model_manager->getScene()))
+	{
+		return 4;
+	}
+	arm_parts[AP_ANCONEUS] = anconeus;
+	genVAOsAndUniformBuffer(arm_parts[AP_ANCONEUS].model_manager->getScene(), arm_parts[AP_ANCONEUS].model_meshes);
+	arm_parts[AP_ANCONEUS].model_loaded = true;
+	arm_parts[AP_ANCONEUS].model_shown = true;
+	return 0;
+}
+
+int QtOpenGLScene::load_BRACHIALIS()
+{
+	//BRACHIALIS
+	MODEL_SECTION brachialis;
+	brachialis.model_loaded = false;
+	brachialis.model_path = string("assets/arm/brachialis.obj");
+	brachialis.model_manager = new AssimpManager(brachialis.model_path);
+	if (!brachialis.model_manager->Import3DFromFile())
+	{
+		return 3;
+	}
+	if (!tex_manager->LoadGLTextures(brachialis.model_manager->getScene()))
+	{
+		return 4;
+	}
+	arm_parts[AP_BRACHIALIS] = brachialis;
+	genVAOsAndUniformBuffer(arm_parts[AP_BRACHIALIS].model_manager->getScene(), arm_parts[AP_BRACHIALIS].model_meshes);
+	arm_parts[AP_BRACHIALIS].model_loaded = true;
+	arm_parts[AP_BRACHIALIS].model_shown = true;
+	return 0;
+}
+
+int QtOpenGLScene::load_BRACHIORDIALIS()
+{
+	//BRACHIORDIALIS
+	MODEL_SECTION brachiordialis;
+	brachiordialis.model_loaded = false;
+	brachiordialis.model_path = string("assets/arm/brachiordialis.obj");
+	brachiordialis.model_manager = new AssimpManager(brachiordialis.model_path);
+	if (!brachiordialis.model_manager->Import3DFromFile())
+	{
+		return 3;
+	}
+	if (!tex_manager->LoadGLTextures(brachiordialis.model_manager->getScene()))
+	{
+		return 4;
+	}
+	arm_parts[AP_BRACHIORDIALIS] = brachiordialis;
+	genVAOsAndUniformBuffer(arm_parts[AP_BRACHIORDIALIS].model_manager->getScene(), arm_parts[AP_BRACHIORDIALIS].model_meshes);
+	arm_parts[AP_BRACHIORDIALIS].model_loaded = true;
+	arm_parts[AP_BRACHIORDIALIS].model_shown = true;
+	return 0;
+}
+
+int QtOpenGLScene::load_PRONATOR_TERES()
+{
+	//PRONATOR_TERES
+	MODEL_SECTION pronator_teres;
+	pronator_teres.model_loaded = false;
+	pronator_teres.model_path = string("assets/arm/pronator_teres.obj");
+	pronator_teres.model_manager = new AssimpManager(pronator_teres.model_path);
+	if (!pronator_teres.model_manager->Import3DFromFile())
+	{
+		return 3;
+	}
+	if (!tex_manager->LoadGLTextures(pronator_teres.model_manager->getScene()))
+	{
+		return 4;
+	}
+	arm_parts[AP_PRONATOR_TERES] = pronator_teres;
+	genVAOsAndUniformBuffer(arm_parts[AP_PRONATOR_TERES].model_manager->getScene(), arm_parts[AP_PRONATOR_TERES].model_meshes);
+	arm_parts[AP_PRONATOR_TERES].model_loaded = true;
+	arm_parts[AP_PRONATOR_TERES].model_shown = true;
+	return 0;
+}
+
+int QtOpenGLScene::load_BICEPS_BRACHII()
+{
+	//BICEPS_BRACHII
+	MODEL_SECTION biceps_brachii;
+	biceps_brachii.model_loaded = false;
+	biceps_brachii.model_path = string("assets/arm/biceps_brachii.obj");
+	biceps_brachii.model_manager = new AssimpManager(biceps_brachii.model_path);
+	if (!biceps_brachii.model_manager->Import3DFromFile())
+	{
+		return 3;
+	}
+	if (!tex_manager->LoadGLTextures(biceps_brachii.model_manager->getScene()))
+	{
+		return 4;
+	}
+	arm_parts[AP_BICEPS_BRACHII] = biceps_brachii;
+	genVAOsAndUniformBuffer(arm_parts[AP_BICEPS_BRACHII].model_manager->getScene(), arm_parts[AP_BICEPS_BRACHII].model_meshes);
+	arm_parts[AP_BICEPS_BRACHII].model_loaded = true;
+	arm_parts[AP_BICEPS_BRACHII].model_shown = true;
+	return 0;
+}
+
+int QtOpenGLScene::load_TRICEPS_BRACHII()
+{
+	//TRICEPS_BRACHII
+	MODEL_SECTION triceps_brachii;
+	triceps_brachii.model_loaded = false;
+	triceps_brachii.model_path = string("assets/arm/triceps_brachii.obj");
+	triceps_brachii.model_manager = new AssimpManager(triceps_brachii.model_path);
+	if (!triceps_brachii.model_manager->Import3DFromFile())
+	{
+		return 3;
+	}
+	if (!tex_manager->LoadGLTextures(triceps_brachii.model_manager->getScene()))
+	{
+		return 4;
+	}
+	arm_parts[AP_TRICEPS_BRACHII] = triceps_brachii;
+	genVAOsAndUniformBuffer(arm_parts[AP_TRICEPS_BRACHII].model_manager->getScene(), arm_parts[AP_TRICEPS_BRACHII].model_meshes);
+	arm_parts[AP_TRICEPS_BRACHII].model_loaded = true;
+	arm_parts[AP_TRICEPS_BRACHII].model_shown = true;
+	return 0;
+}
+
+int QtOpenGLScene::load_OTHER()
+{
+	//OTHER
+	MODEL_SECTION other;
+	other.model_loaded = false;
+	other.model_path = string("assets/arm/other.obj");
+	other.model_manager = new AssimpManager(other.model_path);
+	if (!other.model_manager->Import3DFromFile())
+	{
+		return 3;
+	}
+	if (!tex_manager->LoadGLTextures(other.model_manager->getScene()))
+	{
+		return 4;
+	}
+	arm_parts[AP_OTHER] = other;
+	genVAOsAndUniformBuffer(arm_parts[AP_OTHER].model_manager->getScene(), arm_parts[AP_OTHER].model_meshes);
+	arm_parts[AP_OTHER].model_loaded = true;
+	arm_parts[AP_OTHER].model_shown = true;
+	return 0;
+}
+
+void QtOpenGLScene::toggle_ANCONEUS(bool v)
+{
+	arm_parts[AP_ANCONEUS].model_shown = v;
+}
+
+void QtOpenGLScene::toggle_BRACHIALIS(bool v)
+{
+	arm_parts[AP_BRACHIALIS].model_shown = v;
+}
+
+void QtOpenGLScene::toggle_BRACHIORDIALIS(bool v)
+{
+	arm_parts[AP_BRACHIORDIALIS].model_shown = v;
+}
+
+void QtOpenGLScene::toggle_PRONATOR_TERES(bool v)
+{
+	arm_parts[AP_PRONATOR_TERES].model_shown = v;
+}
+
+void QtOpenGLScene::toggle_BICEPS_BRACHII(bool v)
+{
+	arm_parts[AP_BICEPS_BRACHII].model_shown = v;
+}
+
+void QtOpenGLScene::toggle_TRICEPS_BRACHII(bool v)
+{
+	arm_parts[AP_TRICEPS_BRACHII].model_shown = v;
+}
+
+void QtOpenGLScene::toggle_OTHER(bool v)
+{
+	arm_parts[AP_OTHER].model_shown = v;
+}
+
 
 void QtOpenGLScene::update(float t)
 {
@@ -308,7 +495,12 @@ void QtOpenGLScene::buildProjectionMatrix(float fov, float ratio, float nearp, f
 
 	QMatrix4x4 pm = QMatrix4x4(&projMatrix[0][0]);
 	//pm = pm.transposed();
-	//qDebug() << "NEW PROJECTION MATRIX. FOV=" << fov << " RATIO=" << ratio << " NEAR=" << nearp << " FAR=" << farp;
+	if (lastFovY != fovY)
+	{
+		qDebug() << "NEW PROJECTION MATRIX. FOV=" << fov << " RATIO=" << ratio << " NEAR=" << nearp << " FAR=" << farp;
+		lastFovY = fovY;
+	}
+	
 	//qDebug() << pm;
 	mShaderProgram.bind();
 	mShaderProgram.setUniformValue("projMatrix", pm.transposed());
@@ -371,7 +563,7 @@ void QtOpenGLScene::renderScene(int rotModelX, int rotModelY, int rotModelZ, int
 	camX = (float)posCamX;
 	camY = (float)posCamY;
 	camZ = (float)posCamZ;
-	fovY = (float)_fovY;
+	fovY = 44.0f - ((float)_fovY/1000.0f);
 	buildProjectionMatrix(fovY, ratio, nearP, farP);
 	setCamera(camX, camY, camZ, 0, 0, 0);
 	// Set the model matrix to the identity Matrix:
@@ -380,7 +572,8 @@ void QtOpenGLScene::renderScene(int rotModelX, int rotModelY, int rotModelZ, int
 	
 
 	// Sets the model matrix to a scale matrix so that the model fits in the window:
-	scale(model_manager->getScaleFactor(), model_manager->getScaleFactor(), model_manager->getScaleFactor());
+	float sf = axes.model_manager->getScaleFactor();
+	scale(sf, sf, sf);
 	// Rotate the model:
 	//rotate((float)rotModelX, 1.0f, 0.0f, 0.0f);
 	//rotate((float)rotModelY, 0.0f, 1.0f, 0.0f);
@@ -389,7 +582,7 @@ void QtOpenGLScene::renderScene(int rotModelX, int rotModelY, int rotModelZ, int
 	// Unfortunately samplers can't reside in uniform blocks
 	// so we have set this uniform separately:
 	mShaderProgram.setUniformValue(texUnit, 0);
-	recursive_render(axes_manager->getScene(), axes_manager->getScene()->mRootNode, axes_meshes);
+	recursive_render(axes.model_manager->getScene(), axes.model_manager->getScene()->mRootNode, axes.model_meshes);
 
 
 	// Sets the model matrix to a scale matrix so that the model fits in the window:
@@ -402,8 +595,11 @@ void QtOpenGLScene::renderScene(int rotModelX, int rotModelY, int rotModelZ, int
 	// Unfortunately samplers can't reside in uniform blocks
 	// so we have set this uniform separately:
 	//mShaderProgram.setUniformValue(texUnit, 0);
-	recursive_render(model_manager->getScene(), model_manager->getScene()->mRootNode, model_meshes);
-	
+	for (unsigned int i = 0; i < NUM_ARM_PARTS; i++)
+	{
+		if (arm_parts[i].model_loaded && arm_parts[i].model_shown)
+			recursive_render(arm_parts[i].model_manager->getScene(), arm_parts[i].model_manager->getScene()->mRootNode, arm_parts[i].model_meshes);
+	}
 	// FPS computation and display:
 	frame++;
 }

@@ -15,6 +15,8 @@ public:
 	ONH_SRL_MUSCLE_SIM_2015(QWidget *parent = 0);
 	~ONH_SRL_MUSCLE_SIM_2015();
 
+	void loadModels(void);
+
 private:
 	Ui::ONH_SRL_MUSCLE_SIM_2015Class ui;
 	CustomGLVAOWidget* vaoWidget;

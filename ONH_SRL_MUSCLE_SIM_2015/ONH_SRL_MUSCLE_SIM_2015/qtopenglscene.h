@@ -2,6 +2,7 @@
 #define QTOPENGLSCENE_H
 
 #include <string>
+#include "cMacros.h"
 #include "abstractscene.h"
 
 #include <qdatetime.h>
@@ -29,6 +30,23 @@ public:
     virtual void update(float t);
     virtual void render(int rotModelX, int rotModelY, int rotModelZ, int posCamX, int posCamY, int posCamZ, int fovY, int opacity);
     virtual void resize(int width, int height);
+	
+	virtual int load_ANCONEUS();
+	virtual int load_BRACHIALIS();
+	virtual int load_BRACHIORDIALIS();
+	virtual int load_PRONATOR_TERES();
+	virtual int load_BICEPS_BRACHII();
+	virtual int load_TRICEPS_BRACHII();
+	virtual int load_OTHER();
+
+	virtual void toggle_ANCONEUS(bool v);
+	virtual void toggle_BRACHIALIS(bool v);
+	virtual void toggle_BRACHIORDIALIS(bool v);
+	virtual void toggle_PRONATOR_TERES(bool v);
+	virtual void toggle_BICEPS_BRACHII(bool v);
+	virtual void toggle_TRICEPS_BRACHII(bool v);
+	virtual void toggle_OTHER(bool v);
+
 private:
 	void prepareShaderProgram();
 	void prepareVertexBuffers();
@@ -50,11 +68,21 @@ private:
     QOpenGLShaderProgram mShaderProgram;
 
 	//Custom objects:
-	AssimpManager*		model_manager;
-	vector<AssimpMesh>	model_meshes;
+#ifndef __MODEL_SECTION
+#define __MODEL_SECTION
+	struct MODEL_SECTION
+	{
+		bool					model_loaded;
+		bool					model_shown;
+		std::string				model_path;
+		AssimpManager*			model_manager;
+		std::vector<AssimpMesh>	model_meshes;
+	}MODEL_CONTAINER;
+#endif /*__MODEL_SECTION*/
 
-	AssimpManager*		axes_manager;
-	vector<AssimpMesh>	axes_meshes;
+	vector<MODEL_SECTION> arm_parts;
+
+	MODEL_SECTION		axes;
 
 	TextureManager*		tex_manager;
 
@@ -65,16 +93,13 @@ private:
 	// For push and pop matrix
 	vector<glm::mat4> matrixStack;
 
-	// Replace the model name by your model's filename
-	string modelname;
-	string axesname;
-
 	// Camera Position
 	float camX;
 	float camY;
 	float camZ;
 	float ratio;
 	float fovY;
+	float lastFovY;
 	float nearP;
 	float farP;
 	float opacity;

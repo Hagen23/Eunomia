@@ -47,6 +47,14 @@ CustomGLVAOWidget::CustomGLVAOWidget(QScreen *screen) : QWindow(screen), mScene(
 	timer->start(16);
 
 	transpFactor = 50;
+
+	show_ANCONEUS			= true;
+	show_BRACHIALIS			= true;
+	show_BRACHIORDIALIS		= true;
+	show_PRONATOR_TERES		= true;
+	show_BICEPS_BRACHII		= true;
+	show_TRICEPS_BRACHII	= true;
+	show_OTHER				= true;
 }
 
 CustomGLVAOWidget::~CustomGLVAOWidget()
@@ -219,6 +227,69 @@ void CustomGLVAOWidget::setTranspFactor(int factor)
 	}
 }
 
+void CustomGLVAOWidget::toggle_ANCONEUS(bool val)
+{
+	if (val != show_ANCONEUS)
+	{
+		show_ANCONEUS = val;
+		mScene->toggle_ANCONEUS(val);
+	}
+}
+
+void CustomGLVAOWidget::toggle_BRACHIALIS(bool val)
+{
+	if (val != show_BRACHIALIS)
+	{
+		show_BRACHIALIS = val;
+		mScene->toggle_BRACHIALIS(val);
+	}
+}
+
+void CustomGLVAOWidget::toggle_BRACHIORDIALIS(bool val)
+{
+	if (val != show_BRACHIORDIALIS)
+	{
+		show_BRACHIORDIALIS = val;
+		mScene->toggle_BRACHIORDIALIS(val);
+	}
+}
+
+void CustomGLVAOWidget::toggle_PRONATOR_TERES(bool val)
+{
+	if (val != show_PRONATOR_TERES)
+	{
+		show_PRONATOR_TERES = val;
+		mScene->toggle_PRONATOR_TERES(val);
+	}
+}
+
+void CustomGLVAOWidget::toggle_BICEPS_BRACHII(bool val)
+{
+	if (val != show_BICEPS_BRACHII)
+	{
+		show_BICEPS_BRACHII = val;
+		mScene->toggle_BICEPS_BRACHII(val);
+	}
+}
+
+void CustomGLVAOWidget::toggle_TRICEPS_BRACHII(bool val)
+{
+	if (val != show_TRICEPS_BRACHII)
+	{
+		show_TRICEPS_BRACHII = val;
+		mScene->toggle_TRICEPS_BRACHII(val);
+	}
+}
+
+void CustomGLVAOWidget::toggle_OTHER(bool val)
+{
+	if (val != show_OTHER)
+	{
+		show_OTHER = val;
+		mScene->toggle_OTHER(val);
+	}
+}
+
 void CustomGLVAOWidget::mousePressEvent(QMouseEvent *event)
 {
 	lastPos = event->pos();
@@ -243,6 +314,23 @@ void CustomGLVAOWidget::mouseMoveEvent(QMouseEvent *event)
 	lastPos = event->pos();
 }
 
+void CustomGLVAOWidget::wheelEvent(QWheelEvent *event)
+{
+	QPoint numPixels = event->pixelDelta();
+	QPoint numDegrees = event->angleDelta() / 8;
+
+	if (!numDegrees.isNull())
+	{
+		int dy = numDegrees.y();
+		int numSteps = fovY + dy / 15;
+		if (numSteps >= -15 && numSteps <= 17)
+		{
+			setFovY(numSteps);
+		}
+	}
+	event->accept();
+}
+
 void CustomGLVAOWidget::resetView()
 {
 	setXModelRotation(-180);
@@ -251,7 +339,7 @@ void CustomGLVAOWidget::resetView()
 	setXCamPosition(10);
 	setYCamPosition(10);
 	setZCamPosition(40);
-	setFovY(44);
+	setFovY(0);
 }
 
 void CustomGLVAOWidget::appendToLog(QString text)
@@ -273,4 +361,84 @@ void CustomGLVAOWidget::logSeparator(void)
 void CustomGLVAOWidget::updateText()
 {
 	emit logTextChanged(logText);
+}
+
+void CustomGLVAOWidget::loadModels()
+{
+	appendToLog("Loading 'ANCONEUS'...");
+	if (mScene->load_ANCONEUS() == 0)
+	{
+		appendToLog("Done!");
+	}
+	else
+	{
+		appendToLog("ERROR LOADING 'ANCONEUS'");
+	}
+	logSeparator();
+
+	appendToLog("Loading 'BRACHIALIS'...");
+	if (mScene->load_BRACHIALIS() == 0)
+	{
+		appendToLog("Done!");
+	}
+	else
+	{
+		appendToLog("ERROR LOADING 'BRACHIALIS'");
+	}
+	logSeparator();
+
+	appendToLog("Loading 'BRACHIORDIALIS'...");
+	if(mScene->load_BRACHIORDIALIS() == 0)
+	{
+		appendToLog("Done!");
+	}
+	else
+	{
+		appendToLog("ERROR LOADING 'BRACHIORDIALIS'");
+	}
+	logSeparator();
+	
+	appendToLog("Loading 'PRONATOR TERES'...");
+	if(mScene->load_PRONATOR_TERES() == 0)
+	{
+		appendToLog("Done!");
+	}
+	else
+	{
+		appendToLog("ERROR LOADING 'PRONATOR TERES'");
+	}
+	logSeparator();
+
+	appendToLog("Loading 'BICEPS BRACHII'...");
+	if(mScene->load_BICEPS_BRACHII() == 0)
+	{
+		appendToLog("Done!");
+	}
+	else
+	{
+		appendToLog("ERROR LOADING 'BICEPS BRACHII'");
+	}
+	logSeparator();
+
+	appendToLog("Loading 'TRICEPS BRACHII'...");
+	if(mScene->load_TRICEPS_BRACHII() == 0)
+	{
+		appendToLog("Done!");
+	}
+	else
+	{
+		appendToLog("ERROR LOADING 'TRICEPS BRACHII'");
+	}
+	logSeparator();
+
+	appendToLog("Loading 'OTHER'...");
+	if(mScene->load_OTHER() == 0)
+	{
+		appendToLog("Done!");
+	}
+	else
+	{
+		appendToLog("ERROR LOADING 'OTHER'");
+	}
+	logSeparator();
 }
