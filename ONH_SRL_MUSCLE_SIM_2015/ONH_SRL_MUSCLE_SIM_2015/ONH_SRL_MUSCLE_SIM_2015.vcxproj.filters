@@ -146,5 +146,6 @@
     <None Include="shaders\dirlightdiffambpix.vert">
       <Filter>shaders</Filter>
     </None>
+    <None Include="ClassDiagram.cd" />
   </ItemGroup>
 </Project>

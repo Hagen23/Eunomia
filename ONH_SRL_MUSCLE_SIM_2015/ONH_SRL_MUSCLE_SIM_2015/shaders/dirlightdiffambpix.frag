@@ -18,16 +18,21 @@ void main()
 	float intensity;
 	float intensityDown;
 	vec3 lightDir;
+	vec3 lightDir2;
 	vec3 n;
 	vec4 diffuse = material[0];
 	vec4 ambient = material[1];
 	vec4 specular = material[2];
 	vec4 emissive = material[3];
 	
-	lightDir = normalize(vec3(1.0,10.0,1.0));
+	lightDir = normalize(vec3(10.0,30.0,10.0));
+	lightDir2 = normalize(vec3(-10.0,-30.0,50.0));
+
 	n = normalize(Normal);
 	intensity = max(dot(lightDir,n),0.0);
-	intensityDown = max(dot(-lightDir,n),0.0);
+	intensityDown = max(dot(lightDir2,n),0.0);
+
+	diffuse.a = opacity;
 
 	if (texCount > 0.1)
 	{
@@ -38,7 +43,8 @@ void main()
 	{
 		color = diffuse;
 		amb = ambient;
+		amb.a = opacity;
 	}
-	output = (color * max(intensity,intensityDown)) + amb;
-	output.a = opacity;
+	//output = (color * max(intensity,intensityDown)) + amb;
+	output = (color * (intensity+intensityDown)) + amb;
 }

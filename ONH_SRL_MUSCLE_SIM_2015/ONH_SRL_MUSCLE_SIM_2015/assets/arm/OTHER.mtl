@@ -6,8 +6,8 @@
 # 
 
 newmtl arm_lambert2SG
-Ka 0 0 0
-Kd 0.568627 0.568627 0.568627
+Ka 0.129412 0.129412 0.129412
+Kd 1 1 1
 Ks 0.5 0.5 0.5
 illum 2
 Ns 8
@@ -22,8 +22,8 @@ map_kA
 map_Ns 
 
 newmtl OTHER_MUSCLES_lambert4SG
-Ka 0 0 0
-Kd 0.5 0.5 0.5
+Ka 0.101961 0.101961 0.101961
+Kd 1 1 1
 Ks 0.5 0.5 0.5
 illum 2
 Ns 8

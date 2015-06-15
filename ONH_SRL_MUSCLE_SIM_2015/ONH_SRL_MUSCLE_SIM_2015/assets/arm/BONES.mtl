@@ -1,0 +1,22 @@
+# 
+# Wavefront material file
+# Converted by the DEEP Exploration  Deep Exploration 6.5 x64 6.5.0.9182
+# Right Hemisphere, LTD
+# http://www.righthemisphere.com/
+# 
+
+newmtl BONES_MATERIAL
+Ka 0.141176 0.12549 0.12549
+Kd 0.780392 0.74902 0.74902
+Ks 0.5 0.5 0.5
+illum 2
+Ns 8
+map_Kd bones_texture2469.png
+map_bump 
+bump 
+map_opacity 
+map_d 
+refl 
+map_kS 
+map_kA 
+map_Ns 

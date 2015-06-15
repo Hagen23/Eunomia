@@ -1,57 +1,22 @@
-newmtl arm:lambert2SG
-illum 4
-Kd 0.00 0.00 0.00
-Ka 0.00 0.00 0.00
-Tf 1.00 1.00 1.00
-map_Kd bones_texture2469.jpg
-Ni 1.00
-newmtl arm:lambert4SG
-illum 4
-Kd 0.00 0.00 0.00
-Ka 0.00 0.00 0.00
-Tf 1.00 1.00 1.00
-map_Kd 1390732.jpg
-Ni 1.00
-newmtl arm:lambert5SG
-illum 4
-Kd 0.00 0.00 0.00
-Ka 0.00 0.00 0.00
-Tf 1.00 1.00 1.00
-map_Kd tendon.jpg
-Ni 1.00
-newmtl arm:lambert7SG
-illum 4
-Kd 0.00 0.00 1.00
-Ka 0.00 0.00 0.00
-Tf 1.00 1.00 1.00
-Ni 1.00
-newmtl arm:lambert8SG
-illum 4
-Kd 0.00 1.00 0.00
-Ka 0.00 0.00 0.00
-Tf 1.00 1.00 1.00
-Ni 1.00
-newmtl arm:lambert9SG
-illum 4
-Kd 1.00 0.00 1.00
-Ka 0.00 0.00 0.00
-Tf 1.00 1.00 1.00
-Ni 1.00
-newmtl arm:lambert10SG
-illum 4
-Kd 0.00 1.00 1.00
-Ka 0.00 0.00 0.00
-Tf 1.00 1.00 1.00
-Ni 1.00
-newmtl arm:lambert11SG
-illum 4
-Kd 1.00 1.00 0.00
-Ka 0.00 0.00 0.00
-Tf 1.00 1.00 1.00
-Ni 1.00
-newmtl arm:lambert12SG
-illum 4
-Kd 1.00 0.39 0.00
-Ka 0.00 0.00 0.00
-Tf 1.00 1.00 1.00
-Ni 1.00
+# 
+# Wavefront material file
+# Converted by the DEEP Exploration  Deep Exploration 6.5 x64 6.5.0.9182
+# Right Hemisphere, LTD
+# http://www.righthemisphere.com/
+# 
+
+newmtl arm_lambert2SG
+Ka 0.2 0.2 0.2
+Kd 1 1 1
+Ks 0.5 0.5 0.5
+illum 2
+Ns 8
+map_Kd bones_texture2469.png
+map_bump 
+bump 
+map_opacity 
+map_d 
+refl 
+map_kS 
+map_kA 
+map_Ns 

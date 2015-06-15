@@ -20,9 +20,11 @@ public:
 private:
 	Ui::ONH_SRL_MUSCLE_SIM_2015Class ui;
 	CustomGLVAOWidget* vaoWidget;
+	QWidget *container;
 
 protected:
 	void keyPressEvent(QKeyEvent *event);
+	void resizeEvent(QResizeEvent* event);
 };
 
 #endif // ONH_SRL_MUSCLE_SIM_2015_H

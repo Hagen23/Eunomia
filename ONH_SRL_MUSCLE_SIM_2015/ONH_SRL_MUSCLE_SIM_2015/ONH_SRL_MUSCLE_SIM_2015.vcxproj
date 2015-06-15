@@ -152,7 +152,20 @@
     <ClInclude Include="header\cMacros.h" />
     <ClInclude Include="header\cStringUtils.h" />
     <ClInclude Include="header\cTextureManager.h" />
-    <CustomBuild Include="qtopenglscene.h" />
+    <CustomBuild Include="qtopenglscene.h">
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+      </Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+      </Outputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+      </Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+      </Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+      </Outputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+      </Command>
+    </CustomBuild>
     <CustomBuild Include="customglwidget.h">
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(QTDIR)\bin\moc.exe;%(FullPath)</AdditionalInputs>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Moc%27ing customglwidget.h...</Message>
@@ -178,6 +191,7 @@
     </CustomBuild>
   </ItemGroup>
   <ItemGroup>
+    <None Include="ClassDiagram.cd" />
     <None Include="shaders\dirlightdiffambpix.frag" />
     <None Include="shaders\dirlightdiffambpix.vert" />
     <None Include="shaders\phong.frag" />
