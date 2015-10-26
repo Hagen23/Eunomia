@@ -1,0 +1,80 @@
+%
+%----------------------------------------------------------------------------------------
+%	PACKAGES AND OTHER DOCUMENT CONFIGURATIONS
+%----------------------------------------------------------------------------------------
+\documentclass{article}
+
+\usepackage[left=2.5cm,right=2.5cm,top=2.5cm,bottom=2.5cm]{geometry}
+
+\usepackage[round, square, numbers, comma, sort&compress]{natbib}
+\usepackage[utf8]{inputenc}
+\usepackage[nodayofweek]{datetime}
+\usepackage{float}
+\usepackage{graphicx}
+\usepackage[scriptsize]{subfigure}
+\usepackage{pdfpages}
+\usepackage{amsmath,amsfonts,amssymb,amscd,xspace}
+\usepackage[centerlast,small,sc, margin=1cm]{caption}
+\usepackage{afterpage}
+\usepackage[pdfpagemode={UseOutlines},bookmarks=true,bookmarksopen=true,
+   bookmarksopenlevel=0,bookmarksnumbered=true,hypertexnames=false,
+   colorlinks,linkcolor={blue},citecolor={blue},urlcolor={red},
+   pdfstartview={FitV},unicode,breaklinks=true]{hyperref}
+\hypersetup{urlcolor=blue, colorlinks=true}
+
+\newcommand{\fref}[1]{Figure~\ref{#1}}
+
+\newcounter{dummy}
+\newcommand\addtotoc[1]{
+\refstepcounter{dummy}
+\addcontentsline{toc}{chapter}{#1}}
+
+\graphicspath{{./Figures/}}
+	
+\makeatletter
+\@fpsep\textheight
+\makeatother
+
+\begin{document}
+
+%----------------------------------------------------------------------------------------
+%	TITLE PAGE
+%----------------------------------------------------------------------------------------
+
+\title{Visualization of skeletal muscle based movement\\August Report}
+\author{Moises Alencastre-Miranda \and Octavio Navarro-Hinojosa \and Sergio Ruiz-Loza}
+\date{\today}
+\maketitle
+
+%----------------------------------------------------------------------------------------
+%	ABSTRACT PAGE
+%----------------------------------------------------------------------------------------
+
+%\addtotoc{Abstract} % Add the "Abstract" page entry to the Contents
+
+\abstract{\addtocontents{toc}{\vspace{1em}}
+
+We present the progress that has been achieved in the development of the project. We are in the process of developing a particle based surface deformation model that is based on shape matching. Said model will be integrated with the Lattice Boltzmann solver, in order to simulate rigid fluids (in our case, body tissue), and their deformations, in real-time. We have also obtained Electromyography data collected from 39 volunteers, and started looking into their processing and analysis.
+
+%----------------------------------------------------------------------------------------
+%	CONTENT - CHAPTERS
+%----------------------------------------------------------------------------------------
+
+% Include the chapters as separate files from the Chapters folder
+
+\input{./Chapters/Introduction}
+\input{./Chapters/ShapeMatching}
+
+
+%----------------------------------------------------------------------------------------
+%	BIBLIOGRAPHY
+%----------------------------------------------------------------------------------------
+
+\label{Bibliography}
+
+\addtotoc{Bibliography}
+\addtocontents{toc}{\vspace{2em}}
+\bibliographystyle{unsrtnat}
+\bibliography{Bibliography} % The references (bibliography) information are stored in the file named "Bibliography.bib"
+
+\end{document}  

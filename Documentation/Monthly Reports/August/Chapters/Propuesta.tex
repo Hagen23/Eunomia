@@ -1,0 +1,57 @@
+\chapter{Propuesta de solución}
+\label{PropuestaSolucion}
+
+\lhead{Capítulo \ref{PropuestaSolucion}. \emph{Propuesta de solución}}
+
+Para desarrollar un modelo del sistema musculo-esquelético que sea capaz de resolver varios de los retos expuestos previamente, es necesario considerar distintas técnicas que han mostrado ser útiles para la simulación de dicho sistema. El trabajo presentado por Fan et al. \citep{fan2014active} introduce un método para simulación de músculos que puede ser extendido para resolver varios de los retos encontrados. Debido a las características de los sólidos Eulerianos, ellos deciden modelar los músculos con ésa técnica. Una consideración importante de los músculos que simularon es que son sólidos Eulerianos de tres dimensiones. Los sólidos Eulerianos pueden ser, además, de dos dimensiones, y de una dimensión \citep{pai2014eulerian}. Por esto, se propone el uso de sólidos Eulerianos de una, dos, y tres dimensiones para simular varias de las estructuras del sistema musculo-esquelético.
+
+\section{Simulación jerárquica del músculo}
+
+La mayoría de los trabajos previos han desarrollado modelos simplificados de los músculos y sus estructuras, y se utilizan técnicas como FEM, FVM, entre otras, para simular el comportamiento de los músculos. Aunque hay un avance en el desarrollo de las fibras musculares para simular músculos, aún no hay simulaciones donde se consideren las propiedades físicas de las estructuras de los músculos. Para simular los músculos intentando acercase más a su estructura anatómica real, se propone el uso de strands \citep{pai2002strands, pai2011dynamics} para simular las fibras musculares. El uso de strands permitirá incluir propiedades físicas a las fibras musculares. Los strands mencionados se van a simular como sólidos Eulerianos de una dimensión, a lo largo de una curva B-spline.
+
+A diferencia de trabajos previos, se propone simular la arquitectura de los músculos llegando hasta el nivel de las fibras musculares, como se puede ver en la \fref{fig:muscleStructure}. Se decidió llegar al nivel de las fibras musculares debido a que simular los elementos que las componen puede ser computacionalmente caro, e implica realizar simulaciones de reacciones químicas para controlar su contracción. 
+
+Como se pudo ver en la sección \ref{sec:muscleComposition}, las fibras musculares están agrupadas en fascículos, y  éstos están separados unos de otros por una capa de tejido conectivo llamado perimisio. Se propone generar los fascículos utilizando un sólido Euleriano de tres dimensiones que simule el perimisio; dicho sólido, va a estar relleno de fibras musculares. De esa forma, se van a poder simular los distintos fascículos que le dan la forma a los vientres musculares. Finalmente, los grupos de fascículos van a estar rodeados por otro sólido Euleriano de tres dimensiones que simulará al epimisio. Los tendones que van a estár unidos al vientre muscular por la aponeurosis (que se va a modelar con un sólido Euleriano de dos dimensiones) también se van a modelar como sólidos Eulerianos de una dimensión, que se comportarán como strands. Adicionalmente, se podría considerar simular tanto a los huesos como a la piel con la misma técnica.
+
+El uso de sólidos Eulerianos para modelar la estructura jerárquica de los músculos ayuda a resolver algunos de los retos existentes: permiten la generación de sólidos deformables e incompresibles, hay una preservación de volumen, y es posible tener varios sólidos con contacto interno entre ellos y externo con elementos de un ambiente virtual.
+
+\subsection{Obtención de la forma y arquitectura del músculo} 
+
+Para poder modelar correctamente la forma del músculo, así como la dirección de las fibras musculares, y la distribución de los tejidos conectivos, es necesario basarse en datos de músculos reales. Varios de los trabajos previos utilizan datos de MRI para obtener la forma de los músculos y la orientación de las fibras. Va a ser importante usar datos similares para poder obtener la forma correcta de los músculos; por esto, se propone obtener y utilizar los datos de \textit{The Visible Human Project} \citep{visibleHumanProject}.
+
+\section{Modelo de activación muscular}
+
+El uso de modelos fenomenológicos para simular el control y activación de los músculos no es el ideal si se desea simular el comportamiento real de los músculos. Los modelos biofísicos son más adecuados para simular dicho comportamiento ya que buscan predecir la respuesta de los músculos a un estímulo determinado, como los estímulos del sistema nervioso central. 
+
+Por esto, para controlar la activación y contracción de las fibras musculares, se propone usar las ecuaciones bidominio \citep{vigmond2002computational, rohrle2010simulating, rohrle2012physiologically}. Esas ecuaciones son el enfoque más común para modelar la actividad eléctrica de tejidos biológicos (en éste caso, la fibra muscular). En principio, se van a resolver las ecuaciones bidominio para cada fibra muscular. Sin embargo, se podría probar resolver las ecuaciones sólo para cada unidad motora, ya que las fibras musculares se activan simultáneamente por la unidad motora que tengan relacionada. La respuesta mecánica a la activación de las fibras musculares sería la contracción de estas. Para simularla, se supone que la fuerza va a estar en la misma dirección que la fibras musculares.
+
+\section{Simulación de un miembro superior del cuerpo humano}
+
+Para probar el modelo propuesto, se va a simular un miembro superior del cuerpo humano, en específico, se va a simular el brazo y el antebrazo. Se decidió por esa simulación ya que hay pocos músculos relacionados (biceps brachii, brachioradialis, brachialis, pronator teres, triceps brachii, y anconeus), ya que se pueden simular dos movimientos principales: la flexión y extensión del antebrazo. Con los músculos propuestos, también se podrían simular otros movimientos, como la pronación (rotación del antebrazo que permite situar la mano con el dorso hacia arriba) o supinación (rotación del antebrazo que permite situar la mano con la palma hacia arriba); sin embargo, esos movimientos adicionales se van a simular posteriormente.
+
+\section{Uso de GPGPU}
+
+Tanto la simulación de sólidos Eulerianos, como los cálculos de los modelos biofísicos son caros computacionalmente. El generar simulaciones en tiempo real es un objetivo importante, ya que se planea usar el modelo propuesto en aplicaciones interactivas. El uso de GPGPU puede ayudar bastante a disminuir los tiempos de procesamiento y lograr obtener una simulación en tiempo real. Por esto, todos los modelos propuestos van a ser simulados utilizando el GPU (todas las ecuaciones y modelos matemáticos van a ser resueltos usando GPGPU, con el runtime API de CUDA, y la graficación de los músculos y demás elementos virtuales, va a ser realizado con shaders). Dependiendo de los costos computacionales de los diferentes modelos, se podría diseñar una arquitectura para la simulación donde los cálculos se realicen en una GPU, y la graficación de la simulación se realice en otra, logrando disminuir la carga de las tarjetas y mejorar los tiempos de ejecución.
+
+\section{Validación del modelo}
+
+Validar que una simulación de un personaje humanoide (en nuestro caso, simular un brazo y antebrazo) tenga un comportamiento parecido al de su contraparte real es algo subjetivo, cada espectador puede tener una opinión distinta al verlo. Para poder validar que el modelo propuesto ayuda a generar simulaciones más realistas, se proponen dos caminos: (1) Desarrollar una prueba de Turing, mostrando la simulación a distintas personas, y ver que reacción tienen ante ella. (2) Utilizar datos de captura de movimiento y de electromiografías para comparar un movimiento real con su contra parte simulada. 
+
+\section{Engine gráfico para generación y manejo de simulaciones}
+
+Se planea desarrollar un engine gráfico con el que se puedan graficar los diferentes elementos de la escena utilizando shaders, así como que permita el manejo de colisiones y la interacción entre ellos. Para poder manejar las colisiones y delimitar el espacio donde estarán los objetos, se planea utilizar octrees.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

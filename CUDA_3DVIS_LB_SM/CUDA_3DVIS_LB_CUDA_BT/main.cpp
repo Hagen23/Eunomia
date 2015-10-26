@@ -43,7 +43,7 @@ using namespace std;
 #define BUFFER_OFFSET( i )			((char *)NULL + ( i ))
 #define LOCATION_OFFSET				BUFFER_OFFSET(  0 )
 #define COLOR_OFFSET				BUFFER_OFFSET( 16 )
-#define LATTICE_DIM					100
+#define LATTICE_DIM					20
 
 // global variables that will store handles to the data we
 // intend to share between OpenGL and CUDA calculated data.

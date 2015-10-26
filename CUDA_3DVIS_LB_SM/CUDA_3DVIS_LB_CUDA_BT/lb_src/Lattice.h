@@ -53,14 +53,19 @@ static float3 speedDirection[19] =
 class latticed3q19
 {
 private:
+	// These describe the lattice configuration
 	int				_width, _height, _depth, _stride, _numberAllElements, _numberLatticeElements;
 
+	// Macroscopic fluid density
 	float			ro, rovx, rovy, rovz, v_sq_term;
 
+	// f - Particle distribution function
 	float			*f, *ftemp, *feq, *f_d, *ftemp_d;
 
+	// Macroscopic velocity
 	float			*velocityVector_d;
 	
+	// _tau - relaxation time, elementary time of collisions; c - Basic speed of the lattice
 	float			_tau, c;
 	
 	unsigned int 	*solid_d;

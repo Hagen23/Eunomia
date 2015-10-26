@@ -1,0 +1,23 @@
+
+\section{Future Work}
+\label{sec:futureWork}
+In addition to the Lattice Boltzmann Solver and Visualization integration, we have identified several future work opportunities:
+
+\begin{description}
+\item[Octrees]
+Vertex identification as part of a simulated muscle will be efficient by means of a specialized data structure. We will integrate the Point Cloud Library (PCL) to our rendering engine making use of its parallel octree implementation.
+\item[Level of Detail]
+As computational resources become scarce due to real-time simulation and rendering requirements, implementation of a Level of Detail technique will improve hardware performance.
+\item[Clipping]
+Sections of a virtual extended arm will be useful to calculate intermuscular space from different poses, as an extension of the muscular simulation.
+\item[Simulation control]
+LBM simulations require fine tuning of viscosity and grid size parameters. Future work will extend the user interface to facilitate parameter adjustment in real-time.
+\item[Bidomain Fiber simulation]
+We will implement a fiber simulation and rendering as the basic activation unit for our model, based on the Bidomain simulation. Bidomain Fiber simulation force will be the input to the LBM mesh deformation algorithm.
+\item[Inter mesh Collision]
+In future work we will solve intermuscular collision and tension forces, adding precision to the muscle simulation.
+\item[Muscle-Bone Hierarchy]
+For animation, we will establish not only the bone rigging hierarchy, but also the various insertion points for tendons, achieving precise physics-based simulations activated by the Bidomain-LBM algorithm.
+\item[Kernel configuration]
+We will test further Kernel (grid/block/trhead) launch configurations as well as other LBM models to ensure optimal algorithm performance. 
+\end{description}

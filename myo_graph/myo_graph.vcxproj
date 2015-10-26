@@ -1,0 +1,141 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{7FD42DF7-442E-479A-BA76-D0022F99702A}</ProjectGuid>
+    <Keyword>Win32Proj</Keyword>
+    <RootNamespace>myo_graph</RootNamespace>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <CharacterSet>Unicode</CharacterSet>
+    <PlatformToolset>v110</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <CharacterSet>Unicode</CharacterSet>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <PlatformToolset>v110</PlatformToolset>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
+    <Import Project="User_Macros.props" />
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="$(OFX_DIR)\libs\openFrameworksCompiled\project\vs\openFrameworksRelease.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
+    <Import Project="User_Macros.props" />
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="$(OFX_DIR)\libs\openFrameworksCompiled\project\vs\openFrameworksDebug.props" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <OutDir>bin\</OutDir>
+    <IntDir>obj\$(Configuration)\</IntDir>
+    <TargetName>$(ProjectName)_debug</TargetName>
+    <LinkIncremental>true</LinkIncremental>
+    <GenerateManifest>true</GenerateManifest>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <OutDir>bin\</OutDir>
+    <IntDir>obj\$(Configuration)\</IntDir>
+    <LinkIncremental>false</LinkIncremental>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <MinimalRebuild>true</MinimalRebuild>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
+      <AdditionalIncludeDirectories>$(MYO_DIR)\include;$(OFX_DIR)\libs\quicktime\include;$(OFX_DIR)\libs\videoInput\include;$(OFX_DIR)\libs\fmodex\include;$(OFX_DIR)\libs\cairo\include\cairo;$(OFX_DIR)\libs\cairo\include;$(OFX_DIR)\libs\poco\include;$(OFX_DIR)\libs\tess2\include;$(OFX_DIR)\libs\glu\include;$(OFX_DIR)\libs\glew\include;$(OFX_DIR)\libs\openFrameworks\events;$(OFX_DIR)\libs\openFrameworks;$(OFX_DIR)\libs\openFrameworks\graphics;$(OFX_DIR)\libs\openFrameworks\app;$(OFX_DIR)\libs\openFrameworks\sound;$(OFX_DIR)\libs\openFrameworks\utils;$(OFX_DIR)\libs\openFrameworks\communication;$(OFX_DIR)\libs\openFrameworks\video;$(OFX_DIR)\libs\openFrameworks\types;$(OFX_DIR)\libs\openFrameworks\math;$(OFX_DIR)\libs\openFrameworks\3d;$(OFX_DIR)\libs\openFrameworks\gl;$(OFX_DIR)\addons\ofxGui\src</AdditionalIncludeDirectories>
+      <CompileAs>CompileAsCpp</CompileAs>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <SubSystem>Console</SubSystem>
+      <RandomizedBaseAddress>false</RandomizedBaseAddress>
+      <AdditionalDependencies>myo32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(MYO_DIR)\lib;$(OFX_DIR)\libs\openssl\lib\vs;$(OFX_DIR)\libs\rtAudio\lib\vs;$(OFX_DIR)\libs\cairo\lib\vs;$(OFX_DIR)\libs\fmodex\lib\vs;$(OFX_DIR)\libs\videoInput\lib\vs;$(OFX_DIR)\libs\tess2\lib\vs;$(OFX_DIR)\libs\quicktime\lib\vs;$(OFX_DIR)\libs\poco\lib\vs;$(OFX_DIR)\libs\glut\lib\vs;$(OFX_DIR)\libs\glu\lib\vs;$(OFX_DIR)\libs\glfw\lib\vs;$(OFX_DIR)\libs\glew\lib\vs;$(OFX_DIR)\libs\freetype\lib\vs;$(OFX_DIR)\libs\FreeImage\lib\vs;$(OFX_DIR)\libs</AdditionalLibraryDirectories>
+    </Link>
+    <PostBuildEvent>
+      <Command>
+        xcopy /e /i /y "$(OFX_DIR)\export\vs\*.dll" "$(ProjectDir)bin"
+        xcopy /e /i /y "$(MYO_DIR)\bin\*.dll" "$(ProjectDir)bin"
+      </Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WholeProgramOptimization>false</WholeProgramOptimization>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <WarningLevel>Level3</WarningLevel>
+      <AdditionalIncludeDirectories>$(MYO_DIR)\include;$(OFX_DIR)\libs\quicktime\include;$(OFX_DIR)\libs\videoInput\include;$(OFX_DIR)\libs\fmodex\include;$(OFX_DIR)\libs\cairo\include\cairo;$(OFX_DIR)\libs\cairo\include;$(OFX_DIR)\libs\poco\include;$(OFX_DIR)\libs\tess2\include;$(OFX_DIR)\libs\glu\include;$(OFX_DIR)\libs\glew\include;$(OFX_DIR)\libs\openFrameworks\events;$(OFX_DIR)\libs\openFrameworks;$(OFX_DIR)\libs\openFrameworks\graphics;$(OFX_DIR)\libs\openFrameworks\app;$(OFX_DIR)\libs\openFrameworks\sound;$(OFX_DIR)\libs\openFrameworks\utils;$(OFX_DIR)\libs\openFrameworks\communication;$(OFX_DIR)\libs\openFrameworks\video;$(OFX_DIR)\libs\openFrameworks\types;$(OFX_DIR)\libs\openFrameworks\math;$(OFX_DIR)\libs\openFrameworks\3d;$(OFX_DIR)\libs\openFrameworks\gl;$(OFX_DIR)\addons\ofxGui\src</AdditionalIncludeDirectories>
+      <CompileAs>CompileAsCpp</CompileAs>
+    </ClCompile>
+    <Link>
+      <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
+      <GenerateDebugInformation>false</GenerateDebugInformation>
+      <SubSystem>Console</SubSystem>
+      <OptimizeReferences>true</OptimizeReferences>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <RandomizedBaseAddress>false</RandomizedBaseAddress>
+      <AdditionalDependencies>myo32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(MYO_DIR)\lib;$(OFX_DIR)\libs\openssl\lib\vs;$(OFX_DIR)\libs\rtAudio\lib\vs;$(OFX_DIR)\libs\cairo\lib\vs;$(OFX_DIR)\libs\fmodex\lib\vs;$(OFX_DIR)\libs\videoInput\lib\vs;$(OFX_DIR)\libs\tess2\lib\vs;$(OFX_DIR)\libs\quicktime\lib\vs;$(OFX_DIR)\libs\poco\lib\vs;$(OFX_DIR)\libs\glut\lib\vs;$(OFX_DIR)\libs\glu\lib\vs;$(OFX_DIR)\libs\glfw\lib\vs;$(OFX_DIR)\libs\glew\lib\vs;$(OFX_DIR)\libs\freetype\lib\vs;$(OFX_DIR)\libs\FreeImage\lib\vs;$(OFX_DIR)\libs</AdditionalLibraryDirectories>
+    </Link>
+    <PostBuildEvent>
+      <Command>
+        xcopy /e /i /y "$(OFX_DIR)\export\vs\*.dll" "$(ProjectDir)bin"
+        xcopy /e /i /y "$(MYO_DIR)\bin\*.dll" "$(ProjectDir)bin"
+      </Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="$(OFX_DIR)\addons\ofxGui\src\ofxBaseGui.cpp" />
+    <ClCompile Include="$(OFX_DIR)\addons\ofxGui\src\ofxButton.cpp" />
+    <ClCompile Include="$(OFX_DIR)\addons\ofxGui\src\ofxGuiGroup.cpp" />
+    <ClCompile Include="$(OFX_DIR)\addons\ofxGui\src\ofxLabel.cpp" />
+    <ClCompile Include="$(OFX_DIR)\addons\ofxGui\src\ofxPanel.cpp" />
+    <ClCompile Include="$(OFX_DIR)\addons\ofxGui\src\ofxSlider.cpp" />
+    <ClCompile Include="$(OFX_DIR)\addons\ofxGui\src\ofxSliderGroup.cpp" />
+    <ClCompile Include="$(OFX_DIR)\addons\ofxGui\src\ofxToggle.cpp" />
+    <ClCompile Include="src\main.cpp" />
+    <ClCompile Include="src\MyoDataCollector.cpp" />
+    <ClCompile Include="src\ofApp.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="$(OFX_DIR)\addons\ofxGui\src\ofxBaseGui.h" />
+    <ClInclude Include="$(OFX_DIR)\addons\ofxGui\src\ofxButton.h" />
+    <ClInclude Include="$(OFX_DIR)\addons\ofxGui\src\ofxGui.h" />
+    <ClInclude Include="$(OFX_DIR)\addons\ofxGui\src\ofxGuiGroup.h" />
+    <ClInclude Include="$(OFX_DIR)\addons\ofxGui\src\ofxLabel.h" />
+    <ClInclude Include="$(OFX_DIR)\addons\ofxGui\src\ofxPanel.h" />
+    <ClInclude Include="$(OFX_DIR)\addons\ofxGui\src\ofxSlider.h" />
+    <ClInclude Include="$(OFX_DIR)\addons\ofxGui\src\ofxSliderGroup.h" />
+    <ClInclude Include="$(OFX_DIR)\addons\ofxGui\src\ofxToggle.h" />
+    <ClInclude Include="src\MyoDataCollector.h" />
+    <ClInclude Include="src\ofApp.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="$(OFX_DIR)\libs\openFrameworksCompiled\project\vs\openframeworksLib.vcxproj">
+      <Project>{5837595d-aca9-485c-8e76-729040ce4b0b}</Project>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="$(OFX_DIR)\libs\openFrameworksCompiled\project\vs\icon.ico" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+</Project>

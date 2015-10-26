@@ -11,9 +11,9 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{B03FE061-8687-41D7-8559-5BAFB88C3849}</ProjectGuid>
+    <ProjectGuid>{3897F91E-C624-466D-B7B3-26FF73A06AE9}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
-    <RootNamespace>PCL_TEST_GPU</RootNamespace>
+    <RootNamespace>ShapeMatching</RootNamespace>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -34,9 +34,11 @@
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="..\General_Properties.props" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="..\General_Properties.props" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -52,14 +54,10 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>C:\AdditionalLibraries;C:\Program Files %28x86%29\Boost 1.55;C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v6.5\include;C:\Program Files %28x86%29\PCL\include\pcl-1.7;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>C:\boost\lib;C:\Program Files %28x86%29\PCL\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>libboost_thread-vc120-mt-gd-1_57.lib;pcl_gpu_octree_debug.lib;pcl_gpu_containers_debug.lib;pcl_io_debug.lib;pcl_io_ply_debug.lib;pcl_common_debug.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -71,19 +69,34 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>C:\Program Files (x86)\Eigen\include;C:\boost\include\boost-1_57;C:\Program Files (x86)\PCL\include\pcl-1.8;C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v6.5\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalLibraryDirectories>C:\boost\lib;C:\Program Files (x86)\PCL\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v6.5\lib\Win32\cudart.lib;libboost_thread-vc120-mt-1_57.lib;pcl_gpu_octree_release.lib;pcl_gpu_containers_release.lib;pcl_io_release.lib;pcl_io_ply_release.lib;pcl_common_release.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="octree_gpu_test.cpp" />
+    <ClCompile Include="..\..\..\..\..\..\..\Research\Codigo\common\Math3D\m3Matrix.cpp" />
+    <ClCompile Include="..\..\..\..\..\..\..\Research\Codigo\common\Math3D\m5Matrix.cpp" />
+    <ClCompile Include="..\..\..\..\..\..\..\Research\Codigo\common\OctreeGenerator.cpp" />
+    <ClCompile Include="..\..\..\..\..\..\..\Research\Codigo\common\ShapeMatching\deformable.cpp" />
+    <ClCompile Include="src\AddVertices.cpp" />
+    <ClCompile Include="src\main.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\..\..\..\..\..\Research\Codigo\common\HTRBasicDataStructures.h" />
+    <ClInclude Include="..\..\..\..\..\..\..\Research\Codigo\common\Math3D\m3Bounds.h" />
+    <ClInclude Include="..\..\..\..\..\..\..\Research\Codigo\common\Math3D\m3Matrix.h" />
+    <ClInclude Include="..\..\..\..\..\..\..\Research\Codigo\common\Math3D\m3Real.h" />
+    <ClInclude Include="..\..\..\..\..\..\..\Research\Codigo\common\Math3D\m3Vector.h" />
+    <ClInclude Include="..\..\..\..\..\..\..\Research\Codigo\common\Math3D\m5Matrix.h" />
+    <ClInclude Include="..\..\..\..\..\..\..\Research\Codigo\common\Math3D\math3d.h" />
+    <ClInclude Include="..\..\..\..\..\..\..\Research\Codigo\common\mouseUtils.h" />
+    <ClInclude Include="..\..\..\..\..\..\..\Research\Codigo\common\OctreeGenerator.h" />
+    <ClInclude Include="..\..\..\..\..\..\..\Research\Codigo\common\ShapeMatching\deformable.h" />
+    <ClInclude Include="src\AddVertices.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

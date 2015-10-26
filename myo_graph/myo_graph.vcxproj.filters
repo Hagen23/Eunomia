@@ -1,0 +1,56 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="src\ofApp.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\main.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\MyoDataCollector.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="$(OFX_DIR)\addons\ofxGui\src\ofxBaseGui.cpp" />
+    <ClCompile Include="$(OFX_DIR)\addons\ofxGui\src\ofxButton.cpp" />
+    <ClCompile Include="$(OFX_DIR)\addons\ofxGui\src\ofxGuiGroup.cpp" />
+    <ClCompile Include="$(OFX_DIR)\addons\ofxGui\src\ofxLabel.cpp" />
+    <ClCompile Include="$(OFX_DIR)\addons\ofxGui\src\ofxPanel.cpp" />
+    <ClCompile Include="$(OFX_DIR)\addons\ofxGui\src\ofxSlider.cpp" />
+    <ClCompile Include="$(OFX_DIR)\addons\ofxGui\src\ofxSliderGroup.cpp" />
+    <ClCompile Include="$(OFX_DIR)\addons\ofxGui\src\ofxToggle.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="src">
+      <UniqueIdentifier>{d8376475-7454-4a24-b08a-aac121d3ad6f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="addons">
+      <UniqueIdentifier>{24682438-a3e5-467f-bd2f-35f89d83f0f4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="addons\ofxGui">
+      <UniqueIdentifier>{d8a74439-65b0-4c08-976a-6d8d6ec1562c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="addons\ofxGui\src">
+      <UniqueIdentifier>{001c3998-dc14-40b3-ab55-793839d80a20}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="src\ofApp.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\MyoDataCollector.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="$(OFX_DIR)\addons\ofxGui\src\ofxBaseGui.h" />
+    <ClInclude Include="$(OFX_DIR)\addons\ofxGui\src\ofxButton.h" />
+    <ClInclude Include="$(OFX_DIR)\addons\ofxGui\src\ofxGui.h" />
+    <ClInclude Include="$(OFX_DIR)\addons\ofxGui\src\ofxGuiGroup.h" />
+    <ClInclude Include="$(OFX_DIR)\addons\ofxGui\src\ofxLabel.h" />
+    <ClInclude Include="$(OFX_DIR)\addons\ofxGui\src\ofxPanel.h" />
+    <ClInclude Include="$(OFX_DIR)\addons\ofxGui\src\ofxSlider.h" />
+    <ClInclude Include="$(OFX_DIR)\addons\ofxGui\src\ofxSliderGroup.h" />
+    <ClInclude Include="$(OFX_DIR)\addons\ofxGui\src\ofxToggle.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="$(OFX_DIR)\libs\openFrameworksCompiled\project\vs\icon.ico" />
+  </ItemGroup>
+</Project>

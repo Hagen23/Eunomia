@@ -1,0 +1,6 @@
+\section{Shape Matching for Tissue Deformations}
+\label{SMTD}
+
+\paragraph{}In order to simulate human body tissue, we proposed the use of the Lattice Boltzmann Method (LBM) to represent muscle fibers, connecting tissues, tendons, bones, and skin, as a very viscous fluid. Since the LBM models the flow of a fluid within a container, we also proposed the use of a very detailed human 3D model. However, we faced the problem of deforming the containers in order to represent the movement, and general deformations of the different body parts that will be simulated with our method, while also preserving volume and allowing us to create interactive simulations. 
+
+\paragraph{}Many methods have been proposed to simulate deformable objects, such as mass-spring systems, and the Finite Element Method (FEM). Unfortunately, achieving real-time simulations in combination with volume conservation is a difficult task \citep{diziol2011robust}. Since we needed a method that would allow us to get robust deformations for incompressible objects, that modified the container of the fluids while preserving its volume, and that worked efficiently on the GPU, the work presented on \citep{muller2005meshless} and \citep{diziol2011robust} provided us with
