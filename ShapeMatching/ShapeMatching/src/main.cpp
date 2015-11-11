@@ -108,7 +108,7 @@ void init(void)
 	/*for (auto& point :groupA)
 			point.scalePoint(20);*/
 	
-	added_vertices = new AddVertices(groupA, 3.0f);
+	added_vertices = new AddVertices(groupA, 0.30f);
 	points_centroid = added_vertices->get_centroid();
 
 	for (auto& point : added_vertices->get_all())
@@ -285,9 +285,13 @@ void keyboard(unsigned char key, int x, int y)
 	case 's':
 		deformableObject->params.alpha -= 0.01;
 		break;
-	case 'd':
+	case 'v':
 		deformableObject->params.volumeConservation = !deformableObject->params.volumeConservation;
 		break;
+	case 'q':
+		deformableObject->params.quadraticMatch = !deformableObject->params.quadraticMatch;
+		break;
+
 	default:
 		break;
 	}

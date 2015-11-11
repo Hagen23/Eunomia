@@ -1,0 +1,38 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ImportGroup Label="PropertySheets" />
+  <PropertyGroup Label="UserMacros">
+    <PCL_INCLUDE>C:\Program Files (x86)\PCL\include\pcl-1.8</PCL_INCLUDE>
+    <PCL_LIB>C:\Program Files (x86)\PCL\lib</PCL_LIB>
+    <ADDITIONAL_LIBS>C:\Libs</ADDITIONAL_LIBS>
+    <BOOST_LIB>C:\Libs\boost\lib</BOOST_LIB>
+    <BOOST_INCLUDE>C:\Libs\boost\include</BOOST_INCLUDE>
+    <CUDA_INCLUDE>C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v7.0\include</CUDA_INCLUDE>
+    <VTK_INCLUDE>C:\Libs\VTK\include\vtk-6.2</VTK_INCLUDE>
+  </PropertyGroup>
+  <PropertyGroup />
+  <ItemDefinitionGroup />
+  <ItemGroup>
+    <BuildMacro Include="PCL_INCLUDE">
+      <Value>$(PCL_INCLUDE)</Value>
+    </BuildMacro>
+    <BuildMacro Include="PCL_LIB">
+      <Value>$(PCL_LIB)</Value>
+    </BuildMacro>
+    <BuildMacro Include="ADDITIONAL_LIBS">
+      <Value>$(ADDITIONAL_LIBS)</Value>
+    </BuildMacro>
+    <BuildMacro Include="BOOST_LIB">
+      <Value>$(BOOST_LIB)</Value>
+    </BuildMacro>
+    <BuildMacro Include="BOOST_INCLUDE">
+      <Value>$(BOOST_INCLUDE)</Value>
+    </BuildMacro>
+    <BuildMacro Include="CUDA_INCLUDE">
+      <Value>$(CUDA_INCLUDE)</Value>
+    </BuildMacro>
+    <BuildMacro Include="VTK_INCLUDE">
+      <Value>$(VTK_INCLUDE)</Value>
+    </BuildMacro>
+  </ItemGroup>
+</Project>

@@ -30,7 +30,7 @@
     <ClCompile Include="..\..\..\..\..\..\..\Research\Codigo\common\Math3D\m3Matrix.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\..\..\..\Research\Codigo\common\Math3D\m5Matrix.cpp">
+    <ClCompile Include="..\..\..\..\..\..\..\Research\Codigo\common\Math3D\m9Matrix.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -62,10 +62,10 @@
     <ClInclude Include="..\..\..\..\..\..\..\Research\Codigo\common\Math3D\m3Vector.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\..\..\..\Research\Codigo\common\Math3D\m5Matrix.h">
+    <ClInclude Include="..\..\..\..\..\..\..\Research\Codigo\common\Math3D\math3d.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\..\..\..\Research\Codigo\common\Math3D\math3d.h">
+    <ClInclude Include="..\..\..\..\..\..\..\Research\Codigo\common\Math3D\m9Matrix.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

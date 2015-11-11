@@ -79,7 +79,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\..\..\..\..\Research\Codigo\common\Math3D\m3Matrix.cpp" />
-    <ClCompile Include="..\..\..\..\..\..\..\Research\Codigo\common\Math3D\m5Matrix.cpp" />
+    <ClCompile Include="..\..\..\..\..\..\..\Research\Codigo\common\Math3D\m9Matrix.cpp" />
     <ClCompile Include="..\..\..\..\..\..\..\Research\Codigo\common\OctreeGenerator.cpp" />
     <ClCompile Include="..\..\..\..\..\..\..\Research\Codigo\common\ShapeMatching\deformable.cpp" />
     <ClCompile Include="src\AddVertices.cpp" />
@@ -91,7 +91,7 @@
     <ClInclude Include="..\..\..\..\..\..\..\Research\Codigo\common\Math3D\m3Matrix.h" />
     <ClInclude Include="..\..\..\..\..\..\..\Research\Codigo\common\Math3D\m3Real.h" />
     <ClInclude Include="..\..\..\..\..\..\..\Research\Codigo\common\Math3D\m3Vector.h" />
-    <ClInclude Include="..\..\..\..\..\..\..\Research\Codigo\common\Math3D\m5Matrix.h" />
+    <ClInclude Include="..\..\..\..\..\..\..\Research\Codigo\common\Math3D\m9Matrix.h" />
     <ClInclude Include="..\..\..\..\..\..\..\Research\Codigo\common\Math3D\math3d.h" />
     <ClInclude Include="..\..\..\..\..\..\..\Research\Codigo\common\mouseUtils.h" />
     <ClInclude Include="..\..\..\..\..\..\..\Research\Codigo\common\OctreeGenerator.h" />

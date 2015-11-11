@@ -2,7 +2,7 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ImportGroup Label="PropertySheets" />
   <PropertyGroup Label="UserMacros">
-    <COMMON_DIR>C:\Hagen\Research\Codigo\common</COMMON_DIR>
+    <COMMON_DIR>C:\Hagen\DCC\Tesis\Codigo\Eunomia\Eunomia\common</COMMON_DIR>
     <PCL_DIR>C:\Program Files (x86)\PCL\include\pcl-1.8\</PCL_DIR>
     <LIBS_DIR>C:\Libs</LIBS_DIR>
     <BOOST_DIR>$(LIBS_DIR)/boost/include</BOOST_DIR>
