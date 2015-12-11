@@ -11,7 +11,6 @@ namespace htr{
 	OctreeGenerator::OctreeGenerator():
 		cloud (new CloudXYZ),
 		octree_p(new OctreeXYZSearch(20)),
-		//octree(56),
 		currentExtractionLevel(0)
 	{
 	}
@@ -20,33 +19,43 @@ namespace htr{
 	OctreeGenerator::~OctreeGenerator(){
 	}
 
-	///Initializes pcl's cloud data structure with random values centered at 0,0,0.
-	///@param[in] width The width of the point cloud.
-	///@param[in] height The height of the point cloud.
-	///@param[in] depth The depth of the point cloud.
-	///@param[in] numOfPoints The num of points in the point cloud.
-	void OctreeGenerator::initRandomCloud(const float width,const float height,const float depth,const int numOfPoints){
+	void OctreeGenerator::initCloudFromVector(const vector<Point3D>& points){
+		//Note: Width and Height are only used to store the cloud as an image.
+		//Source width and height can be used instead of a linear representation.
+		cloud->width = points.size();
+		cloud->height = 1;
 
+		cloud->points.resize(cloud->width * cloud->height);
+
+		for (size_t i = 0; i < cloud->points.size(); ++i)
+		{
+			cloud->points[i].x = points[i].x;
+			cloud->points[i].y = points[i].y;
+			cloud->points[i].z = points[i].z;
+
+			//The index of each boundary point is stored in order to later determine which voxel is a boundary voxel.
+			if (points[i].type == Point3D::point_type::boundary)
+				boundary_point_indexes.push_back(i);
+		}
+		calculateCloudCentroid();
+	}
+
+	void OctreeGenerator::initRandomCloud(const float width,const float height,const float depth,const int numOfPoints)
+	{
 		srand ((unsigned int) time (NULL));
-		// Generate pointcloud data
 
 		cloud->width = numOfPoints;
 		cloud->height = 1;
 		cloud->points.resize(cloud->width * cloud->height);
-
 
 		for (size_t i = 0; i < cloud->points.size (); ++i)
 		{
 			cloud->points[i].x = (width * rand () / (RAND_MAX + 1.0f)) - width/2;
 			cloud->points[i].y = (height * rand () / (RAND_MAX + 1.0f)) - height/2;
 			cloud->points[i].z = (depth * rand () / (RAND_MAX + 1.0f)) - depth/2;
-
 		}
-
 	}
 
-    ///Initializes pcl's cloud data structure with values from a file.
-	///@param[in] filename  The location of the file to open
     void OctreeGenerator::readCloudFromFile(const char* filename)
     {
         FILE *ifp;
@@ -73,7 +82,6 @@ namespace htr{
 		calculateCloudCentroid();
     }
 
-    ///Calculates the entire cloud centroid
     void OctreeGenerator::calculateCloudCentroid()
     {
         for(pcl::PointXYZ point:cloud->points)
@@ -87,49 +95,26 @@ namespace htr{
         cloudCentroid.z/=cloud->points.size();
     }
 
-	///Initializes pcl's cloud data structure from a point cloud file stored as comma separated values.
-	void OctreeGenerator::initCloudFromFile(string fileName){
+	void OctreeGenerator::initCloudFromFile(string fileName)
+	{
 		cloud->points.clear();
-
-		//string coords[3] = {"X ", "Y ", "Z "};
 		ifstream file (fileName); // declare file stream: http://www.cplusplus.com/reference/iostream/ifstream/
 		string value;
 		double points[3];
-		while ( file.good() ){
-			for(int i=0;i<3;++i){
+		while ( file.good() )
+		{
+			for(int i=0;i<3;++i)
+			{
 				getline ( file, value, ',' ); // read a string until next comma: http://www.cplusplus.com/reference/string/getline/
-				//cout<<coords[i]<<value<<endl;
 				points[i] = atof(value.c_str());
 			}
 			cloud->points.push_back(pcl::PointXYZ(points[0], points[1], points[2]));
-
-			 //cout << string( value, 1, value.length()-2 ); // display value removing the first and the last character from it
 		}
 
 		cloud->width = cloud->points.size();
 		cloud->height = 1;
-
-		//cout<<"Points Inserted: "<<cloud->points.size();
-		//srand ((unsigned int) time (NULL));
-		//// Generate pointcloud data
-
-		//cloud->width = numOfPoints;
-		//cloud->height = 1;
-		//cloud->points.resize(cloud->width * cloud->height);
-
-		//cloud->points.push_back(
-		//for (size_t i = 0; i < cloud->points.size (); ++i)
-		//{
-		//	cloud->points[i].x = (width * rand () / (RAND_MAX + 1.0f)) - width/2;
-		//	cloud->points[i].y = (height * rand () / (RAND_MAX + 1.0f)) - height/2;
-		//	cloud->points[i].z = (depth * rand () / (RAND_MAX + 1.0f)) - depth/2;
-
-		//}
-
 	}
 
-	///Initializes the octree from the cloud data provided at the specified resolution.
-	///@param[in] resolution The voxel edge size at the minimum subdivision level.
 	void OctreeGenerator::initOctree(const int resolution)
 	{
 		//octree_p.reset(new OctreeXYZSearch(resolution));
@@ -141,127 +126,130 @@ namespace htr{
 
 		currentExtractionLevel = octree_p->getTreeDepth();
 		extractPointsAtLevel(currentExtractionLevel);
-		//octree.setInputCloud (cloud);
-		//octree.addPointsFromInputCloud ();
-		//octree.setResolution(resolution);
-		//currentExtractionLevel = octree.getTreeDepth();
-		//extractPointsAtLevel(currentExtractionLevel);
 	}
 
-	///Calculates the position of each voxel that exists at a specified tree depth.
-	///@param[in] depth The selected tree depth in the octree.
 	void OctreeGenerator::extractPointsAtLevel(const int depth)
 	{
-		if(depth>=0 && depth<=octree_p->getTreeDepth())
+		vector<int> pointIdxVec;
+		bool isBoundary = false;
+		//This variable will store the voxel's centers.
+		AlignedPointTVector voxel_center_list;
+
+		clock_t begin = clock();
+		if (depth >= 0 && depth <= octree_p->getTreeDepth())
 		{
 			currentExtractionLevel = depth;
-
-			OctreeXYZSearch::Iterator tree_it;
-			OctreeXYZSearch::Iterator tree_it_end = octree_p->end();
-
-			pcl::PointXYZ pt;
-			//cout << "===== Extracting data at depth " << depth << "... " << endl;
-			//double start = pcl::getTime ();
-
 			octreeVoxels.clear();
 			octreeCentroids.clear();
 
-			//Check if end iterator can be substituted for the corresponding level so
-			//further level checking is avoided
-			for (tree_it = octree_p->begin(depth); tree_it!=tree_it_end; ++tree_it)
+			//Gets the centroids of each voxel that contains a point.
+			octree_p->getOccupiedVoxelCenters(voxel_center_list);
+			double length = sqrtf(octree_p->getVoxelSquaredSideLen());
+
+			for (auto& voxel_center : voxel_center_list)
 			{
-				//Level check, discards all nodes that do not belong to desired level
-				if(tree_it.getCurrentOctreeDepth() == depth){
-					Eigen::Vector3f voxel_min, voxel_max;
+				isBoundary = false;
+				pointIdxVec.clear();
 
-					octree_p->getVoxelBounds(tree_it, voxel_min, voxel_max);
+				pcl::PointXYZ p = {	voxel_center.x, voxel_center.y, voxel_center.z	};
 
-					//Get voxel center point
-					Point3D p = {
-						(voxel_min.x() + voxel_max.x()) / 2.0f,
-						(voxel_min.y() + voxel_max.y()) / 2.0f,
-						(voxel_min.z() + voxel_max.z()) / 2.0f
-					};
-					Voxel v = {
-						p,
-						voxel_max.x() - voxel_min.x()
-					};
-					//TODO: remove redundant info
-					octreeVoxels.push_back(v);
-					octreeCentroids.push_back(p);
+				//Obtains the ids of the points inside a voxel, and checks if said points are boundaries.
+				//If they are, the voxel is marked as a boundary.
+				if (octree_p->voxelSearch(p, pointIdxVec))
+				{
+					vector<int>::iterator it;
+					for (size_t i = 0; i < pointIdxVec.size(); ++i)
+					{
+						it = find(boundary_point_indexes.begin(), boundary_point_indexes.end(), pointIdxVec[i]);
+						if (it != boundary_point_indexes.end())
+						{
+							isBoundary = true;
+							break;
+						}
+					}
 				}
+
+				Voxel v(p, length,isBoundary ? Voxel::voxel_type::boundary : Voxel::voxel_type::inside);
+
+				octreeVoxels.push_back(v);
+				octreeCentroids.push_back(p);
 			}
-			//cout<<"Extracted Points: "<<displayPoints.size()<<endl;
-			//double end = pcl::getTime ();
-			//printf("%zu pts, %.4gs. %.4gs./pt. =====\n", displayCloud->points.size (), end - start,
-					//(end - start) / static_cast<double> (displayCloud->points.size ()));
+
+			clock_t end = clock();
+			double elapsed_secs = double(end - begin) / CLOCKS_PER_SEC;
+
+			printf("Voxel generation %f ms\n", elapsed_secs * 1000);
 		}
 	}
 
+	void  OctreeGenerator::obtainNeighbors(htr::Point3D *directions, int directions_size)
+	{
+		//A thread pool is used to speed up the neighbor seach process.
+		ThreadPool pool(4);
+		clock_t begin = clock();
+		vector<Voxel> air_voxels;
 
-	//void OctreeGenerator::extractAveragesAtLevel(int depth)
-	//{
-	//	if(depth>=0 && depth<=octree_p->getTreeDepth()){
-	//
-	//		currentExtractionLevel = depth;
+		for (int i = 0; i < octreeVoxels.size(); i++)
+		{
+			//Each voxel is enqueued to the pool, and its neighbors are searched. 
+			pool.Enqueue([&, i, this]()
+			{
+				Voxel* searchVoxel = &octreeVoxels.at(i);
 
-	//		OctreeXYZSearch::Iterator tree_it;
-	//		OctreeXYZSearch::Iterator tree_it_end = octree_p->end();
+				for (int j = 0; j < directions_size; j++)
+				{
+					pcl::PointXYZ target_direction(
+						directions[j].x * searchVoxel->size,
+						directions[j].y * searchVoxel->size,
+						directions[j].z * searchVoxel->size);
 
-	//		//OctreeXYZSearch::LeafNodeIterator leaf_it = octree_p->leaf_begin();
+					pcl::PointXYZ target_voxel_center(
+						searchVoxel->position.x + target_direction.x,
+						searchVoxel->position.y + target_direction.y,
+						searchVoxel->position.z + target_direction.z);
 
-	//		for(OctreeXYZSearch::LeafNodeIterator leaf_it = octree_p->leaf_begin(); leaf_it!=octree_p->leaf_end(); ++leaf_it){
-	//			Point3D averagePoint = {0,0,0};
-	//			vector<int>& pointsInLeaf = leaf_it.getLeafContainer().getPointIndicesVector();
-	//			octree_p->
-	//			averagePoint.x +=
+					//We look for existing voxels first, if the voxel does not already exist, it means that the 
+					//neighbor is an air voxel.
+					vector<htr::OctreeGenerator::Voxel>::iterator it;
+					htr::OctreeGenerator::Voxel aux_voxel(target_voxel_center, searchVoxel->size, searchVoxel->type);
 
-	//		}
-	//
-	//
-	//		pcl::PointXYZ pt;
-	//		//cout << "===== Extracting data at depth " << depth << "... " << endl;
-	//		//double start = pcl::getTime ();
+					it = find(octreeVoxels.begin(), octreeVoxels.end(), aux_voxel);
 
-	//		octreeVoxels.clear();
+					if (it != octreeVoxels.end())
+						searchVoxel->neighbors.push_back(&*it);
+					else
+					{
+						Voxel *airVoxel = new Voxel(target_voxel_center, searchVoxel->size, Voxel::voxel_type::air);
 
-	//		//Check if end iterator can be substituted for the corresponding level so
-	//		//further level checking can be avoided
-	//		for (tree_it = octree_p->begin(depth); tree_it!=tree_it_end; ++tree_it)
-	//		{
-	//			//Level check, discards all nodes that do not belong to desired level
-	//			if(tree_it.getCurrentOctreeDepth() == depth){
+						//An optimization could be performed where the air voxels are stored by reference. Currently,
+						//if a voxel has an air voxel neighbor, the voxel is added, regardless if it is already the neighbor
+						//of another voxel. With the following mutex, this problem is solved, however, it slows down the 
+						//process considerably. 
 
-	//
-	//				Eigen::Vector3f voxel_min, voxel_max;
-	//
-	//				vector<int> pointsInNode;
-	//				tree_it.getBranchContainer().getPointIndices(pointsInNode);
-	//				octree_p->getVoxelBounds(tree_it, voxel_min, voxel_max);
+						//lock_guard<std::mutex> guard(this->mutex);
+						//{
+						//	vector<Voxel>::iterator it_air;
+						//	it_air = find(air_voxels.begin(), air_voxels.end(), *airVoxel);
 
-	//				//Get voxel center point
-	//				Point3D p = {
-	//					(voxel_min.x() + voxel_max.x()) / 2.0f,
-	//					(voxel_min.y() + voxel_max.y()) / 2.0f,
-	//					(voxel_min.z() + voxel_max.z()) / 2.0f
-	//				};
-	//				Voxel v = {
-	//					p,
-	//					voxel_max.x() - voxel_min.x()
-	//				};
-	//				octreeVoxels.push_back(v);
-	//			}
-	//		}
-	//		//cout<<"Extracted Points: "<<displayPoints.size()<<endl;
-	//		//double end = pcl::getTime ();
-	//		//printf("%zu pts, %.4gs. %.4gs./pt. =====\n", displayCloud->points.size (), end - start,
-	//				//(end - start) / static_cast<double> (displayCloud->points.size ()));
-	//	}
-	//}
+						//	if (it_air == air_voxels.end())
+						//	{
+						//		air_voxels.push_back(*airVoxel);
+								searchVoxel->neighbors.push_back(airVoxel);
+						//	}
+						//	else
+						//		searchVoxel->neighbors.push_back(&*it_air);
+						//}
+						//this->mutex.unlock();
+					}
+				}
+			});
+		}
 
-	///@deprecated
-	void OctreeGenerator::stepExtractionLevel(const int step){
-		std::cout<<"Stepping level"<<std::endl;
-		extractPointsAtLevel(currentExtractionLevel + step);
+		//pool.ShutDown();
+
+		clock_t end = clock();
+		double elapsed_secs = double(end - begin) / CLOCKS_PER_SEC;
+
+		printf("Find neighbors %f ms\n", elapsed_secs * 1000);
 	}
 }

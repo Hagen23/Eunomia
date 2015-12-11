@@ -11,9 +11,9 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{3897F91E-C624-466D-B7B3-26FF73A06AE9}</ProjectGuid>
+    <ProjectGuid>{1BBFACBC-9416-4024-87CA-88AE40C76DCB}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
-    <RootNamespace>ShapeMatching</RootNamespace>
+    <RootNamespace>AddNewVertices</RootNamespace>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -34,11 +34,11 @@
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-    <Import Project="..\General_Properties.props" />
+    <Import Project="General_Properties.props" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-    <Import Project="..\General_Properties.props" />
+    <Import Project="General_Properties.props" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -78,23 +78,17 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\..\..\..\..\..\Research\Codigo\common\Math3D\m3Matrix.cpp" />
-    <ClCompile Include="..\..\..\..\..\..\..\Research\Codigo\common\Math3D\m9Matrix.cpp" />
-    <ClCompile Include="..\..\..\..\..\..\..\Research\Codigo\common\ShapeMatching\deformable.cpp" />
-    <ClCompile Include="..\..\common\OctreeGenerator.cpp" />
-    <ClCompile Include="src\AddVertices.cpp" />
-    <ClCompile Include="src\main.cpp" />
+    <ClInclude Include="..\..\common\HTRBasicDataStructures.h" />
+    <ClInclude Include="..\..\common\mouseUtils.h" />
+    <ClInclude Include="..\..\common\OctreeGenerator.h" />
+    <ClInclude Include="..\..\common\ThreadPool.h" />
+    <ClInclude Include="..\src\AddVertices.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\..\..\..\..\..\Research\Codigo\common\Math3D\m3Bounds.h" />
-    <ClInclude Include="..\..\..\..\..\..\..\Research\Codigo\common\Math3D\m3Matrix.h" />
-    <ClInclude Include="..\..\..\..\..\..\..\Research\Codigo\common\Math3D\m3Real.h" />
-    <ClInclude Include="..\..\..\..\..\..\..\Research\Codigo\common\Math3D\m3Vector.h" />
-    <ClInclude Include="..\..\..\..\..\..\..\Research\Codigo\common\Math3D\m9Matrix.h" />
-    <ClInclude Include="..\..\..\..\..\..\..\Research\Codigo\common\Math3D\math3d.h" />
-    <ClInclude Include="..\..\..\..\..\..\..\Research\Codigo\common\mouseUtils.h" />
-    <ClInclude Include="..\..\..\..\..\..\..\Research\Codigo\common\ShapeMatching\deformable.h" />
-    <ClInclude Include="..\..\common\OctreeGenerator.h" />
+    <ClCompile Include="..\..\common\OctreeGenerator.cpp" />
+    <ClCompile Include="..\..\common\ThreadPool.cpp" />
+    <ClCompile Include="..\src\AddVertices.cpp" />
+    <ClCompile Include="..\src\main.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

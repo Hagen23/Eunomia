@@ -16,7 +16,7 @@
 #include <OctreeGenerator.h>
 #include <ShapeMatching/deformable.h>
 
-#include "AddVertices.h"
+#include <AddVertices.h>
 
 using namespace std;
 
@@ -43,7 +43,7 @@ int frameCount = 0;
 float fps = 0;
 int currentTime = 0, previousTime = 0;
 
-bool sortVoxelByY(htr::OctreeGenerator::Voxel a, htr::OctreeGenerator::Voxel b) { return a.position.y < b.position.y; };
+bool sortVoxelByY(const htr::OctreeGenerator::Voxel &a, const htr::OctreeGenerator::Voxel &b) { return a.position.y < b.position.y; };
 
 bool sortByY(htr::Point3D a, htr::Point3D b){ return a.y < b.y; };
 
@@ -104,9 +104,6 @@ void init(void)
 
 	//readCloudFromFile("../Resources/susane.csv", &groupA);
 	readCloudFromFile("../Resources/shpere.csv", &groupA);
-
-	/*for (auto& point :groupA)
-			point.scalePoint(20);*/
 	
 	added_vertices = new AddVertices(groupA, 0.30f);
 	points_centroid = added_vertices->get_centroid();
@@ -165,7 +162,7 @@ void displayDeformable()
 void displayVoxelsPoints()
 {
 	glPointSize(3);
-	for (htr::Point3D point : octreeGen->getCentroids())
+	for (pcl::PointXYZ point : octreeGen->getCentroids())
 	{
 		if (point.y > -6.0f && point.y < -2.0f)
 		{
