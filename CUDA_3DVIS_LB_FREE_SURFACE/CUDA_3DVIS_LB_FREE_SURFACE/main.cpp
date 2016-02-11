@@ -31,9 +31,9 @@
 
 #pragma endregion
 
-extern "C" {
-	_declspec(dllexport) DWORD NvOptimusEnablement = 0x00000001;
-}
+//extern "C" {
+//	_declspec(dllexport) DWORD NvOptimusEnablement = 0x00000001;
+//}
 
 using namespace std;
 
@@ -47,9 +47,9 @@ float rotate_x = 0.0, rotate_y = 0.0;
 float translate_z = -3.0;
 
 unsigned int latticeWidth = LATTICE_DIM, latticeHeight = LATTICE_DIM, latticeDepth = LATTICE_DIM, ncol;
-float latticeViscosity = 20.0f, roIn = LATTICE_DIM / LATTICE_MASS; // 0.1f;
-bool withSolid = false, keypressed = false, showInterfase = false;
-float3 vectorIn = make_float3(0,0,0);
+float latticeViscosity = 15.0f, roIn = (float)LATTICE_DIM / (float)LATTICE_MASS; // 0.1f;
+bool withSolid = false, keypressed = false, showInterfase = false, showFluid = true;
+float3 vectorIn{ 0, 0, 0 };
 latticed3q19 *lattice; 
 
 float cubeFaces[24][3] = 
@@ -100,7 +100,7 @@ void display (void)
 
 			posX = i / (float)latticeWidth; posY =  j / (float)latticeHeight; posZ = k / (float)latticeDepth;
 
-			if (!lattice->solid[i0] && (lattice->cellType[i0] == cell_types::fluid))
+			if (!lattice->solid[i0] && (lattice->cellType[i0] & cell_types::fluid) && showFluid)
 			{
 				x = getValueFromRelation(lattice->velocityVector[i0].x);
 				y = getValueFromRelation(lattice->velocityVector[i0].y);
@@ -122,7 +122,7 @@ void display (void)
 			else
 			{
 				if (showInterfase)
-				if (lattice->cellType[i0] == cell_types::interphase)
+				if (lattice->cellType[i0] & cell_types::interphase)
 				{
 					glColor3f(1.0, 1.0, 0.0);
 					glPointSize(2.0);
@@ -222,6 +222,9 @@ void keys (unsigned char key, int x, int y)
 		case 'i':
 			showInterfase = !showInterfase;
 			break;
+		case 'f':
+			showFluid = !showFluid;
+			break;
 	}
 }
 
@@ -258,48 +261,54 @@ void initGL ()
 	printf("Renderer: %s\n", renderer);
 	printf("OpenGL version supported %s\n", version);
 	printf("GLSL version supported %s\n", glslVersion);
+
+	glEnable(GL_DEPTH_TEST);
 }
 
 int init(void)
 {
+	int dimension = 15;
+	int fluidWidth = dimension, fluidHeight = dimension, fluidDepth = dimension;
+
 	lattice = new latticed3q19(latticeWidth, latticeHeight, latticeDepth, latticeViscosity, LATTICE_MASS, LATTICE_DIM, 1.0f);
 	
+	for (unsigned int k = latticeDepth / 2 - fluidDepth / 2; k < latticeDepth / 2 + fluidDepth / 2; k++)
+	for (unsigned int j = latticeHeight / 2 - fluidHeight / 2; j< latticeHeight / 2 + fluidHeight / 2; j++)
+	for (unsigned int i = latticeWidth / 2 - fluidWidth / 2; i< latticeWidth / 2 + fluidWidth / 2; i++)
+	{
+		int i0 = I3D(latticeWidth, latticeHeight, i, j, k);
+		lattice->cellType[i0] |= (cell_types::fluid);
+	}
+
+	for (unsigned int k = (latticeDepth / 2 - fluidDepth / 2) - 1; k < (latticeDepth / 2 + fluidDepth / 2) + 1; k++)
+	for (unsigned int j = (latticeHeight / 2 - fluidHeight / 2) - 1; j < (latticeHeight / 2 + fluidHeight / 2) + 1; j++)
+	for (unsigned int i = (latticeWidth / 2 - fluidWidth / 2) - 1; i < (latticeWidth / 2 + fluidWidth / 2) + 1; i++)
+	{
+		if ((k == (latticeDepth / 2.0 - fluidDepth / 2) - 1 || k == (latticeDepth / 2.0 + fluidDepth / 2)) ||
+			(j == (latticeHeight / 2.0 - fluidHeight / 2) - 1 || j == (latticeHeight / 2.0 + fluidHeight / 2))||
+			(i == (latticeWidth / 2.0 - fluidWidth / 2) - 1 || i == (latticeWidth / 2.0 + fluidWidth / 2)))
+			
+		{
+			int i0 = I3D(latticeWidth, latticeHeight, i, j, k);
+			lattice->cellType[i0] |= cell_types::interphase;
+		}
+	}
+
 	for (int i = 0; i < lattice->getNumElements(); i++)
 		lattice->calculateInEquilibriumFunction(i, vectorIn, roIn);
 
-	for(int k = latticeDepth/4; k < latticeDepth/2.0 + latticeDepth/4; k++)
-		for(int j = latticeHeight/4; j< latticeHeight/2.0 +latticeHeight/4; j++)
-			for(int i = latticeWidth/4; i< latticeWidth/2.0 + latticeWidth/4; i++)
-			{
-				int i0 = I3D(latticeWidth, latticeHeight, i, j, k);
-				lattice->cellType[i0] = cell_types::fluid;
-			}
-
-	for (int k = latticeDepth / 4 - 1; k <= latticeDepth / 2.0 + latticeDepth / 4 + 1; k++)
-		for (int j = latticeHeight / 4 - 1; j<= latticeHeight / 2.0 + latticeHeight / 4 + 1; j++)
-			for (int i = latticeWidth / 4 - 1; i<= latticeWidth / 2.0 + latticeWidth / 4 + 1; i++)
-			{
-				if ((k == latticeDepth / 4 - 1 || k == latticeDepth / 2.0 + latticeDepth / 4 + 1) ||
-					(i == latticeWidth / 4 - 1 || i == latticeWidth / 2.0 + latticeWidth / 4 + 1) ||
-					(j == latticeHeight / 4 - 1 || j == latticeHeight / 2.0 + latticeHeight / 4 + 1))
-				{
-					int i0 = I3D(latticeWidth, latticeHeight, i, j, k);
-					lattice->cellType[i0] = cell_types::interphase;
-				}
-			}
-	
     lattice->calculateInitialMass();
 
 	for (unsigned int k = 0; k < latticeDepth; k++)
-		for (unsigned int j = 0; j < latticeHeight; j++)
-			for (unsigned int i = 0; i < latticeWidth; i++)
-			{
-				if (k == 0 || k == (latticeDepth -1) || i == 0 || i == latticeWidth -1 || j == 0 || j == latticeHeight -1)
-				{
-					int i0 = I3D(latticeWidth, latticeHeight, i, j, k);
-					lattice->solid[i0] = 1;
-				}
-			}
+	for (unsigned int j = 0; j < latticeHeight; j++)
+	for (unsigned int i = 0; i < latticeWidth; i++)
+	{
+		if (k == 0 || k == (latticeDepth - 1) || i == 0 || i == latticeWidth - 1 || j == 0 || j == latticeHeight - 1)
+		{
+			int i0 = I3D(latticeWidth, latticeHeight, i, j, k);
+			lattice->solid[i0] = 1;
+		}
+	}
 
 	return 0;
 }
