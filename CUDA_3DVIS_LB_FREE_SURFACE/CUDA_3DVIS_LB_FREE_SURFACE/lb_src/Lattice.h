@@ -44,6 +44,7 @@ struct float3
 	}
 };
 
+// The different states that each cell could become
 enum cell_types{
 	gas = 1 << 0,
 	fluid = 1 << 1,
@@ -100,6 +101,7 @@ static float latticeWeights[19] =
 	1.f / 36.f, 1.f / 36.f, 1.f / 36.f, 1.f / 36.f, 1.f / 36.f, 1.f / 36.f
 };
 
+// The speeds for the distribution functions
 static float3 speedDirection[19] =
 {
 	{0, 0, 0},
@@ -110,6 +112,7 @@ static float3 speedDirection[19] =
 	{0, -1, 1}, {0, -1, -1}
 };
 
+// The inverse speed indices
 static int inverseSpeedDirectionIndex[19] =
 {
 	0, 
@@ -125,13 +128,19 @@ static const float v_max = 0.816496580927726f;		//!< set maximum velocity to sqr
 class latticed3q19
 {
 private:
-	int				_width, _height, _depth, _stride, _numberAllElements, _numberLatticeElements;
+
+	// The lattice dimensions
+	int				_width, _height, _depth, _stride; 
+	 
+	int				_numberAllElements,						// The number of dfs for the entire lattice.
+					_numberLatticeElements;					// The number of cells
 
 	float			*ro, rovx, rovy, rovz, v_sq_term;
 
+	// Values that help maintain fluid stability
 	float			_cellsPerSide, cellSize, viscosity, timeStep, _domainSize, gravity, latticeAcceleration;
 
-	// Epsilon is the fluid fraction of a given cell
+	// f* are the dfs for the lattice. Epsilon is the fluid fraction of a given cell
 	float			*f, *ftemp, *feq, *epsilon;
 	
 	// W -> relaxation time; Values (0..2]; tending to 0 = more viscous
@@ -140,9 +149,9 @@ private:
 	// Mass of the entire fluid, and mass of single cells of the fluid.
 	float			_mass, *cellMass, *cellMassTemp;
 
+	// Lists that contain the cells that either filled or emptied. 
 	vector<float3>	_filledCells, _emptiedCells;
 	
-	// Dirichlet and Neumann Boundary Conditions
 	void boundary_BC(float3 inVector);
 
 	// Solid Boundary: This is the boundary condition for a solid node. All the f's are reversed - this is known as "bounce-back"
@@ -160,31 +169,33 @@ private:
 	// Collision using Single Relaxation time BGK
 	void collide(void);
 
-	void calculateSpeedVector(int index);
+	//void calculateSpeedVector(int index);
 	
 	void calculateEquilibriumFunction(float3 inVector, float inRo);
 
 	// Calculate derived quantities density and velocity from distribution functions
 	void deriveQuantities(int index);
 
+	// Calculates epsilon: the ratio of mass vs density; e = m / ro
 	float calculateEpsilon(int cellIndex);
 
+	// Calculates a cell normal, based off the surrounding cell's epsilon
 	float3 calculateNormal(int i, int j, int k);
 
-	/// Table 4.1
+	/// Table 4.1; to remove interfase cell artifacts
 	float calculateMassExchange(int currentIndex, int neighborIndex, float currentDf, float inverse_NbFi);
 
-	// Exchange of mass to adjecent cells
-	void adjustCellMass(int index);
-
+	// Determines if a cell filled or emptied. Filled means that an interfase cell epsilon >= 1; emptied means epsilon <= 0
 	void setFilledOrEmpty(int i, int j, int k);
 
 	// Change the cell type in order to ensure the layer of interface cells has to be closed again, once the filled and emptied interface
 	//cells have been converted into their respective types
 	void cellTypeAdjustment();
 
+	// Determine if a cell has a given type of neighbors. Used to remove artifacts
 	void setNeighborhoodFlags();
 
+	// Uses the information of the surrounding cells to initialize an interfase cell
 	void averageSurroundings(int i, int j, int k);
 
 public:
@@ -193,9 +204,10 @@ public:
 	float3			*velocityVector;
 	int				*cellType;
 
-	// This method has to be called after all the cells have a defined type
+	// Sets the initial mass for the lattice. This method has to be called after all the cells have a defined type
 	void calculateInitialMass();
 	
+	// Calculates the initial df for the lattice based off the equilibrium function
 	void calculateInEquilibriumFunction(int index, float3 inVector, float inRo);
 
 	latticed3q19(int width, int height, int depth, float worldViscosity, float mass, float cellsPerSide, float domainSize);

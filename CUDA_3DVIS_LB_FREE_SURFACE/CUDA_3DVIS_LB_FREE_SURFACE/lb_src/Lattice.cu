@@ -27,6 +27,7 @@ latticed3q19::latticed3q19(int width, int height, int depth, float worldViscosit
 
 	c = (float)(1.0 / sqrt(3.0));
 	
+	// These values are needed to maintain the fluid stability. Part 3.3 of the reference Thesis
 	cellSize = _domainSize / _cellsPerSide;
 
 	gravity = -9.8f;
@@ -58,6 +59,7 @@ latticed3q19::~latticed3q19()
 
 void latticed3q19::step(void)
 {
+	// I have disabled the artifact removal sections until the free surface changes work.
 	//setNeighborhoodFlags();
 
 	stream();
@@ -103,6 +105,7 @@ void latticed3q19::stream()
 									advectedDf = I3D_S(_width, _height, _stride, newI, newJ, newK, l);
 									advectedCell = I3D(_width, _height, newI, newJ, newK);
 
+									// Added step to calculate the mass exchange. Part 4.1 of the reference Thesis
 									if (cellType[advectedCell] & (cell_types::fluid | cell_types::interphase))
 									{
 										//newI = (int)(i + speedDirection[inverseSpeedDirectionIndex[l]].x);
@@ -124,6 +127,7 @@ void latticed3q19::stream()
 						catch (std::string message) { cout << "Exception: " << message.c_str() << endl;		}
 						catch (...){ cout << "Default exception." << endl; }
 					}
+					// Additional step to consider the interfase cells streaming and mass exchange. 
 					else if (cellType[cellIndex] & cell_types::interphase)
 					{
 						float currentEpsilon = calculateEpsilon(cellIndex);
@@ -158,6 +162,8 @@ void latticed3q19::stream()
 								float massExchange = calculateMassExchange(cellIndex, advectedCell, f[cellDf], f[inverseAdvectedDf]);
 
 								cellMassTemp[cellIndex] += (f[inverseAdvectedDf] - f[cellDf]) * 0.5f * (currentEpsilon + neighborEpsilon);
+								
+								// This line handles the cell artifacts, commented until the free surface changes work
 								//cellMassTemp[cellIndex] += (massExchange)*0.5f * (currentEpsilon + neighborEpsilon);
 
 								ftemp[cellDf] = f[advectedDf];
@@ -165,8 +171,6 @@ void latticed3q19::stream()
 							else if (cellType[advectedCell] & cell_types::gas) 	// Eq. (4.5)
 							{
 								ftemp[cellDf] = feq[l] + feq[inverseSpeedDirectionIndex[l]] - f[cellDf];
-								if (ftemp[cellDf] < 0) ftemp[cellDf] = 0.0f;
-								if (ftemp[cellDf] > 1) ftemp[cellDf] = 1.0f;
 							}
 						}
 
@@ -179,9 +183,6 @@ void latticed3q19::stream()
 							if (dot(normal, speedDirection[inverseSpeedDirectionIndex[l]]) > 0)		// Eq. (4.6)
 							// reconstructed atmospheric distribution function, Eq. (4.5)
 								ftemp[cellDf] = feq[l] + feq[inverseSpeedDirectionIndex[l]] - f[cellDf];	
-
-							if (ftemp[cellDf] < 0) ftemp[cellDf] = 0.0f;
-							if (ftemp[cellDf] > 1) ftemp[cellDf] = 1.0f;
 						}
 					}
 				}
@@ -189,6 +190,7 @@ void latticed3q19::stream()
 		}
 	}
 
+	// After the streaming steps, copy the dfs and the mass to the respective arrays
 	for (int i0 = 0; i0 < _numberAllElements; i0++)
 	{
 		f[i0] = ftemp[i0];
@@ -212,6 +214,7 @@ void latticed3q19::stream()
 		
 }
 
+// Collision remains the same. Just added a step to determine if a given cell filled or emptied.
 void latticed3q19::collide(void)
 {
 	int iBase = 0, numFluid = 0;
@@ -242,6 +245,7 @@ void latticed3q19::collide(void)
 
 				epsilon[i0] = cellMass[i0] / ro[i0];
 
+				// Test that shows that the density of the fluid eventually becomes indeterminate; one of the errors I found
 				roAverage += ro[i0];
 				numFluid++;
 
@@ -279,36 +283,36 @@ void latticed3q19::solid_BC(int i0)
 	temp = f[i0*_stride + 16];	f[i0*_stride + 16] = f[i0*_stride + 17];	f[i0*_stride + 17] = temp;		// f16	<-> f17
 }
 
-void latticed3q19::calculateSpeedVector(int index)
-{
-	//calculateRo();
-	//rovx = rovy = rovz = 0; 
-
-	ro[index] = rovx = rovy = rovz = 0;
-	int i0 = 0;
-	for (int i = 0; i<_stride; i++)
-	{
-		i0 = index * _stride + i;
-		ro[index] += f[i0];
-		rovx += f[i0] * speedDirection[i].x;
-		rovy += f[i0] * speedDirection[i].y;
-		rovz += f[i0] * speedDirection[i].z;
-	}
-
-	// In order to check that ro is not NaN you check if it is equal to itself: if it is a Nan, the comparison is false
-	if (ro[index] == ro[index] && ro[index] != 0.0f)
-	{
-		velocityVector[index].x = rovx / ro[index];
-		velocityVector[index].y = rovy / ro[index];
-		velocityVector[index].z = rovz / ro[index];
-	}
-	else
-	{
-		velocityVector[index].x = 0;
-		velocityVector[index].y = 0;
-		velocityVector[index].z = 0;
-	}
-}
+//void latticed3q19::calculateSpeedVector(int index)
+//{
+//	//calculateRo();
+//	//rovx = rovy = rovz = 0; 
+//
+//	ro[index] = rovx = rovy = rovz = 0;
+//	int i0 = 0;
+//	for (int i = 0; i<_stride; i++)
+//	{
+//		i0 = index * _stride + i;
+//		ro[index] += f[i0];
+//		rovx += f[i0] * speedDirection[i].x;
+//		rovy += f[i0] * speedDirection[i].y;
+//		rovz += f[i0] * speedDirection[i].z;
+//	}
+//
+//	// In order to check that ro is not NaN you check if it is equal to itself: if it is a Nan, the comparison is false
+//	if (ro[index] == ro[index] && ro[index] != 0.0f)
+//	{
+//		velocityVector[index].x = rovx / ro[index];
+//		velocityVector[index].y = rovy / ro[index];
+//		velocityVector[index].z = rovz / ro[index];
+//	}
+//	else
+//	{
+//		velocityVector[index].x = 0;
+//		velocityVector[index].y = 0;
+//		velocityVector[index].z = 0;
+//	}
+//}
 
 void latticed3q19::calculateEquilibriumFunction(float3 inVector, float inRo)
 {
@@ -327,6 +331,7 @@ void latticed3q19::calculateEquilibriumFunction(float3 inVector, float inRo)
 	}
 }
 
+// Have to find how to correctly initialize the interfase cells. 
 void latticed3q19::calculateInEquilibriumFunction(int index, float3 inVector, float inRo)
 {
 	float w;
@@ -355,6 +360,7 @@ void latticed3q19::calculateInEquilibriumFunction(int index, float3 inVector, fl
 	deriveQuantities(index);
 }
 
+// Calculates the density and speed of a cell
 void latticed3q19::deriveQuantities(int index)
 {
 	int dfIndex = 0;
@@ -385,6 +391,7 @@ void latticed3q19::deriveQuantities(int index)
 	//	velocityVector[index] = float3_ScalarMultiply(v_max / n, velocityVector[index]);
 }
 
+// Determines the initial mass of a cell. Still have to check this initialization...
 void latticed3q19::calculateInitialMass()
 {
 	float individual_cell_mass = 0.0f, fluidCells = 0;
@@ -497,6 +504,7 @@ float3 latticed3q19::calculateNormal(int i, int j, int k)
 	};
 }
 
+// This method controls the excess mass distribution. This is an implementation of part 4.3 of the reference thesis.
 void latticed3q19::cellTypeAdjustment()
 {
 	int nb_x, nb_y, nb_z;
@@ -591,6 +599,7 @@ void latticed3q19::cellTypeAdjustment()
 				numIF++;
 			}
 		}
+		// If a the mass of a cell is bigger that its density, distribute excess mass along the neighboring interface cell's normal
 		if (cellMass[cellIndex] > ro[cellIndex])
 		if (eta_total > 0)
 		{
@@ -611,6 +620,7 @@ void latticed3q19::cellTypeAdjustment()
 					cellMass[nb_cellIndex] = cellMass[nb_cellIndex];
 			}
 		}
+		// Evenly distribute excess mass
 		else if (numIF > 0)
 		{
 			excess_mass = excess_mass / numIF;
@@ -662,6 +672,7 @@ void latticed3q19::cellTypeAdjustment()
 				numIF++;
 			}
 		}
+		// If a the mass of a cell is smaller that 0, distribute excess mass along the neighboring interface cell's normal
 		if (cellMass[cellIndex]< 0)
 		if (eta_total > 0)
 		{
@@ -681,6 +692,7 @@ void latticed3q19::cellTypeAdjustment()
 					cellMass[nb_cellIndex] = cellMass[nb_cellIndex];
 			}
 		}
+		// Evenly distribute excess mass
 		else if (numIF > 0)
 		{
 			excess_mass = excess_mass / numIF;
