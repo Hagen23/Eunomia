@@ -169,7 +169,7 @@ private:
 	// Collision using Single Relaxation time BGK
 	void collide(void);
 
-	//void calculateSpeedVector(int index);
+	void calculateSpeedVector(int index);
 	
 	void calculateEquilibriumFunction(float3 inVector, float inRo);
 
@@ -202,7 +202,7 @@ public:
 
 	unsigned int	*solid;
 	float3			*velocityVector;
-	int				*cellType;
+	int				*cellType, *cellTypeTemp;
 
 	// Sets the initial mass for the lattice. This method has to be called after all the cells have a defined type
 	void calculateInitialMass();

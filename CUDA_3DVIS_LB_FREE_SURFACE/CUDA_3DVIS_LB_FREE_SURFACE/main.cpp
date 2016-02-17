@@ -38,7 +38,7 @@
 using namespace std;
 
 #define LATTICE_DIM					30
-#define LATTICE_MASS				50 // Units?
+#define LATTICE_MASS				(float)50 // Units?
 
 // mouse controls
 int mouse_old_x, mouse_old_y;
@@ -47,7 +47,7 @@ float rotate_x = 0.0, rotate_y = 0.0;
 float translate_z = -3.0;
 
 unsigned int latticeWidth = LATTICE_DIM, latticeHeight = LATTICE_DIM, latticeDepth = LATTICE_DIM, ncol;
-float latticeViscosity = 15.0f, roIn = (float)LATTICE_DIM / (float)LATTICE_MASS; // 0.1f;
+float latticeViscosity = 5.0f, roIn = (float)LATTICE_DIM / (float)LATTICE_MASS; // 0.1f;
 bool withSolid = false, keypressed = false, showInterfase = false, showFluid = true;
 float3 vectorIn{ 0, 0, 0 };
 latticed3q19 *lattice; 
@@ -247,10 +247,10 @@ void reshape (int w, int h)
 // glew (extension loading), OpenGL state and CUDA - OpenGL interoperability initialization
 void initGL ()
 {
-	GLenum err = glewInit();
+	/*GLenum err = glewInit();
 	if (GLEW_OK != err) 
 		return;
-	cout << "Status: Using GLEW " << glewGetString(GLEW_VERSION) << endl;
+	cout << "Status: Using GLEW " << glewGetString(GLEW_VERSION) << endl;*/
 	const GLubyte* renderer;
 	const GLubyte* version;
 	const GLubyte* glslVersion;
@@ -270,6 +270,8 @@ int init(void)
 	int dimension = 15;
 	int fluidWidth = dimension, fluidHeight = dimension, fluidDepth = dimension;
 
+	roIn = LATTICE_MASS / (15 * 15 * 15);
+
 	lattice = new latticed3q19(latticeWidth, latticeHeight, latticeDepth, latticeViscosity, LATTICE_MASS, LATTICE_DIM, 1.0f);
 	
 	for (unsigned int k = latticeDepth / 2 - fluidDepth / 2; k < latticeDepth / 2 + fluidDepth / 2; k++)
@@ -277,7 +279,7 @@ int init(void)
 	for (unsigned int i = latticeWidth / 2 - fluidWidth / 2; i< latticeWidth / 2 + fluidWidth / 2; i++)
 	{
 		int i0 = I3D(latticeWidth, latticeHeight, i, j, k);
-		lattice->cellType[i0] |= (cell_types::fluid);
+		lattice->cellType[i0] = lattice->cellTypeTemp[i0] = (cell_types::fluid);
 	}
 
 	for (unsigned int k = (latticeDepth / 2 - fluidDepth / 2) - 1; k < (latticeDepth / 2 + fluidDepth / 2) + 1; k++)
@@ -290,14 +292,14 @@ int init(void)
 			
 		{
 			int i0 = I3D(latticeWidth, latticeHeight, i, j, k);
-			lattice->cellType[i0] |= cell_types::interphase;
+			lattice->cellType[i0] = lattice->cellTypeTemp[i0] = cell_types::interphase;
 		}
 	}
 
 	for (int i = 0; i < lattice->getNumElements(); i++)
 		lattice->calculateInEquilibriumFunction(i, vectorIn, roIn);
 
-    lattice->calculateInitialMass();
+    //lattice->calculateInitialMass();
 
 	for (unsigned int k = 0; k < latticeDepth; k++)
 	for (unsigned int j = 0; j < latticeHeight; j++)
