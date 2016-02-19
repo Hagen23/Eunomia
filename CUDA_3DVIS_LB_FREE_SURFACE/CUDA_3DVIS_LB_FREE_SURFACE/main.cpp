@@ -37,7 +37,7 @@
 
 using namespace std;
 
-#define LATTICE_DIM					30
+#define LATTICE_DIM					32
 #define LATTICE_MASS				(float)50 // Units?
 
 // mouse controls
@@ -47,8 +47,9 @@ float rotate_x = 0.0, rotate_y = 0.0;
 float translate_z = -3.0;
 
 unsigned int latticeWidth = LATTICE_DIM, latticeHeight = LATTICE_DIM, latticeDepth = LATTICE_DIM, ncol;
-float latticeViscosity = 5.0f, roIn = (float)LATTICE_DIM / (float)LATTICE_MASS; // 0.1f;
-bool withSolid = false, keypressed = false, showInterfase = false, showFluid = true;
+float latticeViscosity = 15.0f, roIn = (float)LATTICE_DIM / (float)LATTICE_MASS; // 0.1f;
+bool withSolid = false, keypressed = false, showInterfase = true, showFluid = true, simulate = false;
+
 float3 vectorIn{ 0, 0, 0 };
 latticed3q19 *lattice; 
 
@@ -70,7 +71,6 @@ void display (void)
 	glClear (GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	int i0;
-
 	float x, y, z, posX, posY, posZ, vx, vy, vz, normMag;
 
 // set view matrix
@@ -145,7 +145,8 @@ float getValueFromRelation(float value, float minColorVar, float maxColorVar, fl
 
 void idle(void)
 {
-	lattice->step();
+	if (simulate)
+		lattice->step();
 
 	if(keypressed)
 	{
@@ -225,6 +226,9 @@ void keys (unsigned char key, int x, int y)
 		case 'f':
 			showFluid = !showFluid;
 			break;
+		case 32:
+			simulate = !simulate;
+			break;
 	}
 }
 
@@ -267,10 +271,10 @@ void initGL ()
 
 int init(void)
 {
-	int dimension = 15;
+	int dimension = 16;
 	int fluidWidth = dimension, fluidHeight = dimension, fluidDepth = dimension;
 
-	roIn = LATTICE_MASS / (15 * 15 * 15);
+	roIn = LATTICE_MASS / (dimension * dimension * dimension);
 
 	lattice = new latticed3q19(latticeWidth, latticeHeight, latticeDepth, latticeViscosity, LATTICE_MASS, LATTICE_DIM, 1.0f);
 	

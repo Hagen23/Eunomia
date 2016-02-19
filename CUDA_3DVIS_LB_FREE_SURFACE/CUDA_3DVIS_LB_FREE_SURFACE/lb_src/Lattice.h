@@ -17,7 +17,8 @@ using namespace std;
 //Macro to go over arrays that have a stride other than 1
 #define I3D_S(width, height, stride, i,j,k,l)	(width*(j+height*k)+i)*stride+l
 
-#define FILL_OFFSET			((float)0.003)
+//#define FILL_OFFSET			((float)0.003)
+#define FILL_OFFSET			((float)0.01)
 #define LONELY_THRESH		((float)0.1)
 
 struct float3
@@ -69,28 +70,30 @@ static inline float3 float3_ScalarMultiply(const float s, const float3 v)
 
 static inline float float3_Norm(const float3 v)
 {
-	// have to change to 'fabs' for 'typedef double real'
-	float a = fabsf(v.x), b = fabsf(v.y), c = fabsf(v.z);
+	//// have to change to 'fabs' for 'typedef double real'
+	//float a = fabsf(v.x), b = fabsf(v.y), c = fabsf(v.z);
 
-	if (a < b)
-	{
-		if (b < c)
-			return c*sqrtf(1 + sqrtf(a / c) + sqrtf(b / c));
-		else	// a < b, c <= b
-			return b*sqrtf(1 + sqrtf(a / b) + sqrtf(c / b));
-	}
-	else	// b <= a
-	{
-		if (a < c)
-			return c*sqrtf(1 + sqrtf(a / c) + sqrtf(b / c));
-		else	// b <= a, c <= a
-		{
-			if (a != 0)
-				return a*sqrtf(1 + sqrtf(b / a) + sqrtf(c / a));
-			else
-				return 0;
-		}
-	}
+	//if (a < b)
+	//{
+	//	if (b < c)
+	//		return c*sqrtf(1 + sqrtf(a / c) + sqrtf(b / c));
+	//	else	// a < b, c <= b
+	//		return b*sqrtf(1 + sqrtf(a / b) + sqrtf(c / b));
+	//}
+	//else	// b <= a
+	//{
+	//	if (a < c)
+	//		return c*sqrtf(1 + sqrtf(a / c) + sqrtf(b / c));
+	//	else	// b <= a, c <= a
+	//	{
+	//		if (a != 0)
+	//			return a*sqrtf(1 + sqrtf(b / a) + sqrtf(c / a));
+	//		else
+	//			return 0;
+	//	}
+	//}
+
+	return sqrtf(dot(v,v));
 }
 
 static float latticeWeights[19] =
@@ -123,8 +126,6 @@ static int inverseSpeedDirectionIndex[19] =
 	16, 15
 };
 
-static const float v_max = 0.816496580927726f;		//!< set maximum velocity to sqrt(2/3), such that f_eq[0] >= 0
-
 class latticed3q19
 {
 private:
@@ -144,7 +145,7 @@ private:
 	float			*f, *ftemp, *feq, *epsilon;
 	
 	// W -> relaxation time; Values (0..2]; tending to 0 = more viscous
-	float			_tau, c, _w;
+	float			_tau, c, _w, _vMax;
 
 	// Mass of the entire fluid, and mass of single cells of the fluid.
 	float			_mass, *cellMass, *cellMassTemp;
