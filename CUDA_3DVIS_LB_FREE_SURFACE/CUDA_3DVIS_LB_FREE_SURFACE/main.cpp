@@ -28,6 +28,7 @@
 #endif
 
 #include "lb_src/Lattice.h"
+#include "Lattice_2D.h"
 
 #pragma endregion
 
@@ -38,7 +39,76 @@
 using namespace std;
 
 #define LATTICE_DIM					32
-#define LATTICE_MASS				(float)50 // Units?
+
+int type0[SIZE_2D_X][SIZE_2D_Y] = {
+	{ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 },
+	{ 1, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 1 },
+	{ 1, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 1 },
+	{ 1, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 1 },
+	{ 1, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 1 },
+	{ 1, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 1 },
+	{ 1, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 1 },
+	{ 1, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 1 },
+	{ 1, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 4, 4, 4, 4, 4, 4, 4, 8, 8, 8, 1 },
+	{ 1, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 4, 4, 2, 2, 2, 2, 2, 4, 4, 8, 8, 1 },
+	{ 1, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 4, 2, 2, 2, 2, 2, 2, 2, 4, 8, 8, 1 },
+	{ 1, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 4, 2, 2, 2, 2, 2, 2, 2, 4, 8, 8, 1 },
+	{ 1, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 4, 2, 2, 2, 2, 2, 2, 2, 4, 8, 8, 1 },
+	{ 1, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 4, 2, 2, 2, 2, 2, 2, 2, 4, 8, 8, 1 },
+	{ 1, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 4, 2, 2, 2, 2, 2, 2, 2, 4, 8, 8, 1 },
+	{ 1, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 4, 4, 2, 2, 2, 2, 2, 4, 4, 8, 8, 1 },
+	{ 1, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 4, 4, 4, 4, 4, 4, 4, 8, 8, 8, 1 },
+	{ 1, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 1 },
+	{ 1, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 1 },
+	{ 1, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 1 },
+	{ 1, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 1 },
+	{ 1, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 1 },
+	{ 1, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 1 },
+	{ 1, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 1 },
+	{ 1, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 1 },
+	{ 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1 },
+	{ 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1 },
+	{ 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1 },
+	{ 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1 },
+	{ 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1 },
+	{ 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1 },
+	{ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 }
+};
+
+int type1[SIZE_2D_X][SIZE_2D_Y] = {
+	{ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 },
+	{ 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1 },
+	{ 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1 },
+	{ 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1 },
+	{ 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1 },
+	{ 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1 },
+	{ 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1 },
+	{ 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1 },
+	{ 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1 },
+	{ 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1 },
+	{ 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1 },
+	{ 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1 },
+	{ 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1 },
+	{ 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1 },
+	{ 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1 },
+	{ 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1 },
+	{ 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1 },
+	{ 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1 },
+	{ 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1 },
+	{ 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1 },
+	{ 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1 },
+	{ 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1 },
+	{ 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1 },
+	{ 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1 },
+	{ 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1 },
+	{ 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1 },
+	{ 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1 },
+	{ 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1 },
+	{ 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1 },
+	{ 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1 },
+	{ 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1 },
+	{ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 }
+};
 
 // mouse controls
 int mouse_old_x, mouse_old_y;
@@ -47,11 +117,13 @@ float rotate_x = 0.0, rotate_y = 0.0;
 float translate_z = -3.0;
 
 unsigned int latticeWidth = LATTICE_DIM, latticeHeight = LATTICE_DIM, latticeDepth = LATTICE_DIM, ncol;
-float latticeViscosity = 15.0f, roIn = (float)LATTICE_DIM / (float)LATTICE_MASS; // 0.1f;
+float latticeViscosity = 3.f;
 bool withSolid = false, keypressed = false, showInterfase = true, showFluid = true, simulate = false;
 
-float3 vectorIn{ 0, 0, 0 };
+float3 vectorIn{ 0.0f, 0.0f, 0.0f};
 latticed3q19 *lattice; 
+
+d2q9_lattice *lattice_2d;
 
 float cubeFaces[24][3] = 
 {
@@ -70,7 +142,6 @@ void display (void)
 {
 	glClear (GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	int i0;
 	float x, y, z, posX, posY, posZ, vx, vy, vz, normMag;
 
 // set view matrix
@@ -79,6 +150,23 @@ void display (void)
     glRotatef(rotate_x, 1.0, 0.0, 0.0);
     glRotatef(rotate_y, 0.0, 1.0, 0.0);
 	
+	glPushMatrix();
+		glLineWidth(10.0);
+		glBegin(GL_LINES);
+		glColor3f(0, 0, 1);
+		glVertex3f(0, 0, 0);
+		glVertex3f(1, 0, 0);
+
+		glColor3f(1, 0, 0);
+		glVertex3f(0, 0, 0);
+		glVertex3f(0, 1, 0);
+
+		glColor3f(0, 1, 0);
+		glVertex3f(0, 0, 0);
+		glVertex3f(0, 0, 1);
+		glEnd();
+	glPopMatrix();
+
 	glPushMatrix();
 		glColor3f(1.0, 1.0, 1.0);
 		glLineWidth(2.0);
@@ -92,44 +180,78 @@ void display (void)
 	glPopMatrix();
 
 	glPushMatrix();
-		for(unsigned int k = 0; k  < latticeDepth; k++)
-		for (unsigned int j = 0; j < latticeHeight; j++)
-		for (unsigned int i = 0; i < latticeWidth; i++)
+		//for(unsigned int k = 0; k  < latticeDepth; k++)
+	unsigned int k = SIZE_2D_X / 2;
+
+		for (unsigned int i = 0; i< latticeWidth; i++)
+		for (unsigned int j = 0 ; j < latticeHeight; j++)
 		{
-			i0 = I3D(latticeWidth, latticeHeight, i, j, k);
+			//i0 = I3D(latticeWidth, latticeHeight, i, j, k);
 
-			posX = i / (float)latticeWidth; posY =  j / (float)latticeHeight; posZ = k / (float)latticeDepth;
+			posX = i / (float)latticeWidth; 
+			posY =  j / (float)latticeHeight; 
+			posZ = k / (float)latticeDepth;
+			
+			d2q9_cell *current_cell = lattice_2d->getCellAt(latticeHeight- 1 -j, i);
 
-			if (!lattice->solid[i0] && (lattice->cellType[i0] & cell_types::fluid) && showFluid)
+			if (current_cell->type != cellType::CT_OBSTACLE && current_cell->type != cellType::CT_EMPTY)
 			{
-				x = getValueFromRelation(lattice->velocityVector[i0].x);
-				y = getValueFromRelation(lattice->velocityVector[i0].y);
-				z = getValueFromRelation(lattice->velocityVector[i0].z);
-
-				vx = lattice->velocityVector[i0].x;
-				vy = lattice->velocityVector[i0].y;
-				vz = lattice->velocityVector[i0].z;
-
-				glColor3f(x,y,z);
-				normMag = sqrtf(vx*vx + vy*vy + vz*vz)*10; 
-
-				glBegin(GL_LINES);
-					glVertex3f(posX, posY, posZ);
-					glVertex3f(posX + lattice->velocityVector[i0].x / normMag, posY + lattice->velocityVector[i0].y / normMag,
-						posZ + lattice->velocityVector[i0].z / normMag);
-				glEnd();
-			}
-			else
-			{
-				if (showInterfase)
-				if (lattice->cellType[i0] & cell_types::interphase)
+				if (current_cell->type == cellType::CT_FLUID)
+			//if (lattice->cell_type[i0] != cell_types::solid && lattice->cell_type[i0] != cell_types::gas)
+			//{
+			//	if (lattice->cell_type[i0] == cell_types::fluid)
 				{
-					glColor3f(1.0, 1.0, 0.0);
-					glPointSize(2.0);
-					glBegin(GL_POINTS);
+					//x = getValueFromRelation(lattice->velocityVector[i0].x);
+					//y = getValueFromRelation(lattice->velocityVector[i0].y);
+					//z = getValueFromRelation(lattice->velocityVector[i0].z);
+
+					//vx = lattice->velocityVector[i0].x;
+					//vy = lattice->velocityVector[i0].y;
+					//vz = lattice->velocityVector[i0].z;
+
+					x = getValueFromRelation(current_cell->velocity.x);
+					y = getValueFromRelation(current_cell->velocity.y);
+					z = getValueFromRelation(0.5f);
+
+					vx = current_cell->velocity.x;
+					vy = current_cell->velocity.y;
+					vz = 0;
+
+					glColor3f(x, y, z);
+					normMag = sqrtf(vx*vx + vy*vy + vz*vz) / lattice_2d->cellSize;
+
+					glBegin(GL_LINES);
 					glVertex3f(posX, posY, posZ);
+					//glVertex3f(posX + lattice->velocityVector[i0].x / normMag, posY + lattice->velocityVector[i0].y / normMag,
+					//	posZ + lattice->velocityVector[i0].z / normMag);
+					glVertex3f(
+						posX + current_cell->velocity.x / normMag,
+						posY + current_cell->velocity.y / normMag,
+						posZ + current_cell->velocity.z / normMag);
 					glEnd();
 				}
+				else
+				{
+					if (showInterfase)
+					//if (lattice->cell_type[i0] & cell_types::interfase)
+					if (current_cell->type == cellType::CT_INTERFACE)
+					{
+						glPointSize(2.0);
+						glColor3f(1, 1, 0);
+						glBegin(GL_POINTS);
+						glVertex3f(posX, posY, posZ);
+						glEnd();
+					}
+				}
+			}
+
+			if (current_cell->type == cellType::CT_OBSTACLE)
+			{
+				glPointSize(2.0);
+				glColor3f(0, 1, 1);
+				glBegin(GL_POINTS);
+				glVertex3f(posX, posY, posZ);
+				glEnd();
 			}
 		}
 	glPopMatrix();
@@ -146,7 +268,8 @@ float getValueFromRelation(float value, float minColorVar, float maxColorVar, fl
 void idle(void)
 {
 	if (simulate)
-		lattice->step();
+		lattice_2d->step();
+		//lattice->step();
 
 	if(keypressed)
 	{
@@ -228,6 +351,7 @@ void keys (unsigned char key, int x, int y)
 			break;
 		case 32:
 			simulate = !simulate;
+			cout << "Streaming: " << simulate << endl;
 			break;
 	}
 }
@@ -273,19 +397,46 @@ int init(void)
 {
 	int dimension = 16;
 	int fluidWidth = dimension, fluidHeight = dimension, fluidDepth = dimension;
-
-	roIn = LATTICE_MASS / (dimension * dimension * dimension);
-
-	lattice = new latticed3q19(latticeWidth, latticeHeight, latticeDepth, latticeViscosity, LATTICE_MASS, LATTICE_DIM, 1.0f);
 	
-	for (unsigned int k = latticeDepth / 2 - fluidDepth / 2; k < latticeDepth / 2 + fluidDepth / 2; k++)
-	for (unsigned int j = latticeHeight / 2 - fluidHeight / 2; j< latticeHeight / 2 + fluidHeight / 2; j++)
-	for (unsigned int i = latticeWidth / 2 - fluidWidth / 2; i< latticeWidth / 2 + fluidWidth / 2; i++)
+	int ** types;
+	types = new int*[SIZE_2D_X];
+	for (int i = 0; i < SIZE_2D_X; i++)
+		types[i] = new int[SIZE_2D_Y]();
+
+	for (int i = 0; i < SIZE_2D_X; i++)
+	for (int j = 0; j < SIZE_2D_Y; j++)
+		types[i][j] = type0[i][j];
+
+	lattice = new latticed3q19(latticeWidth, latticeHeight, latticeDepth, latticeViscosity, LATTICE_DIM, 1.0f);
+
+	lattice_2d = new d2q9_lattice(SIZE_2D_X, SIZE_2D_Y, latticeViscosity, SIZE_2D_X, 1.0f);
+
+	lattice_2d->initCells(types, 1.f, float2{ 1.f,0.f });
+	
+	for (unsigned int k = latticeDepth / 2 - fluidDepth / 2; k < (latticeDepth / 2 + fluidDepth / 2); k++)
+	for (unsigned int j = latticeHeight / 2 - fluidHeight / 2; j< (latticeHeight / 2 + fluidHeight / 2); j++)
+	for (unsigned int i = latticeWidth / 2 - fluidWidth / 2; i< (latticeWidth / 2 + fluidWidth / 2); i++)
 	{
 		int i0 = I3D(latticeWidth, latticeHeight, i, j, k);
-		lattice->cellType[i0] = lattice->cellTypeTemp[i0] = (cell_types::fluid);
+		lattice->cell_type[i0] = lattice->cell_type_temp[i0] = (cell_types::fluid);
 	}
 
+	//for (unsigned int i = 0; i < latticeWidth; i++)
+	//for (unsigned int j = 0; j < latticeHeight; j++)
+	//for (unsigned int k = 0; k < latticeDepth; k++)
+	//{
+	//	int cellIndex = I3D(latticeWidth, latticeHeight, i, j, k);
+	//	if (lattice->cell_type[cellIndex] == cell_types::fluid)
+	//	{
+	//		for (int l = 0; l < 19; l++)
+	//		{
+	//			int nbCellIndex = I3D(latticeWidth, latticeHeight, 
+	//				(int)(i + speedDirection[l].x), (int)(j + speedDirection[l].y),	(int)(k + speedDirection[l].z));
+	//			if (lattice->cell_type[nbCellIndex] == cell_types::gas)
+	//				lattice->cell_type[nbCellIndex] = lattice->cell_type_temp[nbCellIndex] = cell_types::interfase;
+	//		}
+	//	}
+	//}
 	for (unsigned int k = (latticeDepth / 2 - fluidDepth / 2) - 1; k < (latticeDepth / 2 + fluidDepth / 2) + 1; k++)
 	for (unsigned int j = (latticeHeight / 2 - fluidHeight / 2) - 1; j < (latticeHeight / 2 + fluidHeight / 2) + 1; j++)
 	for (unsigned int i = (latticeWidth / 2 - fluidWidth / 2) - 1; i < (latticeWidth / 2 + fluidWidth / 2) + 1; i++)
@@ -296,12 +447,12 @@ int init(void)
 			
 		{
 			int i0 = I3D(latticeWidth, latticeHeight, i, j, k);
-			lattice->cellType[i0] = lattice->cellTypeTemp[i0] = cell_types::interphase;
+			lattice->cell_type[i0] = lattice->cell_type_temp[i0] = cell_types::interfase;
 		}
 	}
 
-	for (int i = 0; i < lattice->getNumElements(); i++)
-		lattice->calculateInEquilibriumFunction(i, vectorIn, roIn);
+	//for (int i = 0; i < lattice->getNumElements(); i++)
+	lattice->initLatticeDistributions();
 
     //lattice->calculateInitialMass();
 
@@ -312,7 +463,7 @@ int init(void)
 		if (k == 0 || k == (latticeDepth - 1) || i == 0 || i == latticeWidth - 1 || j == 0 || j == latticeHeight - 1)
 		{
 			int i0 = I3D(latticeWidth, latticeHeight, i, j, k);
-			lattice->solid[i0] = 1;
+			lattice->cell_type[i0] = cell_types::solid;
 		}
 	}
 
