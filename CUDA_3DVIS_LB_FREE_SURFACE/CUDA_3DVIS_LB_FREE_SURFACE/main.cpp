@@ -474,7 +474,7 @@ int init(void)
 
 	for (int i = 0; i < SIZE_2D_X; i++)
 	for (int j = 0; j < SIZE_2D_Y; j++)
-		types[i][j] = type2[i][j];
+		types[i][j] = type0[i][j];
 
 	//lattice = new latticed3q19(latticeWidth, latticeHeight, latticeDepth, latticeViscosity, LATTICE_DIM, 1.0f);
 

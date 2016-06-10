@@ -28,29 +28,54 @@ enum cellType
 	// changing the maximum value here requires adapting the temporary cell types in 'UpdateTypesLBMStep(...)'
 };
 
+///// Velocity vectors for D2Q9 as integers
+//static const int2 vel2Di[9] = {
+//	{ 0, 0 },		// zero direction
+//	{ -1, 0 },		// 4 directions with velocity 1
+//	{ 1, 0 },
+//	{ 0, -1 },
+//	{ 0, 1 },
+//	{ -1, -1 },		// 4 directions with velocity sqrt(2)
+//	{ -1, 1 },
+//	{ 1, -1 },
+//	{ 1, 1 },
+//};
+//
+//static const float2 vel2Dv[9] = {
+//	{ 0, 0 },		// zero direction
+//	{ -1, 0 },		// 4 directions with velocity 1
+//	{ 1, 0 },
+//	{ 0, -1 },
+//	{ 0, 1 },
+//	{ -1, -1 },		// 4 directions with velocity sqrt(2)
+//	{ -1, 1 },
+//	{ 1, -1 },
+//	{ 1, 1 },
+//};
+
 /// Velocity vectors for D2Q9 as integers
 static const int2 vel2Di[9] = {
-	{ 0, 0 },		// zero direction
-	{ -1, 0 },		// 4 directions with velocity 1
-	{ 1, 0 },
-	{ 0, -1 },
-	{ 0, 1 },
-	{ -1, -1 },		// 4 directions with velocity sqrt(2)
-	{ -1, 1 },
-	{ 1, -1 },
-	{ 1, 1 },
+	{ 0, 0 },		// 0	0
+	{ 0, 1 },		// N	1
+	{ 0, -1 },		// S	2
+	{ 1, 0 },		// E	3
+	{ -1, 0 },		// W	4
+	{ 1, 1 },		// NE	5
+	{ -1, 1 },		// NW	6
+	{ 1, -1 },		// SE	7
+	{ -1, -1 },		// SW	8
 };
 
 static const float2 vel2Dv[9] = {
-	{ 0, 0 },		// zero direction
-	{ -1, 0 },		// 4 directions with velocity 1
-	{ 1, 0 },
-	{ 0, -1 },
-	{ 0, 1 },
-	{ -1, -1 },		// 4 directions with velocity sqrt(2)
-	{ -1, 1 },
-	{ 1, -1 },
-	{ 1, 1 },
+	{ 0, 0 },		// 0	0
+	{ 0, 1 },		// N	1
+	{ 0, -1 },		// S	2
+	{ 1, 0 },		// E	3
+	{ -1, 0 },		// W	4
+	{ 1, 1 },		// NE	5
+	{ -1, 1 },		// NW	6
+	{ 1, -1 },		// SE	7
+	{ -1, -1 },		// SW	8
 };
 
 /// Index of inverse direction
