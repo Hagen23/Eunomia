@@ -110,6 +110,75 @@ int type1[SIZE_2D_X][SIZE_2D_Y] = {
 	{ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 }
 };
 
+int type2[SIZE_2D_X][SIZE_2D_Y] = {
+	{ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 },
+	{ 1, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 1 },
+	{ 1, 8, 4, 4, 4, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 1 },
+	{ 1, 8, 4, 2, 4, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 1 },
+	{ 1, 8, 4, 4, 4, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 1 },
+	{ 1, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 1 },
+	{ 1, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 1 },
+	{ 1, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 1 },
+	{ 1, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 1 },
+	{ 1, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 1 },
+	{ 1, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 1 },
+	{ 1, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 1 },
+	{ 1, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 1 },
+	{ 1, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 1 },
+	{ 1, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 1 },
+	{ 1, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 1 },
+	{ 1, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 1 },
+	{ 1, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 1 },
+	{ 1, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 1 },
+	{ 1, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 1 },
+	{ 1, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 1 },
+	{ 1, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 1 },
+	{ 1, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 1 },
+	{ 1, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 1 },
+	{ 1, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 1 },
+	{ 1, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 1 },
+	{ 1, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 1 },
+	{ 1, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 1 },
+	{ 1, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 1 },
+	{ 1, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 1 },
+	{ 1, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 1 },
+	{ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 }
+};
+
+int type3[SIZE_2D_X][SIZE_2D_Y] = {
+	{ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 },
+	{ 1, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 1 },
+	{ 1, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 1 },
+	{ 1, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 1 },
+	{ 1, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 1 },
+	{ 1, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 1 },
+	{ 1, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 1 },
+	{ 1, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 1 },
+	{ 1, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 4, 4, 4, 4, 4, 4, 4, 8, 8, 8, 1 },
+	{ 1, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 4, 4, 2, 2, 2, 2, 2, 4, 4, 8, 8, 1 },
+	{ 1, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 4, 2, 2, 2, 2, 2, 2, 2, 4, 8, 8, 1 },
+	{ 1, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 4, 2, 2, 2, 2, 2, 2, 2, 4, 8, 8, 1 },
+	{ 1, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 4, 2, 2, 2, 2, 2, 2, 2, 4, 8, 8, 1 },
+	{ 1, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 4, 2, 2, 2, 2, 2, 2, 2, 4, 8, 8, 1 },
+	{ 1, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 4, 2, 2, 2, 2, 2, 2, 2, 4, 8, 8, 1 },
+	{ 1, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 4, 4, 2, 2, 2, 2, 2, 4, 4, 8, 8, 1 },
+	{ 1, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 4, 4, 4, 4, 4, 4, 4, 8, 8, 8, 1 },
+	{ 1, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 1 },
+	{ 1, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 1 },
+	{ 1, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 1 },
+	{ 1, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 1 },
+	{ 1, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 1 },
+	{ 1, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 1 },
+	{ 1, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 1 },
+	{ 1, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 1 },
+	{ 1, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 1 },
+	{ 1, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 1 },
+	{ 1, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 1 },
+	{ 1, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 1 },
+	{ 1, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 1 },
+	{ 1, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 1 },
+	{ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 }
+};
 // mouse controls
 int mouse_old_x, mouse_old_y;
 int mouse_buttons = 0;
@@ -117,7 +186,7 @@ float rotate_x = 0.0, rotate_y = 0.0;
 float translate_z = -3.0;
 
 unsigned int latticeWidth = LATTICE_DIM, latticeHeight = LATTICE_DIM, latticeDepth = LATTICE_DIM, ncol;
-float latticeViscosity = 3.f;
+float latticeViscosity = 0.1f;
 bool withSolid = false, keypressed = false, showInterfase = true, showFluid = true, simulate = false;
 
 float3 vectorIn{ 0.0f, 0.0f, 0.0f};
@@ -405,21 +474,21 @@ int init(void)
 
 	for (int i = 0; i < SIZE_2D_X; i++)
 	for (int j = 0; j < SIZE_2D_Y; j++)
-		types[i][j] = type0[i][j];
+		types[i][j] = type2[i][j];
 
-	lattice = new latticed3q19(latticeWidth, latticeHeight, latticeDepth, latticeViscosity, LATTICE_DIM, 1.0f);
+	//lattice = new latticed3q19(latticeWidth, latticeHeight, latticeDepth, latticeViscosity, LATTICE_DIM, 1.0f);
 
 	lattice_2d = new d2q9_lattice(SIZE_2D_X, SIZE_2D_Y, latticeViscosity, SIZE_2D_X, 1.0f);
 
-	lattice_2d->initCells(types, 1.f, float2{ 1.f,0.f });
+	lattice_2d->initCells(types, 1.5f, float2{ 0.f,0.f });
 	
-	for (unsigned int k = latticeDepth / 2 - fluidDepth / 2; k < (latticeDepth / 2 + fluidDepth / 2); k++)
-	for (unsigned int j = latticeHeight / 2 - fluidHeight / 2; j< (latticeHeight / 2 + fluidHeight / 2); j++)
-	for (unsigned int i = latticeWidth / 2 - fluidWidth / 2; i< (latticeWidth / 2 + fluidWidth / 2); i++)
-	{
-		int i0 = I3D(latticeWidth, latticeHeight, i, j, k);
-		lattice->cell_type[i0] = lattice->cell_type_temp[i0] = (cell_types::fluid);
-	}
+	//for (unsigned int k = latticeDepth / 2 - fluidDepth / 2; k < (latticeDepth / 2 + fluidDepth / 2); k++)
+	//for (unsigned int j = latticeHeight / 2 - fluidHeight / 2; j< (latticeHeight / 2 + fluidHeight / 2); j++)
+	//for (unsigned int i = latticeWidth / 2 - fluidWidth / 2; i< (latticeWidth / 2 + fluidWidth / 2); i++)
+	//{
+	//	int i0 = I3D(latticeWidth, latticeHeight, i, j, k);
+	//	lattice->cell_type[i0] = lattice->cell_type_temp[i0] = (cell_types::fluid);
+	//}
 
 	//for (unsigned int i = 0; i < latticeWidth; i++)
 	//for (unsigned int j = 0; j < latticeHeight; j++)
@@ -437,35 +506,35 @@ int init(void)
 	//		}
 	//	}
 	//}
-	for (unsigned int k = (latticeDepth / 2 - fluidDepth / 2) - 1; k < (latticeDepth / 2 + fluidDepth / 2) + 1; k++)
-	for (unsigned int j = (latticeHeight / 2 - fluidHeight / 2) - 1; j < (latticeHeight / 2 + fluidHeight / 2) + 1; j++)
-	for (unsigned int i = (latticeWidth / 2 - fluidWidth / 2) - 1; i < (latticeWidth / 2 + fluidWidth / 2) + 1; i++)
-	{
-		if ((k == (latticeDepth / 2.0 - fluidDepth / 2) - 1 || k == (latticeDepth / 2.0 + fluidDepth / 2)) ||
-			(j == (latticeHeight / 2.0 - fluidHeight / 2) - 1 || j == (latticeHeight / 2.0 + fluidHeight / 2))||
-			(i == (latticeWidth / 2.0 - fluidWidth / 2) - 1 || i == (latticeWidth / 2.0 + fluidWidth / 2)))
-			
-		{
-			int i0 = I3D(latticeWidth, latticeHeight, i, j, k);
-			lattice->cell_type[i0] = lattice->cell_type_temp[i0] = cell_types::interfase;
-		}
-	}
+	//for (unsigned int k = (latticeDepth / 2 - fluidDepth / 2) - 1; k < (latticeDepth / 2 + fluidDepth / 2) + 1; k++)
+	//for (unsigned int j = (latticeHeight / 2 - fluidHeight / 2) - 1; j < (latticeHeight / 2 + fluidHeight / 2) + 1; j++)
+	//for (unsigned int i = (latticeWidth / 2 - fluidWidth / 2) - 1; i < (latticeWidth / 2 + fluidWidth / 2) + 1; i++)
+	//{
+	//	if ((k == (latticeDepth / 2.0 - fluidDepth / 2) - 1 || k == (latticeDepth / 2.0 + fluidDepth / 2)) ||
+	//		(j == (latticeHeight / 2.0 - fluidHeight / 2) - 1 || j == (latticeHeight / 2.0 + fluidHeight / 2))||
+	//		(i == (latticeWidth / 2.0 - fluidWidth / 2) - 1 || i == (latticeWidth / 2.0 + fluidWidth / 2)))
+	//		
+	//	{
+	//		int i0 = I3D(latticeWidth, latticeHeight, i, j, k);
+	//		lattice->cell_type[i0] = lattice->cell_type_temp[i0] = cell_types::interfase;
+	//	}
+	//}
 
 	//for (int i = 0; i < lattice->getNumElements(); i++)
-	lattice->initLatticeDistributions();
+	//lattice->initLatticeDistributions();
 
     //lattice->calculateInitialMass();
 
-	for (unsigned int k = 0; k < latticeDepth; k++)
-	for (unsigned int j = 0; j < latticeHeight; j++)
-	for (unsigned int i = 0; i < latticeWidth; i++)
-	{
-		if (k == 0 || k == (latticeDepth - 1) || i == 0 || i == latticeWidth - 1 || j == 0 || j == latticeHeight - 1)
-		{
-			int i0 = I3D(latticeWidth, latticeHeight, i, j, k);
-			lattice->cell_type[i0] = cell_types::solid;
-		}
-	}
+	//for (unsigned int k = 0; k < latticeDepth; k++)
+	//for (unsigned int j = 0; j < latticeHeight; j++)
+	//for (unsigned int i = 0; i < latticeWidth; i++)
+	//{
+	//	if (k == 0 || k == (latticeDepth - 1) || i == 0 || i == latticeWidth - 1 || j == 0 || j == latticeHeight - 1)
+	//	{
+	//		int i0 = I3D(latticeWidth, latticeHeight, i, j, k);
+	//		lattice->cell_type[i0] = cell_types::solid;
+	//	}
+	//}
 
 	return 0;
 }

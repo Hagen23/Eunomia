@@ -66,7 +66,7 @@ static const float weights2D[9] = { (float)4. / 9,
 class d2q9_cell
 {
 	public:
-		float	f[9], ftemp[9];
+		float	f[9], ftemp[9], mex[9];
 		int		type;
 		float	rho;
 		float	mass, mass_temp;
@@ -91,14 +91,39 @@ class d2q9_lattice
 		
 		inline d2q9_cell* getCellAt(const int x_, const int y_)
 		{
-			printf("X:%d, Y:%d\n", x_, y_);
+			//printf("X:%d, Y:%d\n", x_, y_);
 			return &cells[x_][y_];	
 		}
 
 		inline d2q9_cell* getCellAt_Mod(const int x_, const int y_)
 		{
-			printf("Mod X:%d, Y:%d\n", x_, y_);
+			//printf("Mod X:%d, Y:%d\n", x_, y_);
 			return getCellAt(x_ & MASK_2D_X, y_ & MASK_2D_Y);
+		}
+
+		inline void print_fluid_amount()
+		{
+			int counter = 0;
+			float global_mass_f = 0.f, global_mass_i = 0.f;
+
+			for (int i = 0; i < width - 1; i++)
+			{
+				for (int j = 0; j < height - 1; j++)
+				{
+					d2q9_cell* current_cell = getCellAt(i, j);
+					if (current_cell->type == cellType::CT_FLUID)
+					{
+						counter++;
+						global_mass_f += current_cell->mass;
+					}
+					if (current_cell->type == cellType::CT_INTERFACE)
+					{
+						global_mass_i += current_cell->mass;
+					}
+				}
+			}
+			printf("Fluid count %d; global mass f %f; global mass i %f; Total %f \n", counter, global_mass_f, global_mass_i,
+				global_mass_f+global_mass_i);
 		}
 
 		void step(void);

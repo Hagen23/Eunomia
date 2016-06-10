@@ -6,20 +6,24 @@ d2q9_cell::d2q9_cell() : mass(0.0f), type(cellType::CT_EMPTY), rho(0.0f), veloci
 	//f = new float[9]();
 	//ftemp = new float[9]();
 	for (int i = 0; i < 9; i++)
-		f[i] = ftemp[i] = 0;
+		f[i] = ftemp[i] = mex[i] = 0.f;
 }
 
 d2q9_cell::d2q9_cell(float *f_, float mass_ = 0.0f, float rho_ = 0.0f,
 	int type_ = cellType::CT_EMPTY, float2 velocity_ = float2{ 0.0f, 0.0f })
 {
 	for (int i = 0; i < 9; i++)
+	{
 		f[i] = ftemp[i] = f_[i];
+		mex[i] = 0.f;
+	}	
 	//f = new float[9]();
 	//ftemp = new float[9]();
 	//memcpy(&f, f_, sizeof(float)* 9);
 	type = type_;
 	rho = rho_;
 	mass = mass_;
+	mass_temp = 0.f;
 	velocity = velocity_;
 }
 
@@ -106,13 +110,14 @@ void d2q9_lattice::step()
 	stream();
 	collide();
 	updateCells();
+	print_fluid_amount();
 }
 
 void d2q9_lattice::stream()
 {
-	for (int i = 1; i < width - 1; i++)
+	for (int i = 0; i < width - 1; i++)
 	{
-		for (int j = 1; j < height - 1; j++)
+		for (int j = 0; j < height - 1; j++)
 		{
 			d2q9_cell* current_cell = getCellAt(i, j);
 
@@ -127,6 +132,7 @@ void d2q9_lattice::stream()
 
 						if (nb_cell->type == cellType::CT_FLUID || nb_cell->type == cellType::CT_INTERFACE)
 						{
+							current_cell->mass_temp += nb_cell->f[l] - current_cell->f[invVel2D[l]];
 							current_cell->ftemp[l] = nb_cell->f[l];
 						}
 						else if (nb_cell->type == cellType::CT_OBSTACLE)
@@ -150,6 +156,7 @@ void d2q9_lattice::stream()
 							// dmi(x, t + dt) = fi(x+eî,t) - fî(x, t)
 							// fi(x+eî,t) -> mass incoming from fluid;  fî(x, t) -> mass outgoing from interfase
 							current_cell->mass_temp += nb_cell->f[l] - current_cell->f[invVel2D[l]];
+							
 							current_cell->ftemp[l] = nb_cell->f[l];
 						}
 						else if (nb_cell->type == cellType::CT_INTERFACE)
@@ -159,6 +166,7 @@ void d2q9_lattice::stream()
 
 							current_cell->mass_temp += (nb_cell->f[l] - current_cell->f[invVel2D[l]])*
 								0.5f * (current_epsilon + nb_epsilon);
+							//current_cell->mass_temp += (nb_cell->f[invVel2D[l]] - current_cell->f[l])*0.5f * (current_epsilon + nb_epsilon);
 
 							// TO DO: Integrate the table values to remove visual artifacts
 
@@ -187,6 +195,17 @@ void d2q9_lattice::stream()
 			}
 		}
 	}
+
+	for (int i = 0; i < width - 1; i++)
+	{
+		for (int j = 0; j < height - 1; j++)
+		{
+			d2q9_cell* current_cell = getCellAt(i, j);
+
+			for (int l = 0; l < 9; l++)
+				current_cell->f[l] = current_cell->ftemp[l];
+		}
+	}
 }
 
 void d2q9_lattice::collide()
@@ -207,12 +226,15 @@ void d2q9_lattice::collide()
 			float feq[9] = { 0 };
 			calculateEquilibrium(current_cell->velocity, current_cell->rho, feq);
 
+			int test = 0;
 			for (int l = 0; l < 9; l++)
 			{
-				current_cell->f[l] = (1.0f - w) * current_cell->ftemp[l] + w * feq[l]
+				current_cell->f[l] = (1.0f - w) * current_cell->f[l] + w * feq[l];
 					//	//To include gravity
-					+ weights2D[l] * current_cell->rho * dot(vel2Dv[l], float2{ 0, -latticeAcceleration });
+					//+ weights2D[l] * current_cell->rho * dot(vel2Dv[l], float2{ 0, -latticeAcceleration });
 			}
+			
+			int test1 = 0;
 		}
 	}
 }
@@ -250,7 +272,7 @@ void d2q9_lattice::updateCells()
 			// Initialize values for empty cells
 			if (current_cell->type == cellType::CT_IF_TO_FLUID)
 			{
-				for (int l = 0; l < 0; l++)
+				for (int l = 0; l < 9; l++)
 				{
 					d2q9_cell* nb_cell = getCellAt_Mod(i - vel2Di[l].x, j - vel2Di[l].y);
 
@@ -317,7 +339,11 @@ void d2q9_lattice::updateCells()
 				current_cell->mass = 0.f;
 			}
 			else
+			{
+
 				continue;
+			}
+			
 
 			float eta[9] = { 0.f };
 			float eta_total = 0.f;
@@ -344,14 +370,14 @@ void d2q9_lattice::updateCells()
 			{
 				float eta_fraction = 1 / eta_total;
 				for (int l = 0; l < 9; l++)
-					current_cell->ftemp[l] = excess_mass * eta[l] * eta_fraction;
+					current_cell->mex[l] = excess_mass * eta[l] * eta_fraction;
 			}
-			else if (numIF > 0)
-			{
-				float excess_mass_uniform = excess_mass / numIF;
-				for (int l = 0; l < 9; l++)
-					current_cell->ftemp[l] = isIF[l] ? excess_mass_uniform : 0.f;
-			}
+			//else if (numIF > 0)
+			//{
+			//	float excess_mass_uniform = excess_mass / numIF;
+			//	for (int l = 0; l < 9; l++)
+			//		current_cell->ftemp[l] = isIF[l] ? excess_mass_uniform : 0.f;
+			//}
 		}
 	}
 #pragma endregion
@@ -368,7 +394,8 @@ void d2q9_lattice::updateCells()
 				for (int l = 0; l < 9; l++)
 				{
 					d2q9_cell* nb_cell = getCellAt_Mod(i - vel2Di[l].x, j - vel2Di[l].y);
-					current_cell->mass += current_cell->ftemp[l];
+					nb_cell->mass += current_cell->mex[l];
+					current_cell->mex[l] = 0.f;
 				}
 			}
 			else if (current_cell->type == cellType::CT_IF_TO_FLUID)
@@ -443,11 +470,11 @@ void d2q9_lattice::initCells(int **typeArray_, float initRho_, float2 initVeloci
 			current_cell->deriveQuantities(vMax);
 
 			if (current_cell->type == cellType::CT_FLUID)
-				current_cell->mass = current_cell->rho;
+				current_cell->mass = current_cell->mass_temp = current_cell->rho;
 
 			// (arbitrarily) assign half-filled mass
 			if (current_cell->type == cellType::CT_INTERFACE)
-				current_cell->mass = 0.5f * current_cell->rho;
+				current_cell->mass = current_cell->mass_temp = 0.5f * current_cell->rho;
 		}
 	}
 }
