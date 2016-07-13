@@ -1,5 +1,3 @@
-#pragma once
-
 #pragma region Includes
 
 // includes, system
@@ -40,7 +38,7 @@ using namespace std;
 
 #define LATTICE_DIM					32
 
-int type0[SIZE_2D_X][SIZE_2D_Y] = {
+int type0[SIZE_2D_Y][SIZE_2D_X] = {
 	{ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 },
 	{ 1, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 1 },
 	{ 1, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 1 },
@@ -75,7 +73,7 @@ int type0[SIZE_2D_X][SIZE_2D_Y] = {
 	{ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 }
 };
 
-int type1[SIZE_2D_X][SIZE_2D_Y] = {
+int type1[SIZE_2D_Y][SIZE_2D_X] = {
 	{ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 },
 	{ 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1 },
 	{ 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1 },
@@ -110,7 +108,7 @@ int type1[SIZE_2D_X][SIZE_2D_Y] = {
 	{ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 }
 };
 
-int type2[SIZE_2D_X][SIZE_2D_Y] = {
+int type2[SIZE_2D_Y][SIZE_2D_X] = {
 	{ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 },
 	{ 1, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 1 },
 	{ 1, 8, 4, 4, 4, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 1 },
@@ -145,7 +143,7 @@ int type2[SIZE_2D_X][SIZE_2D_Y] = {
 	{ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 }
 };
 
-int type3[SIZE_2D_X][SIZE_2D_Y] = {
+int type3[SIZE_2D_Y][SIZE_2D_X] = {
 	{ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 },
 	{ 1, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 1 },
 	{ 1, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 1 },
@@ -179,6 +177,7 @@ int type3[SIZE_2D_X][SIZE_2D_Y] = {
 	{ 1, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 1 },
 	{ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 }
 };
+
 // mouse controls
 int mouse_old_x, mouse_old_y;
 int mouse_buttons = 0;
@@ -252,20 +251,20 @@ void display (void)
 		//for(unsigned int k = 0; k  < latticeDepth; k++)
 	unsigned int k = SIZE_2D_X / 2;
 
-		for (unsigned int i = 0; i< latticeWidth; i++)
-		for (unsigned int j = 0 ; j < latticeHeight; j++)
+	for (unsigned int row = 0; row < latticeHeight; row++)
+		for (unsigned int col = 0; col< latticeWidth; col++)
 		{
 			//i0 = I3D(latticeWidth, latticeHeight, i, j, k);
 
-			posX = i / (float)latticeWidth; 
-			posY =  j / (float)latticeHeight; 
+			posX = col / (float)latticeWidth; 
+			posY =  row / (float)latticeHeight; 
 			posZ = k / (float)latticeDepth;
 			
-			d2q9_cell *current_cell = lattice_2d->getCellAt(latticeHeight- 1 -j, i);
+			d2q9_cell *current_cell = lattice_2d->getCellAt(col, row); // latticeHeight - 1 - row);
 
-			if (current_cell->type != cellType::CT_OBSTACLE && current_cell->type != cellType::CT_EMPTY)
+			if ((current_cell->type & CT_OBSTACLE) != cellType::CT_OBSTACLE && (current_cell->type & CT_EMPTY) != cellType::CT_EMPTY)
 			{
-				if (current_cell->type == cellType::CT_FLUID)
+				if ((current_cell->type & CT_FLUID) == cellType::CT_FLUID)
 			//if (lattice->cell_type[i0] != cell_types::solid && lattice->cell_type[i0] != cell_types::gas)
 			//{
 			//	if (lattice->cell_type[i0] == cell_types::fluid)
@@ -303,7 +302,7 @@ void display (void)
 				{
 					if (showInterfase)
 					//if (lattice->cell_type[i0] & cell_types::interfase)
-					if (current_cell->type == cellType::CT_INTERFACE)
+					if ((current_cell->type & CT_INTERFACE) == cellType::CT_INTERFACE)
 					{
 						glPointSize(2.0);
 						glColor3f(1, 1, 0);
@@ -314,7 +313,7 @@ void display (void)
 				}
 			}
 
-			if (current_cell->type == cellType::CT_OBSTACLE)
+			if ((current_cell->type & CT_OBSTACLE) == cellType::CT_OBSTACLE)
 			{
 				glPointSize(2.0);
 				glColor3f(0, 1, 1);
@@ -468,19 +467,23 @@ int init(void)
 	int fluidWidth = dimension, fluidHeight = dimension, fluidDepth = dimension;
 	
 	int ** types;
-	types = new int*[SIZE_2D_X];
-	for (int i = 0; i < SIZE_2D_X; i++)
-		types[i] = new int[SIZE_2D_Y]();
+	types = new int*[SIZE_2D_Y];
+	for (int row = 0; row < SIZE_2D_Y; row++)
+		types[row] = new int[SIZE_2D_X]();
 
-	for (int i = 0; i < SIZE_2D_X; i++)
-	for (int j = 0; j < SIZE_2D_Y; j++)
-		types[i][j] = type0[i][j];
+	for (int row = 0; row < SIZE_2D_Y; row++)
+	for (int col = 0; col < SIZE_2D_X; col++)
+		types[SIZE_2D_Y - row - 1][col] = type0[row][col];
 
 	//lattice = new latticed3q19(latticeWidth, latticeHeight, latticeDepth, latticeViscosity, LATTICE_DIM, 1.0f);
 
 	lattice_2d = new d2q9_lattice(SIZE_2D_X, SIZE_2D_Y, latticeViscosity, SIZE_2D_X, 1.0f);
 
 	lattice_2d->initCells(types, 1.5f, float2{ 0.f,0.f });
+
+	lattice_2d->print_types();
+
+	lattice_2d->print_fluid_amount();
 	
 	//for (unsigned int k = latticeDepth / 2 - fluidDepth / 2; k < (latticeDepth / 2 + fluidDepth / 2); k++)
 	//for (unsigned int j = latticeHeight / 2 - fluidHeight / 2; j< (latticeHeight / 2 + fluidHeight / 2); j++)
