@@ -4,7 +4,7 @@ latticed3q19::latticed3q19(int width, int height, int depth, float tau)
 {
 	_width = width; _height = height; _depth = depth; _tau = tau;
 	_numberElements = _width*_height*_depth;
-	latticeElements = new latticeElementd3q19[_numberElements];
+	latticeElements = new latticeElementd3q19[_numberElements]();
 	c = 1.0 / sqrt(3.0);
 }
 	

@@ -1,9 +1,11 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2013
-VisualStudioVersion = 12.0.30501.0
+VisualStudioVersion = 12.0.21005.1
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CUDA_3DVIS_LB_FREE_SURFACE", "CUDA_3DVIS_LB_FREE_SURFACE\CUDA_3DVIS_LB_FREE_SURFACE.vcxproj", "{7AC43792-C93D-4DEC-9DD4-E8DE85467503}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "LB_3D_FREE_SURFACE", "LB_3D_FREE_SURFACE\LB_3D_FREE_SURFACE.vcxproj", "{C893932A-4506-4479-9290-C19922E26032}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +23,13 @@ Global
 		{7AC43792-C93D-4DEC-9DD4-E8DE85467503}.Release|Win32.Build.0 = Release|Win32
 		{7AC43792-C93D-4DEC-9DD4-E8DE85467503}.Release|x64.ActiveCfg = Release|x64
 		{7AC43792-C93D-4DEC-9DD4-E8DE85467503}.Release|x64.Build.0 = Release|x64
+		{C893932A-4506-4479-9290-C19922E26032}.Debug|Win32.ActiveCfg = Debug|Win32
+		{C893932A-4506-4479-9290-C19922E26032}.Debug|Win32.Build.0 = Debug|Win32
+		{C893932A-4506-4479-9290-C19922E26032}.Debug|x64.ActiveCfg = Debug|x64
+		{C893932A-4506-4479-9290-C19922E26032}.Debug|x64.Build.0 = Debug|x64
+		{C893932A-4506-4479-9290-C19922E26032}.Release|Win32.ActiveCfg = Release|Win32
+		{C893932A-4506-4479-9290-C19922E26032}.Release|Win32.Build.0 = Release|Win32
+		{C893932A-4506-4479-9290-C19922E26032}.Release|x64.ActiveCfg = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

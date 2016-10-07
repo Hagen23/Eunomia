@@ -1,6 +1,6 @@
 #include "Lattice.h"
 
-latticed3q19::latticed3q19(int width, int height, int depth, float worldViscosity, float mass, float cellsPerSide, float domainSize)
+latticed3q19::latticed3q19(int width, int height, int depth, float worldViscosity, float cellsPerSide, float domainSize)
 {
 	_width = width; _height = height; _depth = depth;
 	_stride = 19;
@@ -8,24 +8,23 @@ latticed3q19::latticed3q19(int width, int height, int depth, float worldViscosit
 	_numberAllElements = _stride * _numberLatticeElements;
 	_cellsPerSide = cellsPerSide;
 	_domainSize = domainSize;
-	_mass = mass;
 
 	f = new float[_numberAllElements]();
 	ftemp = new float[_numberAllElements]();
-	feq = new float[_stride]();
-	solid = new unsigned int[_numberLatticeElements]();
 	velocityVector = new float3[_numberLatticeElements]();
 	ro = new float[_numberLatticeElements]();
 
-	epsilon = new float[_numberLatticeElements]();
-	cellType = new int[_numberLatticeElements];
-	cellTypeTemp = new int[_numberLatticeElements];
-	cellMass = new float[_numberLatticeElements]();
-	cellMassTemp = new float[_numberLatticeElements]();
+	cell_mass = new float[_numberLatticeElements]();
+	cell_mass_temp = new float[_numberLatticeElements]();
 
-	for (int i = 0; i < _numberLatticeElements; i++)
-		cellType[i] = cellTypeTemp[i] = cell_types::gas;
+	cell_type = new cell_types[_numberLatticeElements]();
+	cell_type_temp = new cell_types[_numberLatticeElements]();
 
+	nFluidNbs = new int[_numberLatticeElements]();
+	nGasNbs = new int[_numberLatticeElements]();
+	nInterNbs = new int[_numberLatticeElements]();
+	nSolidNbs = new int[_numberLatticeElements]();
+	
 	c = (float)(1.0 / sqrt(3.0));
 	
 	// These values are needed to maintain the fluid stability. Part 3.3 of the reference Thesis
@@ -41,322 +40,147 @@ latticed3q19::latticed3q19(int width, int height, int depth, float worldViscosit
 
 	_tau = 3.0f * viscosity + 0.5f;
 
-	_w = 1 / _tau;
+	_w = 1.0f / _tau;
 
 	latticeAcceleration = gravity * timeStep * timeStep / cellSize;
+
+	//initLatticeDistributions();
 }
 	
 latticed3q19::~latticed3q19()
 {
 	delete[] f;
 	delete[] ftemp;
-	delete[] feq;
-	delete[] solid;
 	delete[] ro;
 	delete[] velocityVector;
-	delete[] epsilon;
-	delete[] cellType;
-	delete[] cellMass;
-	delete[] cellMassTemp;
 }
 
 void latticed3q19::step(void)
 {
-	// I have disabled the artifact removal sections until the free surface changes work.
-	setNeighborhoodFlags();
+	//setNumberNeighbors();
+
+	//calculateMassExchange();
 
 	stream();
+	
+	reconstructInterfaceDfs();
 
 	collide();
 
-	cellTypeAdjustment();
+	//flagReinitialization();
+
+	//distributeExcessMass();
 
 	//applyBoundaryConditions();
 }
 
 void latticed3q19::stream()
 {
-	int cellIndex, cellDf, advectedDf, advectedCell, inverseAdvectedDf;
+	int cellIndex, advectedCellIndex, cellDf, advectedDf, inverseAdvectedDf;
 	int newI, newJ, newK;
-	float3 normal;
 	float deltaMass = 0;
 
-	for (int k = 0; k<_depth; k++)
+	for (int k = 1; k<_depth-1; k++)
+	for (int j = 1; j < _height-1; j++)
+	for (int i = 1; i<_width-1; i++)
 	{
-		for (int j = 0; j < _height; j++)
+		cellIndex = I3D(_width, _height, i, j, k);
+
+		if (cell_type[cellIndex] != cell_types::solid && cell_type[cellIndex] != cell_types::gas)
 		{
-			for (int i = 0; i<_width; i++)
+			deltaMass = 0;
+			//calculateEquilibriumFunction(velocityVector[cellIndex], 1.0f);
+			float3 cell_normal = calculateNormal(i, j, k);
+
+			for (int l = 0; l < 19; l++)
 			{
-				cellIndex = I3D(_width, _height, i, j, k);
+				newI = (int)(i + inverseSpeedDirection[l].x);
+				newJ = (int)(j + inverseSpeedDirection[l].y);
+				newK = (int)(k + inverseSpeedDirection[l].z);
 
-				if (solid[cellIndex] == 0)
+				cellDf = cellIndex * _stride + l;
+				advectedDf = I3D_S(_width, _height, _stride, newI, newJ, newK, l);
+				inverseAdvectedDf = I3D_S(_width, _height, _stride, newI, newJ, newK, inverseSpeedDirectionIndex[l]);
+				advectedCellIndex = I3D(_width, _height, newI, newJ, newK);
+
+				if (cell_type[cellIndex] == cell_types::fluid || cell_type[cellIndex] == cell_types::interfase)
 				{
-					if (cellType[cellIndex] & cell_types::fluid)
-					{
-						//cellTypeTemp[cellIndex] = cellType[cellIndex];
-
-						try
-						{
-							if (cellMass[cellIndex] == ro[cellIndex])
-							{
-								for (int l = 0; l < 19; l++)
-								{
-									newI = (int)(i + speedDirection[l].x);
-									newJ = (int)(j + speedDirection[l].y);
-									newK = (int)(k + speedDirection[l].z);
-
-									//newI = (int)(i + speedDirection[inverseSpeedDirectionIndex[l]].x);
-									//newJ = (int)(j + speedDirection[inverseSpeedDirectionIndex[l]].y);
-									//newK = (int)(k + speedDirection[inverseSpeedDirectionIndex[l]].z);
-
-									cellDf = cellIndex * _stride + l;
-									advectedDf = I3D_S(_width, _height, _stride, newI, newJ, newK, l);
-									advectedCell = I3D(_width, _height, newI, newJ, newK);
-
-									// Added step to calculate the mass exchange. Part 4.1 of the reference Thesis
-									if (cellType[advectedCell] & (cell_types::fluid | cell_types::interphase)) //cell_types::fluid |
-									{
-										//inverseAdvectedDf = I3D_S(_width, _height, _stride,
-										//	(int)(i + speedDirection[l].x), (int)(j + speedDirection[l].y), (int)(k + speedDirection[l].z),
-										//	inverseSpeedDirectionIndex[l]);
-
-										//// mass exchange between fluid and interface cell, Eq. (4.2)
-										deltaMass += f[inverseAdvectedDf] - f[cellDf];
-										//cellMassTemp[cellIndex] += f[inverseAdvectedDf] - f[cellDf];
-										////cellMassTemp[cellIndex] += f[advectedDf] - f[cellIndex * _stride + inverseSpeedDirectionIndex[l]];
-
-										ftemp[cellDf] = f[advectedDf];
-									}								
-
-								}
-							}
-							else
-								throw std::string("Not the same mass (" +std::to_string(cellMass[cellIndex]) 
-								+ ") and density (" + std::to_string(ro[cellIndex]) + ") at ") + std::to_string(cellIndex);
-						}
-						catch (std::string message) { cout << "Exception: " << message.c_str() << endl;		}
-						catch (...){ cout << "Default exception." << endl; }
-					}
-					// Additional step to consider the interfase cells streaming and mass exchange. 
-					else if (cellType[cellIndex] & cell_types::interphase)
-					{
-						float currentEpsilon = calculateEpsilon(cellIndex);
-						
-						deltaMass = 0;
-						// Calculate air equilibrium function to reconstruct missing dfs
-						calculateEquilibriumFunction(velocityVector[cellIndex], 1.0f);
-						normal = calculateNormal(i, j, k);
-
-						for (int l = 0; l < _stride; l++)
-						{
-							newI = (int)(i + speedDirection[l].x);
-							newJ = (int)(j + speedDirection[l].y);
-							newK = (int)(k + speedDirection[l].z);
-
-							//newI = (int)(i + speedDirection[inverseSpeedDirectionIndex[l]].x);
-							//newJ = (int)(j + speedDirection[inverseSpeedDirectionIndex[l]].y);
-							//newK = (int)(k + speedDirection[inverseSpeedDirectionIndex[l]].z);
-							
-							cellDf = cellIndex*_stride + l;
-							advectedDf = I3D_S(_width, _height, _stride, newI, newJ, newK, l);
-							advectedCell = I3D(_width, _height, newI, newJ, newK);
-
-							inverseAdvectedDf = I3D_S(_width, _height, _stride, 
-								(int)(i + speedDirection[l].x), (int)(j + speedDirection[l].y), (int)(k + speedDirection[l].z),
-								inverseSpeedDirectionIndex[l]);
-
-							//For interface cells with neighboring fluid cells, the mass change has to conform to the
-							//DFs exchanged during streaming, as fluid cells don’t require additional computations
-							if (cellType[advectedCell] & cell_types::fluid)
-							{
-								// mass exchange between fluid and interface cell, Eq. (4.2)
-								deltaMass += f[inverseAdvectedDf] - f[cellDf];
-								//cellMassTemp[cellIndex] += f[inverseAdvectedDf] - f[cellDf];
-								ftemp[cellDf] = f[advectedDf];
-							}
-							else if (cellType[advectedCell] & cell_types::interphase)
-							{
-								// mass exchange between two interface cells, Eq. (4.3)
-								float neighborEpsilon = calculateEpsilon(advectedCell);
-								float massExchange = calculateMassExchange(cellIndex, advectedCell, f[cellDf], f[inverseAdvectedDf]);
-								
-								//deltaMass += (f[inverseAdvectedDf] - f[cellDf]) * 0.5f * (currentEpsilon + neighborEpsilon);
-								deltaMass += (massExchange)*0.5f * (currentEpsilon + neighborEpsilon);
-								//cellMassTemp[cellIndex] += (f[inverseAdvectedDf] - f[cellDf]) * 0.5f * (currentEpsilon + neighborEpsilon);
-								//cellMassTemp[cellIndex] += (f[advectedDf] - f[cellIndex * _stride + inverseSpeedDirectionIndex[l]]) 
-								//	* 0.5f * (currentEpsilon + neighborEpsilon);
-								
-								// This line handles the cell artifacts, commented until the free surface changes work
-								//cellMassTemp[cellIndex] += (massExchange)*0.5f * (currentEpsilon + neighborEpsilon);
-
-								ftemp[cellDf] = f[advectedDf];
-							}
-							else if (cellType[advectedCell] & cell_types::gas) 	// Eq. (4.5)
-							{
-								ftemp[cellIndex * _stride + inverseSpeedDirectionIndex[l]] =
-									feq[l] + feq[inverseSpeedDirectionIndex[l]]	- f[cellDf];
-								//ftemp[cellDf] = feq[l] + feq[inverseSpeedDirectionIndex[l]] 
-								//	- f[cellIndex * _stride + inverseSpeedDirectionIndex[l]];
-							}
-						}
-
-						//// always use reconstructed atmospheric distribution function for directions along surface normal;
-						//// separate loop to handle mass exchange correctly
-						for (int l = 0; l < 19; l++)		
-						{
-							cellDf = cellIndex*_stride + l;
-
-							if (dot(normal, speedDirection[l]) < 0)		// Eq. (4.6)
-							//if (dot(normal, speedDirection[inverseSpeedDirectionIndex[l]]) > 0)		// Eq. (4.6)
-							// reconstructed atmospheric distribution function, Eq. (4.5)
-							//ftemp[cellIndex * _stride + inverseSpeedDirectionIndex[l]] =
-							//feq[l] + feq[inverseSpeedDirectionIndex[l]] - f[cellDf];
-							ftemp[cellDf] = feq[l] + feq[inverseSpeedDirectionIndex[l]]	- f[cellDf];
-						}
-
-						cellMassTemp[cellIndex] = cellMass[cellIndex] + deltaMass;
-					}
+					ftemp[cellDf] = f[advectedDf];
 				}
-				else
-				{
-					// Cycle to bounce the dfs when an obstacle is encountered
-					for (int l = 0; l < 19; l++)
-					{
-						cellDf = cellIndex*_stride + l;
-						advectedDf = cellIndex*_stride + inverseSpeedDirectionIndex[l];
+				//else if (cell_type[cellIndex] == cell_types::interfase)
+				//{
+				//	if (cell_type[advectedCellIndex] == cell_types::fluid)
+				//	{
+				//		deltaMass += f[inverseAdvectedDf] - f[cellDf];
+				//		ftemp[cellDf] = f[advectedDf];
+				//	}
+				//	else if (cell_type[advectedCellIndex] == cell_types::interfase)
+				//	{
+				//		float currentEpsilon = getEpsilon(cellIndex), neighborEpsilon = getEpsilon(advectedCellIndex);
+				//		deltaMass += (f[inverseAdvectedDf] - f[cellDf]) * (currentEpsilon + neighborEpsilon) / 2.0f;
+				//		ftemp[cellDf] = f[advectedDf];
+				//	}
+				//	else if (cell_type[advectedCellIndex] == cell_types::gas)
+				//	{
+				//		ftemp[cellIndex * _stride + inverseSpeedDirectionIndex[l]] =
+				//			feq[inverseSpeedDirectionIndex[l]] + feq[l] - f[l];
+				//	}
 
-						ftemp[cellDf] = f[advectedDf];
-					}
-				}
+				//	if (dot(cell_normal, speedDirection[l]) < 0.0f)
+				//		ftemp[l] = feq[inverseSpeedDirectionIndex[l]] + feq[l] - f[l];
+				//}
+				
+			}				
+
+			//if (cell_type[advectedCellIndex] == cell_types::interfase)
+			//	cell_mass_temp[cellIndex] = cell_mass[cellIndex] + deltaMass;
+		}
+		else
+		{
+			// Cycle to bounce the dfs when an obstacle is encountered
+			for (int l = 0; l < 19; l++)
+			{
+				cellDf = cellIndex * _stride + l;
+				advectedDf = cellIndex * _stride + inverseSpeedDirectionIndex[l];
+
+				ftemp[cellDf] = f[advectedDf];
 			}
 		}
 	}
-
-	// After the streaming steps, copy the dfs and the mass to the respective arrays
-	for (int i0 = 0; i0 < _numberAllElements; i0++)
-	{
-		f[i0] = ftemp[i0];
-		if (i0 % _stride == 0)
-		{
-			int index = i0 / _stride;
-
-			if (cellType[index] & (cell_types::fluid | cell_types::interphase))
-			{
-				cellMass[index] = cellMassTemp[index];
-				cellMassTemp[index] = 0;
-				epsilon[index] = cellMass[index] / ro[index];
-			}
-
-			//if (cellType[index] & (cell_types::fluid))
-			//{
-			//	cellMass[index] = ro[index];
-			//	epsilon[index] = 1.0f;
-			//}
-		}
-	}
-		
 }
 
 // Collision remains the same. Just added a step to determine if a given cell filled or emptied.
 void latticed3q19::collide(void)
 {
-	int iBase = 0, numFluid = 0;
-	float roAverage = 0.0f;
+	int cell_df = 0;
+	float *feq;
+	feq = new float[_stride]();
 	//for (int i0 = 0; i0 < _numberLatticeElements; i0++)
 	for (int k = 0; k<_depth; k++)
 	for (int j = 0; j < _height; j++)
 	for (int i = 0; i<_width; i++)
 	{
-		int i0 = I3D(_width, _height, i, j, k);
-		if (solid[i0] == 0)
+		int cellIndex = I3D(_width, _height, i, j, k);
+		if (cell_type[cellIndex] != cell_types::solid && cell_type[cellIndex] != cell_types::gas)
 		{
-			if (cellType[i0] & (cell_types::fluid | cell_types::interphase))
+			deriveQuantities(cellIndex);
+			calculateEquilibriumFunction(feq, velocityVector[cellIndex], ro[cellIndex]);;
+
+			for (int l = 0; l < 19; l++)
 			{
-				deriveQuantities(i0);
-
-				setFilledOrEmpty(i, j, k);
-
-				//velocityVector[i0].y += latticeAcceleration;
-
-				calculateEquilibriumFunction(velocityVector[i0], ro[i0]);;
-
-				for (int l = 0; l < 19; l++)
-				{
-					iBase = i0 * _stride + l;
-					//f[iBase] = f[iBase] - (f[iBase] - feq[l]) / _tau;
-					f[iBase] = (1.0f - _w) * f[iBase] + _w * feq[l]
-						//To include gravity
-						+ latticeWeights[l] * ro[i0] * dot(speedDirection[l], float3{ 0, -latticeAcceleration, 0 });
-				}
-				
-				// Test that shows that the density of the fluid eventually becomes indeterminate; one of the errors I found
-				roAverage += ro[i0];
-				numFluid++;
-
-				//if (cellMassTemp[i0] < 0.0f)
-				//if (cellType[i0] & cell_types::fluid)
-				//	cellMass[i0] = ro[i0];
-				//latticeElements[i0].f[l] =(1-_tau)* latticeElements[i0].ftemp[l] + (1/_tau) * latticeElements[i0].feq[l];
-			}
+				cell_df = cellIndex * _stride + l;
+				f[cell_df] = (1.0f - _w) * ftemp[cell_df] + _w * feq[l]
+				//	//To include gravity
+				+ latticeWeights[l] * ro[cellIndex] * dot(speedDirection[l], float3{ 0, -latticeAcceleration, 0 });
+			}				
+			
+			if (cell_type[cellIndex] == cell_types::interfase)
+				setFilledEmptied(i, j, k);
 		}
-		//else
-		//	solid_BC(i0);
 	}
-	cout << "RO av: " << roAverage / numFluid << endl;
 }
 
-void latticed3q19::applyBoundaryConditions()
-{
-	//in_BC(vector3d(0.0,0.0, -0.6));
-}
-
-void latticed3q19::solid_BC(int i0)
-{
-	float temp;
-
-	temp = f[i0*_stride + 1]; 	f[i0*_stride + 1] = f[i0*_stride + 2];		f[i0*_stride + 2] = temp;		// f1	<-> f2
-	temp = f[i0*_stride + 3];	f[i0*_stride + 3] = f[i0*_stride + 4];		f[i0*_stride + 4] = temp;		// f3	<-> f4
-	temp = f[i0*_stride + 5];	f[i0*_stride + 5] = f[i0*_stride + 6];		f[i0*_stride + 6] = temp;		// f5	<-> f6
-	temp = f[i0*_stride + 7];	f[i0*_stride + 7] = f[i0*_stride + 12];		f[i0*_stride + 12] = temp;		// f7	<-> f12
-	temp = f[i0*_stride + 8];	f[i0*_stride + 8] = f[i0*_stride + 11];		f[i0*_stride + 11] = temp;		// f8	<-> f11
-	temp = f[i0*_stride + 9];	f[i0*_stride + 9] = f[i0*_stride + 14];		f[i0*_stride + 14] = temp;		// f9	<-> f14
-	temp = f[i0*_stride + 10];	f[i0*_stride + 10] = f[i0*_stride + 13];	f[i0*_stride + 13] = temp;		// f10	<-> f13
-	temp = f[i0*_stride + 15];	f[i0*_stride + 15] = f[i0*_stride + 18];	f[i0*_stride + 18] = temp;		// f15	<-> f18
-	temp = f[i0*_stride + 16];	f[i0*_stride + 16] = f[i0*_stride + 17];	f[i0*_stride + 17] = temp;		// f16	<-> f17
-}
-
-//void latticed3q19::calculateSpeedVector(int index)
-//{
-//	//calculateRo();
-//	//rovx = rovy = rovz = 0; 
-//
-//	ro[index] = rovx = rovy = rovz = 0;
-//	int i0 = 0;
-//	for (int i = 0; i<_stride; i++)
-//	{
-//		i0 = index * _stride + i;
-//		ro[index] += f[i0];
-//		rovx += f[i0] * speedDirection[i].x;
-//		rovy += f[i0] * speedDirection[i].y;
-//		rovz += f[i0] * speedDirection[i].z;
-//	}
-//
-//	// In order to check that ro is not NaN you check if it is equal to itself: if it is a Nan, the comparison is false
-//	if (ro[index] == ro[index] && ro[index] != 0.0f)
-//	{
-//		velocityVector[index].x = rovx / ro[index];
-//		velocityVector[index].y = rovy / ro[index];
-//		velocityVector[index].z = rovz / ro[index];
-//	}
-//	else
-//	{
-//		velocityVector[index].x = 0;
-//		velocityVector[index].y = 0;
-//		velocityVector[index].z = 0;
-//	}
-//}
-
-void latticed3q19::calculateEquilibriumFunction(float3 inVector, float inRo)
+void latticed3q19::calculateEquilibriumFunction(float *feq, float3 inVector, float inRo)
 {
 	float w;
 	float eiU = 0;	// Dot product between speed direction and velocity
@@ -368,51 +192,35 @@ void latticed3q19::calculateEquilibriumFunction(float3 inVector, float inRo)
 		w = latticeWeights[i];
 		eiU = dot(speedDirection[i], inVector);
 		eiUsq = eiU * eiU;
-		//feq[i] = w * ro * ( 1.f + 3.f * (eiU) + 4.5 * (eiUsq) -1.5 * (uSq));
-		feq[i] = w * inRo * (1.f + (eiU) / (c*c) + (eiUsq) / (2 * c * c * c * c) - (uSq) / (2 * c * c));
+
+		feq[i] = w * (inRo + (3.0f * eiU) / (_vMax*_vMax) 
+			- (1.5f * uSq) / (_vMax*_vMax) + (4.5f * eiUsq) / (_vMax*_vMax*_vMax*_vMax));
+		//feq[i] = w * inRo * (1.f + (eiU) / (c*c) + (eiUsq) / (2 * c * c * c * c) - (uSq) / (2 * c * c));
 	}
 }
 
 // Have to find how to correctly initialize the interfase cells. 
-void latticed3q19::calculateInEquilibriumFunction(int index, float3 inVector, float inRo)
+void latticed3q19::initLatticeDistributions()
 {
-	float w;
-	float eiU = 0;	// Dot product between speed direction and velocity
-	float eiUsq = 0; // Dot product squared
-	float uSq = 0;	//Velocity squared
-	
-	uSq = dot(inVector, inVector);
-	int iBase = 0;
-	// For the interfase cells, an atmospheric pressure (1.0) is used as density
-	ro[index] = cellType[index] & (cell_types::fluid) ? inRo :
-		cellType[index] & (cell_types::interphase) ? inRo : 1.0f;
+	int cellDf = 0;
+	float scaleInterfaceDf = 1.0f;
 
-	if (cellType[index] & (cell_types::fluid | cell_types::interphase))
+	for (int cellIndex = 0; cellIndex < _numberLatticeElements; cellIndex++)
+	if (cell_type[cellIndex] != cell_types::solid && cell_type[cellIndex] != cell_types::gas)
 	{
-		for (int i = 0; i<_stride; i++)
+		for (int l = 0; l<_stride; l++)
 		{
-			w = latticeWeights[i];
-			eiU = dot(speedDirection[i], inVector);
-			eiUsq = eiU * eiU;
-
-			iBase = index*_stride + i;
-			//ftemp[i] = f[i] = w * ro * ( 1 + 3 * (eiU) + 4.5 * (eiUsq) -1.5 * (uSq));
-			ftemp[iBase] = f[iBase] = w; // *ro[index] * (1.f + (eiU) / (c*c) + (eiUsq) / (2 * c * c * c * c) - (uSq) / (2 * c * c));
+			cellDf = cellIndex*_stride + l;
+			scaleInterfaceDf = cell_type[cellIndex] == cell_types::interfase ? 1.f : 1.0f;
+			ftemp[cellDf] = f[cellDf] = latticeWeights[l] * scaleInterfaceDf;
 		}
 
-		deriveQuantities(index);
+		deriveQuantities(cellIndex);
 
-		if (cellType[index] & cell_types::fluid)
-		{
-			cellMass[index] = cellMassTemp[index] = ro[index];
-			epsilon[index] = cellMass[index] / ro[index];
-		}
-		else if (cellType[index] & cell_types::interphase)
-		{
-			// Arbitrarily assign very little mass to the interfase cells
-			cellMass[index] = cellMassTemp[index] = 0.01f * ro[index];
-			epsilon[index] = cellMass[index] / ro[index];
-		}
+		if (cell_type[cellIndex] == cell_types::fluid)
+			cell_mass[cellIndex] = cell_mass_temp[cellIndex] = ro[cellIndex];
+		if (cell_type[cellIndex] == cell_types::interfase)
+			cell_mass[cellIndex] = cell_mass_temp[cellIndex] = ro[cellIndex];
 	}
 }
 
@@ -421,1334 +229,360 @@ void latticed3q19::deriveQuantities(int index)
 {
 	int dfIndex = 0;
 
-	// Calculate average density
+	// Calculate density and velocity
 	ro[index] = 0;
-	for (int l = 0; l < _stride; l++)
-		ro[index] += f[index * _stride + l];
-
 	velocityVector[index] = float3{ 0, 0, 0 };
 
-	if (ro[index] >= 0)
+	for (int l = 0; l < _stride; l++)
 	{
-		for (int l = 0; l < _stride; l++)
-		{
-			dfIndex = index * _stride + l;
-			velocityVector[index].x += f[dfIndex] * speedDirection[l].x;
-			velocityVector[index].y += f[dfIndex] * speedDirection[l].y;
-			velocityVector[index].z += f[dfIndex] * speedDirection[l].z;
-		}
-		velocityVector[index].x /= ro[index];
-		velocityVector[index].y /= ro[index];
-		velocityVector[index].z /= ro[index];
+		ro[index] += f[index * _stride + l];
+		dfIndex = index * _stride + l;
+		velocityVector[index] += float3_ScalarMultiply(f[dfIndex], speedDirection[l]);
 	}
 
-	float n = float3_Norm(velocityVector[index]);
-	if (n > _vMax)
-		velocityVector[index] = float3_ScalarMultiply(_vMax / n, velocityVector[index]);
+	// On the original paper this operation is not done, however,  it is done on many other ones. 
+	// This may be a point to chek in the future. 
+	velocityVector[index] = float3_ScalarMultiply(1.0f / ro[index], velocityVector[index]);
+
+	//float n = float3_Norm(velocityVector[index]);
+	//if (n > _vMax)
+	//	velocityVector[index] = float3_ScalarMultiply(_vMax / n, velocityVector[index]);
 }
 
-// Determines the initial mass of a cell. Still have to check this initialization...
-void latticed3q19::calculateInitialMass()
+float latticed3q19::getEpsilon(int cellIndex)
 {
-	for (int i = 0; i < _numberLatticeElements; i++)
-	{
-		deriveQuantities(i);
-
-		if (cellType[i] & cell_types::fluid)
-		{
-			cellMass[i] = cellMassTemp[i] = ro[i];
-			epsilon[i] = cellMass[i] / ro[i];
-		}
-		else if(cellType[i] & cell_types::interphase)
-		{
-			cellMass[i] = cellMassTemp[i] = 0.01f * ro[i];
-			epsilon[i] = cellMass[i] / ro[i];
-		}
-	}
-}
-
-float latticed3q19::calculateEpsilon(int index)
-{
-	if ((cellType[index] & cell_types::fluid) || (solid[index] == 1))
-	{
-		epsilon[index] = 1;
-		return 1;
-	}
-	else if (cellType[index] & cell_types::interphase)
-	{
-		if (ro[index] > 0)
-		{
-			float epsilon_temp = cellMass[index] / ro[index];
-
-			// df->mass can even be < 0 or > df->rho for interface cells to be converted to fluid or empty cells in the next step;
-			// clamp to [0,1] range for numerical stability
-			if (epsilon_temp > 1)
-				epsilon_temp = 1;
-			else if (epsilon_temp < 0)
-				epsilon_temp = 0;
-
-			epsilon[index] = epsilon_temp;
-			return epsilon_temp;
-		}
-		else
-		{
-			// return (somewhat arbitrarily) a ratio of 1/2 
-			epsilon[index] = 0.01f;
-			return 0.01f;
-		}
-	}
-	else	// df->type & CT_EMPTY
-	{
-		if (cellType[index] & cell_types::gas)
-		{
-			epsilon[index] = 0;
-			return 0;
-		}
-	}
-	epsilon[index] = 0;
-	return 0;
-}
-
-float latticed3q19::calculateMassExchange(int currentIndex, int neighborIndex, float currentDf, float inverse_NbFi)
-{
-	// Table 4.1 in Nils Thuerey's PhD thesis
-
-	if (cellType[currentIndex] & CT_NO_FLUID_NEIGH)
-	{
-		if (cellType[neighborIndex] & CT_NO_FLUID_NEIGH)
-			return inverse_NbFi - currentDf;
-		else
-			// neighbor is standard cell or CT_NO_EMPTY_NEIGH
-			return -currentDf;
-	}
-	else if (cellType[currentIndex] & CT_NO_EMPTY_NEIGH)
-	{
-		if (cellType[neighborIndex] & CT_NO_EMPTY_NEIGH)
-			return inverse_NbFi - currentDf;
-		else
-			// neighbor is standard cell or CT_NO_FLUID_NEIGH
-			return inverse_NbFi;
-	}
+	if (ro[cellIndex] > 0.0f)
+		return cell_mass[cellIndex] / ro[cellIndex];
 	else
-	{
-		// current cell is standard cell
-		if (cellType[neighborIndex] & CT_NO_FLUID_NEIGH)
-			return inverse_NbFi;
-		else if (cellType[neighborIndex] & CT_NO_EMPTY_NEIGH)
-			return -currentDf;
-		else
-			// neighbor is standard cell
-			return inverse_NbFi - currentDf;
-	}
+		return 0.0f;
 }
 
 float3 latticed3q19::calculateNormal(int i, int j, int k)
 {
 	return float3
 	{
-		(calculateEpsilon(I3D(_width, _height, i - 1, j, k)) - calculateEpsilon(I3D(_width, _height, i + 1, j, k))) * 0.5f,
-		(calculateEpsilon(I3D(_width, _height, i, j - 1, k)) - calculateEpsilon(I3D(_width, _height, i, j + 1, k))) * 0.5f,
-		(calculateEpsilon(I3D(_width, _height, i, j, k - 1)) - calculateEpsilon(I3D(_width, _height, i, j, k + 1))) * 0.5f
+	(getEpsilon(I3D(_width, _height, i - 1, j, k)) - getEpsilon(I3D(_width, _height, i + 1, j, k))) / 2,
+	(getEpsilon(I3D(_width, _height, i , j - 1, k)) - getEpsilon(I3D(_width, _height, i , j + 1, k))) / 2,
+	(getEpsilon(I3D(_width, _height, i , j, k - 1)) - getEpsilon(I3D(_width, _height, i , j, k + 1))) / 2
 	};
 }
 
-// This method controls the excess mass distribution. This is an implementation of part 4.3 of the reference thesis.
-void latticed3q19::cellTypeAdjustment()
+// Have to check if cell_mass or cell_mass_temp is the correct value to check against. The same for ro.
+void latticed3q19::setFilledEmptied(int i, int j, int k)
+{
+	float _k = 0.001f;
+
+	int index = I3D(_width, _height, i, j, k);
+	if (cell_mass_temp[index] > (1.0f + _k) * ro[index])
+	{
+		vector<int3>::iterator fillIterator =
+			std::find(_filledCells.begin(), _filledCells.end(), int3{ i, j, k });
+		if (fillIterator == _filledCells.end())
+			_filledCells.push_back(int3{ i, j, k });
+	}
+	else if (cell_mass_temp[index] < (-_k) * ro[index])
+	{
+		vector<int3>::iterator emptyIterator =
+			std::find(_emptiedCells.begin(), _emptiedCells.end(), int3{ i, j, k });
+		if (emptyIterator == _emptiedCells.end())
+			_emptiedCells.push_back(int3{ i, j, k });
+	}
+}
+
+void latticed3q19::flagReinitialization()
 {
 	int nb_x, nb_y, nb_z;
-	int nb_cellIndex;
+	int cellIndex, nbCellIndex;
 
-	// set flags for filled interface cells (interface to fluid)
-	for (float3 if_to_fluid : _filledCells)
+	for (int3 filledCell : _filledCells)
 	{
-		int cellIndex = I3D(_width, _height, (int)if_to_fluid.x, (int)if_to_fluid.y, (int)if_to_fluid.z);
-
-		//if (cellTypeTemp[cellIndex] & cell_types::CT_IF_TO_FLUID)
-		{
-			// convert neighboring empty cells to interface cells
-			for (int l = 0; l < _stride; l++)
-			{
-				nb_x = (int)(if_to_fluid.x + speedDirection[l].x);
-				nb_y = (int)(if_to_fluid.y + speedDirection[l].y);
-				nb_z = (int)(if_to_fluid.z + speedDirection[l].z);
-
-				nb_cellIndex = I3D(_width, _height, nb_x, nb_y, nb_z);
-
-				if (cellType[nb_cellIndex] & cell_types::gas)
-				{
-					cellTypeTemp[nb_cellIndex] = cell_types::interphase;
-					averageSurroundings(nb_x, nb_y, nb_z);
-				}
-				
-				if (cellTypeTemp[nb_cellIndex] & cell_types::CT_IF_TO_EMPTY)
-				{
-					cellTypeTemp[nb_cellIndex] = cell_types::interphase;
-					vector<float3>::iterator emptyIterator =
-						std::find(_emptiedCells.begin(), _emptiedCells.end(), float3{ (float)nb_x, (float)nb_y, (float)nb_z });
-					if (emptyIterator != _emptiedCells.end())
-						_emptiedCells.erase(emptyIterator);
-				}
-			}
-			//for (int l = 0; l < _stride; l++)
-			//{
-			//	nb_x = (int)(if_to_fluid.x + speedDirection[l].x);
-			//	nb_y = (int)(if_to_fluid.y + speedDirection[l].y);
-			//	nb_z = (int)(if_to_fluid.z + speedDirection[l].z);
-
-			//	nb_cellIndex = I3D(_width, _height, nb_x, nb_y, nb_z);
-
-			//	// prevent neighboring cells from becoming empty
-			//	if (cellTypeTemp[nb_cellIndex] & cell_types::CT_IF_TO_EMPTY)
-			//	{
-			//		cellTypeTemp[nb_cellIndex] = cell_types::interphase;
-			//		vector<float3>::iterator emptyIterator = 
-			//			std::find(_emptiedCells.begin(), _emptiedCells.end(), float3{ (float)nb_x, (float)nb_y, (float)nb_z });
-			//		if (emptyIterator != _emptiedCells.end())
-			//			_emptiedCells.erase(emptyIterator);
-			//	}
-			//}
-
-			cellTypeTemp[cellIndex] = cell_types::fluid;
-			cellMassTemp[cellIndex] = ro[cellIndex];
-		}
-	}
-
-	//Distribute excess mass for filled cells
-	for (float3 if_to_fluid : _filledCells)
-	{
-		float excess_mass = 0.0f;
-		int cellIndex = I3D(_width, _height, (int)if_to_fluid.x, (int)if_to_fluid.y, (int)if_to_fluid.z);
-		float3 normal = calculateNormal((int)if_to_fluid.x, (int)if_to_fluid.y, (int)if_to_fluid.z);
-		float *eta = new float[19]();
-		float eta_total = 0, deltaMass = 0;
-		unsigned int numIF = 0;
-
-		excess_mass = cellMass[cellIndex] - ro[cellIndex];
-
-		// Eq. 4.9
-		for (int l = 0; l < _stride; l++)
-		{
-			nb_x = (int)(if_to_fluid.x - speedDirection[l].x);
-			nb_y = (int)(if_to_fluid.y - speedDirection[l].y);
-			nb_z = (int)(if_to_fluid.z - speedDirection[l].z);
-
-			nb_cellIndex = I3D(_width, _height, nb_x, nb_y, nb_z);
-
-			if (cellType[nb_cellIndex] & cell_types::interphase)
-			{
-				//eta[l] = max(0.0f, dot(normal, speedDirection[l]));
-				eta[l] = dot(normal, speedDirection[l]);
-				if (eta[l] <= 0)
-					eta[l] = 0;
-				eta_total += eta[l];
-				numIF++;
-			}
-		}
-		// If a the mass of a cell is bigger that its density, distribute excess mass along the neighboring interface cell's normal
-		if (cellMass[cellIndex] > ro[cellIndex])
-		if (eta_total > 0)
-		{
-			float eta_frac = 1 / eta_total;
-			for (int l = 0; l < _stride; l++)
-			{
-				nb_x = (int)(if_to_fluid.x + speedDirection[l].x);
-				nb_y = (int)(if_to_fluid.y + speedDirection[l].y);
-				nb_z = (int)(if_to_fluid.z + speedDirection[l].z);
-
-				nb_cellIndex = I3D(_width, _height, nb_x, nb_y, nb_z);
-
-				if (cellTypeTemp[nb_cellIndex] & (cell_types::interphase))
-					cellMassTemp[nb_cellIndex] += excess_mass * eta[l] * eta_frac;
-
-				//if (cellMass[nb_cellIndex] != cellMass[nb_cellIndex])
-				//	cellMass[nb_cellIndex] = cellMass[nb_cellIndex];
-			}
-		}
-		// Evenly distribute excess mass
-		//else if (numIF > 0)
-		//{
-		//	excess_mass = excess_mass / numIF;
-		//	for (int l = 0; l < _stride; l++)
-		//	{
-		//		nb_x = (int)(if_to_fluid.x + speedDirection[l].x);
-		//		nb_y = (int)(if_to_fluid.y + speedDirection[l].y);
-		//		nb_z = (int)(if_to_fluid.z + speedDirection[l].z);
-
-		//		nb_cellIndex = I3D(_width, _height, nb_x, nb_y, nb_z);
-		//		
-		//		cellMassTemp[nb_cellIndex] += cellTypeTemp[nb_cellIndex] & cell_types::interphase ? excess_mass : 0;
-
-		//		//if (cellMass[nb_cellIndex] != cellMass[nb_cellIndex])
-		//		//	cellMass[nb_cellIndex] = cellMass[nb_cellIndex];
-		//	}
-		//}
-
-		//// after excess mass has been distributed, remaining mass equals density
-		//cellTypeTemp[cellIndex] = cell_types::fluid;
-		//cellMassTemp[cellIndex] = ro[cellIndex];
-	}
-
-	// set flags for emptied interface cells (interface to empty)
-	for (float3 if_to_gas : _emptiedCells)
-	{
-		int cellIndex = I3D(_width, _height, (int)if_to_gas.x, (int)if_to_gas.y, (int)if_to_gas.z);
-
-		//if (cellTypeTemp[cellIndex] & cell_types::CT_IF_TO_EMPTY)
-		{
-			for (int l = 0; l < _stride; l++)
-			{
-				nb_x = (int)(if_to_gas.x - speedDirection[l].x);
-				nb_y = (int)(if_to_gas.y - speedDirection[l].y);
-				nb_z = (int)(if_to_gas.z - speedDirection[l].z);
-
-				nb_cellIndex = I3D(_width, _height, nb_x, nb_y, nb_z);
-
-				if (cellType[nb_cellIndex] & cell_types::fluid)
-				{
-					cellTypeTemp[nb_cellIndex] = cell_types::interphase;
-					//for (int l1 = 0; l1 < _stride; l1++)
-					//	f[cellIndex* _stride + l1] = f[nb_cellIndex * _stride + l1];
-				}
-			}
-
-			cellTypeTemp[cellIndex] = cell_types::gas;
-			cellMassTemp[cellIndex] = 0.0f;
-		}
-	}
-
-	// Distribute excess mass from empied cells
-	for (float3 if_to_gas : _emptiedCells)
-	{
-		float excess_mass = 0.0f;
-		int cellIndex = I3D(_width, _height, (int)if_to_gas.x, (int)if_to_gas.y, (int)if_to_gas.z);
-		float3 normal = calculateNormal((int)if_to_gas.x, (int)if_to_gas.y, (int)if_to_gas.z);
-		float eta[19] = { 0 };
-		float eta_total = 0;
-		unsigned int numIF = 0;
-
-		excess_mass = cellMass[cellIndex];
-		normal = float3_ScalarMultiply(-1.0f, normal);
+		cellIndex = I3D(_width, _height, filledCell.x, filledCell.y, filledCell.z);
 
 		for (int l = 0; l < _stride; l++)
 		{
-			nb_x = (int)(if_to_gas.x - speedDirection[l].x);
-			nb_y = (int)(if_to_gas.y - speedDirection[l].y);
-			nb_z = (int)(if_to_gas.z - speedDirection[l].z);
+			nb_x = (filledCell.x + speedDirection[l].x);
+			nb_y = (filledCell.y + speedDirection[l].y);
+			nb_z = (filledCell.z + speedDirection[l].z);
 
-			nb_cellIndex = I3D(_width, _height, nb_x, nb_y, nb_z);
-
-			if (cellType[nb_cellIndex] & cell_types::interphase)
+			nbCellIndex = I3D(_width, _height, nb_x, nb_y, nb_z);
+			
+			if (cell_type[nbCellIndex] == cell_types::gas)
 			{
-				eta[l] = dot(normal, speedDirection[l]);
-				if (eta[l] >= 0)	eta[l] = 0;
-				eta_total += eta[l];
-				numIF++;
+				cell_type_temp[nbCellIndex] = cell_types::interfase;
+				averageSurroundings(nb_x, nb_y, nb_z);
+			}
+			else if (cell_type[nbCellIndex] == cell_types::interfase)
+			{
+				vector<int3>::iterator emptyIterator =
+					std::find(_emptiedCells.begin(), _emptiedCells.end(), int3{ nb_x, nb_y, nb_z });
+				if (emptyIterator != _emptiedCells.end())
+					_emptiedCells.erase(emptyIterator);
 			}
 		}
-		// If a the mass of a cell is smaller that 0, distribute excess mass along the neighboring interface cell's normal
-		if (cellMass[cellIndex]< 0)
-		if (eta_total > 0)
-		{
-			float eta_frac = 1 / eta_total;
-			for (int l = 0; l < _stride; l++)
-			{
-				nb_x = (int)(if_to_gas.x + speedDirection[l].x);
-				nb_y = (int)(if_to_gas.y + speedDirection[l].y);
-				nb_z = (int)(if_to_gas.z + speedDirection[l].z);
 
-				nb_cellIndex = I3D(_width, _height, nb_x, nb_y, nb_z);
-
-				if (cellTypeTemp[nb_cellIndex] & cell_types::interphase)
-					cellMassTemp[nb_cellIndex] += excess_mass * eta[l] * eta_frac;
-
-				//if (cellMass[nb_cellIndex] != cellMass[nb_cellIndex])
-				//	cellMass[nb_cellIndex] = cellMass[nb_cellIndex];
-			}
-		}
-		// Evenly distribute excess mass
-		//else if (numIF > 0)
-		//{
-		//	excess_mass = excess_mass / numIF;
-		//	for (int l = 0; l < _stride; l++)
-		//	{
-		//		nb_x = (int)(if_to_gas.x + speedDirection[l].x);
-		//		nb_y = (int)(if_to_gas.y + speedDirection[l].y);
-		//		nb_z = (int)(if_to_gas.z + speedDirection[l].z);
-
-		//		nb_cellIndex = I3D(_width, _height, nb_x, nb_y, nb_z);
-
-		//		cellMassTemp[nb_cellIndex] += cellTypeTemp[nb_cellIndex] & cell_types::interphase ? excess_mass : 0;
-
-		//		//if (cellMass[nb_cellIndex] != cellMass[nb_cellIndex])
-		//		//	cellMass[nb_cellIndex] = cellMass[nb_cellIndex];
-		//	}
-		//}
-		
-		// after excess mass has been distributed, remaining mass equals 0
-		//cellTypeTemp[cellIndex] = cell_types::gas;
-		//cellMassTemp[cellIndex] = 0;
+		cell_type_temp[cellIndex] = cell_types::fluid;
 	}
 
-	for (int i0 = 0; i0 < _numberLatticeElements; i0++)
+	for (int3 emptyCell : _emptiedCells)
 	{
-		f[i0] = ftemp[i0];
-		cellMass[i0] += cellMassTemp[i0];
-		cellType[i0] = cellTypeTemp[i0];
+		cellIndex = I3D(_width, _height, emptyCell.x, emptyCell.y, emptyCell.z);
 
-		if (cellType[i0] & (cell_types::fluid))
+		for (int l = 0; l < _stride; l++)
 		{
-			cellType[i0] = cellTypeTemp[i0];
-			cellMass[i0] = ro[i0];
-		}		
+			nb_x = (emptyCell.x + speedDirection[l].x);
+			nb_y = (emptyCell.y + speedDirection[l].y);
+			nb_z = (emptyCell.z + speedDirection[l].z);
 
-		//if (cellTypeTemp[i0] & (cell_types::interphase))
-			//cellType[i0] = cellTypeTemp[i0];
+			nbCellIndex = I3D(_width, _height, nb_x, nb_y, nb_z);
 
+			if (cell_type[nbCellIndex] == cell_types::fluid)
+				cell_type_temp[nbCellIndex] = cell_types::interfase;
+		}
+
+		cell_type_temp[cellIndex] = cell_types::gas;
 	}
+	
+	for (int l = 0; l < _numberLatticeElements; l++)
+		cell_type[l] = cell_type_temp[l];
+}
+
+void latticed3q19::averageSurroundings(int i, int j, int k)
+{
+	int newI, newJ, newK;
+	int cellIndex, nbCellIndex, numberNb = 0;
+
+	float ro_avg = 0.0f;
+	float3 velocity_avg = { 0.0f, 0.0f, 0.0f };
+	float *feq = new float[_stride]();
+
+	cellIndex = I3D(_width, _height, i, j, k);
+
+	for (int l = 1; l < _stride; l++)
+	{
+		newI = (i + speedDirection[l].x);
+		newJ = (j + speedDirection[l].y);
+		newK = (k + speedDirection[l].z);
+
+		nbCellIndex = I3D(_width, _height, newI, newJ, newK);
+
+		if (cell_type[nbCellIndex] == cell_types::fluid || cell_type[nbCellIndex] == cell_types::interfase)
+		{
+			ro_avg += ro[nbCellIndex];
+			velocity_avg += velocityVector[nbCellIndex];
+			numberNb++;
+		}
+	}
+
+	if (numberNb > 0)
+	{
+		ro[cellIndex] = ro_avg / numberNb;
+		velocityVector[cellIndex] /= (float)numberNb;
+	}
+
+	calculateEquilibriumFunction(feq, velocityVector[cellIndex], ro[cellIndex]);
+
+	for (int l = 0; l < _stride; l++)
+		f[cellIndex*_stride + l] = feq[l];
+}
+
+void latticed3q19::distributeExcessMass()
+{
+	int nb_x, nb_y, nb_z;
+	int cellIndex, nbCellIndex;
+
+	float3 normal = { 0.0f, 0.0f, 0.0f };
+	float excessMass = 0.0f, *vi = new float[_stride](), vTotal=0.0f;
+
+	for (int3 filledCell : _filledCells)
+	{
+		cellIndex = I3D(_width, _height, filledCell.x, filledCell.y, filledCell.z);
+
+		normal = calculateNormal(filledCell.x, filledCell.y, filledCell.z);
+
+		excessMass = cell_mass[cellIndex] - ro[cellIndex];
+
+		for (int l = 0; l < _stride; l++)
+		{
+			vi[l] = dot(speedDirection[l], normal);
+			if (vi[l] <= 0.0f) vi[l] = 0.0f;
+			vTotal += vi[l];
+		}
+
+		if (vTotal != 0.0f)
+		for (int l = 0; l < _stride; l++)
+		{
+			nb_x = (filledCell.x + speedDirection[l].x);
+			nb_y = (filledCell.y + speedDirection[l].y);
+			nb_z = (filledCell.z + speedDirection[l].z);
+
+			nbCellIndex = I3D(_width, _height, nb_x, nb_y, nb_z);
+
+			if (cell_type[nbCellIndex] == cell_types::interfase)
+				cell_mass_temp[nbCellIndex] = cell_mass[nbCellIndex] + excessMass * vi[l] / vTotal;
+		}
+	}
+
+	excessMass = 0.0f, vi = new float[_stride](), vTotal = 0.0f;
+	for (int3 emptiedCell : _emptiedCells)
+	{
+		cellIndex = I3D(_width, _height, emptiedCell.x, emptiedCell.y, emptiedCell.z);
+
+		normal = calculateNormal(emptiedCell.x, emptiedCell.y, emptiedCell.z);
+
+		float3 inverseNormal = float3_ScalarMultiply(-1.0f, normal);
+
+		excessMass = cell_mass[cellIndex];
+
+		for (int l = 0; l < _stride; l++)
+		{
+			vi[l] = dot(speedDirection[l], inverseNormal);
+			if (vi[l] >= 0.0f) vi[l] = 0.0f;
+			vTotal += vi[l];
+		}
+
+		if (vTotal != 0.0f)
+		for (int l = 0; l < _stride; l++)
+		{
+			nb_x = (emptiedCell.x + speedDirection[l].x);
+			nb_y = (emptiedCell.y + speedDirection[l].y);
+			nb_z = (emptiedCell.z + speedDirection[l].z);
+
+			nbCellIndex = I3D(_width, _height, nb_x, nb_y, nb_z);
+
+			if (cell_type[nbCellIndex] == cell_types::interfase)
+				cell_mass_temp[nbCellIndex] = cell_mass[nbCellIndex] + excessMass * vi[l] / vTotal;
+		}
+	}
+
+	memcpy(cell_mass, cell_mass_temp, sizeof(float)*_numberLatticeElements);
 
 	_filledCells.clear();
 	_emptiedCells.clear();
 }
 
-void latticed3q19::setNeighborhoodFlags()
+void latticed3q19::reconstructInterfaceDfs()
 {
-	int nb_x, nb_y, nb_z;
-	int nb_cellIndex;
+	int cellIndex = 0, nbCellIndex = 0, newI = 0, newJ = 0, newK = 0;
+	float *feq_air = new float[_stride]();
 
-	for (int k = 0; k<_depth; k++)
+	for (int k = 0; k<_depth ; k++)
 	for (int j = 0; j < _height; j++)
 	for (int i = 0; i < _width; i++)
 	{
-		int cellIndex = I3D(_width, _height, i, j, k);
-		
-		if (solid[cellIndex] == 1)
-			continue;
+		cellIndex = I3D(_width, _height, i, j, k);
 
-		cellType[cellIndex] |= (CT_NO_FLUID_NEIGH | CT_NO_EMPTY_NEIGH | CT_NO_IFACE_NEIGH);
-
-		for (int l = 0; l < _stride; l++)
+		if (cell_type[cellIndex] ==cell_types::interfase)
 		{
-			nb_x = (int)(i + speedDirection[l].x);
-			nb_y = (int)(j + speedDirection[l].y);
-			nb_z = (int)(k + speedDirection[l].z);
+			for (int l = 0; l < 19; l++)
+			{
+				newI = (int)(i + speedDirection[l].x);
+				newJ = (int)(j + speedDirection[l].y);
+				newK = (int)(k + speedDirection[l].z);
 
-			nb_cellIndex = I3D(_width, _height, nb_x, nb_y, nb_z);
+				nbCellIndex = I3D(_width, _height, newI, newJ, newK);
 
-			if (cellType[nb_cellIndex] & cell_types::fluid)
-				cellType[cellIndex] &= ~CT_NO_FLUID_NEIGH;
+				// Adjust the df that comes from a gas cell
+				if (cell_type[nbCellIndex] == cell_types::gas)
+				{
+					calculateEquilibriumFunction(feq_air, velocityVector[cellIndex], 1.0f);
+					ftemp[cellIndex * _stride + inverseSpeedDirectionIndex[l]] =
+						feq_air[l] + feq_air[inverseSpeedDirectionIndex[l]] - f[cellIndex * _stride + l];
+				}
 
-			if (cellType[nb_cellIndex] & cell_types::gas)
-				cellType[cellIndex] &= ~CT_NO_EMPTY_NEIGH;
+				float3 normal = calculateNormal(i, j, k);
+				
+				// 
+				if (dot(speedDirection[l], normal) < 0)
+				{
+					f[cellIndex * _stride + inverseSpeedDirectionIndex[l]] =
+						feq_air[l] + feq_air[inverseSpeedDirectionIndex[l]] - f[cellIndex * _stride + l];
+				}
 
-			if (cellType[nb_cellIndex] & cell_types::interphase)
-				cellType[cellIndex] &= ~CT_NO_IFACE_NEIGH;
+			}
 		}
-
-		if (cellType[cellIndex] & CT_NO_EMPTY_NEIGH)
-			cellType[cellIndex] &= ~CT_NO_FLUID_NEIGH;
 	}
 }
 
-
-void latticed3q19::averageSurroundings(int i, int j, int k)
+void latticed3q19::calculateMassExchange()
 {
-	int n = 0, newI= 0, newJ = 0, newK= 0;	// counter
-	float3 nb_cell = { 0, 0, 0 };
-	int cellIndex = I3D(_width, _height, i, j, k), neighborIndex =0;
-	float rho = 0.0f;
-	float3 velocity{ 0, 0, 0 };
-	// set mass initially to zero
-	//cellMass[cellIndex] = 0;
-	
-	// average density and velocity of surrounding cells
-	for (int l = 0; l < _stride; l++)		
-	{
-		newI = (int)(i + speedDirection[l].x);
-		newJ = (int)(j + speedDirection[l].y);
-		newK = (int)(k + speedDirection[l].z);
+	int cellIndex = 0, nbCellIndex = 0, newI = 0, newJ = 0, newK = 0;
+	float *delta_mass = new float[_stride](), delta_total = 0.0f;
 
-		neighborIndex = I3D(_width, _height, newI, newJ, newK);
-		
-		// fluid or interface cells only
-		if (cellType[neighborIndex] & ( cell_types::interphase)) //cell_types::fluid |
+	for (int k = 0; k <_depth -1; k++)
+	for (int j = 0; j < _height -1; j++)
+	for (int i = 0; i < _width -1; i++)
+	{
+		cellIndex = I3D(_width, _height, i, j, k);
+		fill(delta_mass, delta_mass + _stride, 0.0f);
+
+		if (cell_type[cellIndex] == cell_types::interfase)
 		{
-			rho += ro[neighborIndex];
-			velocity.x += velocityVector[neighborIndex].x;
-			velocity.y += velocityVector[neighborIndex].y;
-			velocity.z += velocityVector[neighborIndex].z;
-			
-			n++;
+			for (int l = 0; l < 19; l++)
+			{
+				newI = (i + speedDirection[l].x);
+				newJ = (j + speedDirection[l].y);
+				newK = (k + speedDirection[l].z);
+
+				nbCellIndex = I3D(_width, _height, newI, newJ, newK);
+
+				if (cell_type[nbCellIndex] == cell_types::fluid)
+					delta_mass[l] = f[nbCellIndex * _stride + inverseSpeedDirectionIndex[l]] - f[cellIndex * _stride + l];
+				else if (cell_type[nbCellIndex] == cell_types::interfase)
+				{
+					float current_epsilon = getEpsilon(cellIndex), nb_epsilon = getEpsilon(nbCellIndex);
+					delta_mass[l] = f[nbCellIndex * _stride + inverseSpeedDirectionIndex[l]] - f[cellIndex * _stride + l] *
+						((nb_epsilon + current_epsilon) * 0.5f);
+				}		
+
+				delta_total += delta_mass[l];
+			}
+			cell_mass_temp[cellIndex] = cell_mass[cellIndex] + delta_total;
 		}
 	}
-	if (n > 0)
-	{
-		rho /= n;
-		velocity.x /= n;
-		velocity.y /= n;
-		velocity.z /= n;
 
-		calculateEquilibriumFunction(velocity, rho);
-
-		for (int l = 0; l < _stride; l++)
-		{
-			ftemp[cellIndex * _stride + l] = feq[l];
-			//ftemp[cellIndex * _stride + inverseSpeedDirectionIndex[l]] =
-			//	feq[l] + feq[inverseSpeedDirectionIndex[l]] - f[cellIndex * _stride + l];
-		}
-	}
+	memcpy(cell_mass, cell_mass_temp, sizeof(float)* _numberLatticeElements);
 }
 
-void latticed3q19::setFilledOrEmpty(int i, int j, int k)
+void latticed3q19::setNumberNeighbors()
 {
-	int cellIndex = I3D(_width, _height, i, j, k);
-	
-	//Check interfase cell mass for flag reinitialization
-	if (cellType[cellIndex] & cell_types::interphase)
+	int cellIndex = 0, nbIndex = 0, newI = 0, newJ= 0, newK = 0;
+
+	for (int k = 0; k<_depth; k++)
+	for (int j = 0; j < _height; j++)
+	for (int i = 0; i<_width; i++)
 	{
-		if (
-			(cellMass[cellIndex] >((1 + FILL_OFFSET) * ro[cellIndex])) // Eq. (4.7)
-			|| // Remove artifacts
-			((cellMass[cellIndex] > ((1 - LONELY_THRESH)* ro[cellIndex])) && (cellType[cellIndex] & CT_NO_FLUID_NEIGH))
-			)
+		cellIndex = I3D(_width, _height, i, j, k);
+
+		nFluidNbs[cellIndex] = 0;
+		nGasNbs[cellIndex] = 0;
+		nInterNbs[cellIndex] = 0;
+		nSolidNbs[cellIndex] = 0;
+
+		// Avoid the element itself
+		for (int l = 1; l < _stride; l++)
 		{
-			// interface to fluid cell
-			cellTypeTemp[cellIndex] = cell_types::CT_IF_TO_FLUID;
-			_filledCells.push_back(float3{ (float)i, (float)j, (float)k });
+			newI = (int)(i + speedDirection[l].x);
+			newJ = (int)(j + speedDirection[l].y);
+			newK = (int)(k + speedDirection[l].z);
+
+			if (newI >= 0 && newJ >= 0 && newK >= 0)
+			{
+				nbIndex = I3D(_width, _height, newI, newJ, newK);
+
+				if (nbIndex >= 0)
+				{
+					if (cell_type[nbIndex] == cell_types::fluid)
+						nFluidNbs[cellIndex]++;
+					else if (cell_type[nbIndex] == cell_types::gas)
+						nGasNbs[cellIndex]++;
+					else if (cell_type[nbIndex] == cell_types::interfase)
+						nInterNbs[cellIndex]++;
+					else if (cell_type[nbIndex] == cell_types::solid)
+						nSolidNbs[cellIndex]++;
+				}
+			}
 		}
-		else if (
-			(cellMass[cellIndex] < -FILL_OFFSET * ro[cellIndex]) // Eq. (4.7)
-			||	
-			((cellMass[cellIndex] <= LONELY_THRESH*ro[cellIndex]) && (cellType[cellIndex] & CT_NO_FLUID_NEIGH))
-			)	// isolated interface cell: only empty or obstacle neighbors
-		{
-			// interface to empty cell
-			cellTypeTemp[cellIndex] = cell_types::CT_IF_TO_EMPTY;
-			_emptiedCells.push_back(float3{ (float)i, (float)j, (float)k });
-		}
+		if (nFluidNbs[cellIndex] + nGasNbs[cellIndex] + nInterNbs[cellIndex] + nSolidNbs[cellIndex] != 18)
+			int test = 0;
 	}
-
-	// clear neighborhood flags (will be determined later)
-	cellTypeTemp[cellIndex] &= ~(CT_NO_FLUID_NEIGH | CT_NO_EMPTY_NEIGH | CT_NO_IFACE_NEIGH);
 }
-
-// ////Working code without free surfaces - lattice with fluid and gravity
-//#include "Lattice.h"
-//
-//latticed3q19::latticed3q19(int width, int height, int depth, float worldViscosity, float mass, float cellsPerSide, float domainSize)
-//{
-//	_width = width; _height = height; _depth = depth;
-//	_stride = 19;
-//	_numberLatticeElements = _width * _height * _depth;
-//	_numberAllElements = _stride * _numberLatticeElements;
-//	_cellsPerSide = cellsPerSide;
-//	_domainSize = domainSize;
-//	_mass = mass;
-//
-//	f = new float[_numberAllElements]();
-//	ftemp = new float[_numberAllElements]();
-//	feq = new float[_stride]();
-//	solid = new unsigned int[_numberLatticeElements]();
-//	velocityVector = new float3[_numberLatticeElements]();
-//	ro = new float[_numberLatticeElements]();
-//
-//	epsilon = new float[_numberLatticeElements]();
-//	cellType = new int[_numberLatticeElements];
-//	cellTypeTemp = new int[_numberLatticeElements];
-//	cellMass = new float[_numberLatticeElements]();
-//	cellMassTemp = new float[_numberLatticeElements]();
-//
-//	for (int i = 0; i < _numberLatticeElements; i++)
-//		cellType[i] = cellTypeTemp[i] = gas;
-//
-//	c = (float)(1.0 / sqrt(3.0));
-//
-//	cellSize = _domainSize / _cellsPerSide;
-//
-//	gravity = -9.8f;
-//
-//	timeStep = (float)(sqrtf((0.005f * cellSize) / fabs(gravity)));
-//
-//	_vMax = cellSize / timeStep;
-//
-//	viscosity = worldViscosity * timeStep / (cellSize * cellSize);
-//
-//	_tau = 3.0f * viscosity + 0.5f;
-//
-//	_w = 1 / _tau;
-//
-//	latticeAcceleration = gravity * timeStep * timeStep / cellSize;
-//}
-//
-//latticed3q19::~latticed3q19()
-//{
-//	delete[] f;
-//	delete[] ftemp;
-//	delete[] feq;
-//	delete[] solid;
-//	delete[] ro;
-//	delete[] velocityVector;
-//	delete[] epsilon;
-//	delete[] cellType;
-//	delete[] cellMass;
-//	delete[] cellMassTemp;
-//}
-//
-//void latticed3q19::step(void)
-//{
-//	//setNeighborhoodFlags();
-//
-//	stream();
-//
-//	collide();
-//
-//	//cellTypeAdjustment();
-//
-//	//applyBoundaryConditions();
-//}
-//
-//void latticed3q19::stream()
-//{
-//	int cellIndex, cellDf, advectedDf, advectedCell, inverseAdvectedDf;
-//	int newI, newJ, newK;
-//	float3 normal;
-//
-//	for (int k = 0; k<_depth; k++)
-//	{
-//		for (int j = 0; j < _height; j++)
-//		{
-//			for (int i = 0; i<_width; i++)
-//			{
-//				cellIndex = I3D(_width, _height, i, j, k);
-//
-//				if (solid[cellIndex] == 0)
-//				{
-//					if (cellType[cellIndex] & cell_types::fluid)
-//					{
-//						try
-//						{
-//							//if (cellMass[cellIndex] == ro[cellIndex])
-//							{
-//								cellMassTemp[cellIndex] = 0;
-//
-//								for (int l = 0; l < 19; l++)
-//								{
-//									newI = (int)(i + speedDirection[l].x);
-//									newJ = (int)(j + speedDirection[l].y);
-//									newK = (int)(k + speedDirection[l].z);
-//
-//									//newI = (int)(i + speedDirection[inverseSpeedDirectionIndex[l]].x);
-//									//newJ = (int)(j + speedDirection[inverseSpeedDirectionIndex[l]].y);
-//									//newK = (int)(k + speedDirection[inverseSpeedDirectionIndex[l]].z);
-//
-//									cellDf = cellIndex*_stride + l;
-//									advectedDf = I3D_S(_width, _height, _stride, newI, newJ, newK, l);
-//									advectedCell = I3D(_width, _height, newI, newJ, newK);
-//
-//									//if (cellType[advectedCell] & (cell_types::fluid | cell_types::interphase))
-//									//{
-//									//	//newI = (int)(i + speedDirection[inverseSpeedDirectionIndex[l]].x);
-//									//	//newJ = (int)(j + speedDirection[inverseSpeedDirectionIndex[l]].y);
-//									//	//newK = (int)(k + speedDirection[inverseSpeedDirectionIndex[l]].z);
-//									//	inverseAdvectedDf = I3D_S(_width, _height, _stride, newI, newJ, newK, inverseSpeedDirectionIndex[l]);
-//
-//									//	// mass exchange between fluid and interface cell, Eq. (4.2)
-//									//	cellMassTemp[cellIndex] += f[inverseAdvectedDf] - f[cellDf];
-//									//}								
-//									ftemp[cellDf] = f[advectedDf];
-//								}
-//							}
-//							//else
-//							//	throw std::string("Not the same mass (" +std::to_string(cellMass[cellIndex]) 
-//							//	+ ") and density (" + std::to_string(ro[cellIndex]) + ") at ") + std::to_string(cellIndex);
-//						}
-//						catch (std::string message) { cout << "Exception: " << message.c_str() << endl; }
-//						catch (...){ cout << "Default exception." << endl; }
-//					}
-//					//else if (cellType[cellIndex] & cell_types::interphase)
-//					//{
-//					//	float currentEpsilon = calculateEpsilon(cellIndex);
-//					//	
-//					//	cellMassTemp[cellIndex] = 0;
-//					//	// Calculate air equilibrium function to reconstruct missing dfs
-//					//	calculateEquilibriumFunction(velocityVector[cellIndex], 1.0f);
-//
-//					//	for (int l = 0; l < _stride; l++)
-//					//	{
-//					//		newI = (int)(i + speedDirection[l].x);
-//					//		newJ = (int)(j + speedDirection[l].y);
-//					//		newK = (int)(k + speedDirection[l].z);
-//					//		
-//					//		cellDf = cellIndex*_stride + l;
-//					//		advectedDf = I3D_S(_width, _height, _stride, newI, newJ, newK, l);
-//					//		advectedCell = I3D(_width, _height, newI, newJ, newK);
-//					//		inverseAdvectedDf = I3D_S(_width, _height, _stride, newI, newJ, newK, inverseSpeedDirectionIndex[l]);
-//					//		normal = calculateNormal(i, j, k);
-//
-//					//		//if (cellType[advectedCell] & cell_types::fluid)
-//					//		//{
-//					//		//	// mass exchange between fluid and interface cell, Eq. (4.2)
-//					//		//	//ftemp[cellDf] = f[advectedDf];
-//					//		//}
-//					//		if (cellType[advectedCell] & cell_types::interphase)
-//					//		{
-//					//			// mass exchange between two interface cells, Eq. (4.3)
-//					//			float neighborEpsilon = calculateEpsilon(advectedCell);
-//					//			float massExchange = calculateMassExchange(cellIndex, advectedCell, f[cellDf], f[inverseAdvectedDf]);
-//
-//					//			cellMassTemp[cellIndex] += (f[inverseAdvectedDf] - f[cellDf]) * 0.5f * (currentEpsilon + neighborEpsilon);
-//					//			//cellMassTemp[cellIndex] += (massExchange)*0.5f * (currentEpsilon + neighborEpsilon);
-//
-//					//			ftemp[cellDf] = f[advectedDf];
-//					//		}
-//					//		else if (cellType[advectedCell] & cell_types::gas) 	// Eq. (4.6)
-//					//		{
-//					//			ftemp[cellDf] = feq[l] + feq[inverseSpeedDirectionIndex[l]] - f[cellDf];
-//					//		}
-//					//	}
-//
-//					//	//// always use reconstructed atmospheric distribution function for directions along surface normal;
-//					//	//// separate loop to handle mass exchange correctly
-//					//	for (int l = 0; l < 19; l++)		
-//					//	{
-//					//		if (dot(normal, speedDirection[inverseSpeedDirectionIndex[i]]) > 0)		// Eq. (4.6)
-//					//		// reconstructed atmospheric distribution function, Eq. (4.5)
-//					//			ftemp[cellDf] = feq[l] + feq[inverseSpeedDirectionIndex[l]] - f[cellDf];							
-//					//	}
-//					//}
-//				}
-//				else
-//				{
-//					for (int l = 0; l < 19; l++)
-//					{
-//						cellDf = cellIndex*_stride + l;
-//						advectedDf = cellIndex*_stride + inverseSpeedDirectionIndex[l];
-//
-//						ftemp[cellDf] = f[advectedDf];
-//					}
-//				}
-//			}
-//		}
-//	}
-//
-//	for (int i0 = 0; i0 < _numberAllElements; i0++)
-//	{
-//		f[i0] = ftemp[i0];
-//		//if (i0 % _stride == 0)
-//		//{
-//		//	int index = i0 / _stride;
-//
-//		//	if (cellType[index] & (cell_types::fluid))// | cell_types::interphase))
-//		//	{
-//		//		cellMass[index] += cellMassTemp[index];
-//		//		//epsilon[index] = cellMass[index] / ro[index];
-//		//	}
-//
-//		//	//if (cellType[index] & (cell_types::fluid))
-//		//	//{
-//		//	//	cellMass[index] = ro[index];
-//		//	//	epsilon[index] = 1.0f;
-//		//	//}
-//		//}
-//	}
-//
-//}
-//
-//void latticed3q19::collide(void)
-//{
-//	int iBase = 0, numFluid = 0;
-//	float roAverage = 0;
-//	//for (int i0 = 0; i0 < _numberLatticeElements; i0++)
-//	for (int k = 0; k<_depth; k++)
-//	for (int j = 0; j < _height; j++)
-//	for (int i = 0; i<_width; i++)
-//	{
-//		int i0 = I3D(_width, _height, i, j, k);
-//		if (solid[i0] == 0)
-//		{
-//			if (cellType[i0] & (cell_types::fluid))// | cell_types::interphase))
-//			{
-//				deriveQuantities(i0);
-//				calculateEquilibriumFunction(velocityVector[i0], ro[i0]);;
-//
-//				for (int l = 0; l < 19; l++)
-//				{
-//					iBase = i0 * _stride + l;
-//					//f[iBase] = f[iBase] - (f[iBase] - feq[l]) / _tau;
-//					f[iBase] = (1.0f - _w) * f[iBase] + _w * feq[l]
-//						//To include gravity
-//						+ latticeWeights[l] * ro[i0] * dot(speedDirection[l], float3{ 0, latticeAcceleration, 0 });
-//
-//					if (f[iBase] > 1 || f[iBase] < 0)
-//						cout << "error" << endl;
-//				}
-//
-//				epsilon[i0] = cellMass[i0] / ro[i0];
-//
-//				roAverage += ro[i0];
-//				numFluid++;
-//				//setFilledOrEmpty(i, j, k);
-//
-//				//if (cellMassTemp[i0] < 0.0f)
-//				//if (cellType[i0] & cell_types::fluid)
-//				//	cellMass[i0] = ro[i0];
-//				//latticeElements[i0].f[l] =(1-_tau)* latticeElements[i0].ftemp[l] + (1/_tau) * latticeElements[i0].feq[l];
-//			}
-//		}
-//		//else
-//		//	solid_BC(i0);
-//	}
-//	cout << "RO: " << roAverage / numFluid << endl;
-//}
-//
-//void latticed3q19::applyBoundaryConditions()
-//{
-//	//in_BC(vector3d(0.0,0.0, -0.6));
-//}
-//
-//void latticed3q19::solid_BC(int i0)
-//{
-//	float temp;
-//
-//	temp = f[i0*_stride + 1]; 	f[i0*_stride + 1] = f[i0*_stride + 2];		f[i0*_stride + 2] = temp;		// f1	<-> f2
-//	temp = f[i0*_stride + 3];	f[i0*_stride + 3] = f[i0*_stride + 4];		f[i0*_stride + 4] = temp;		// f3	<-> f4
-//	temp = f[i0*_stride + 5];	f[i0*_stride + 5] = f[i0*_stride + 6];		f[i0*_stride + 6] = temp;		// f5	<-> f6
-//	temp = f[i0*_stride + 7];	f[i0*_stride + 7] = f[i0*_stride + 12];		f[i0*_stride + 12] = temp;		// f7	<-> f12
-//	temp = f[i0*_stride + 8];	f[i0*_stride + 8] = f[i0*_stride + 11];		f[i0*_stride + 11] = temp;		// f8	<-> f11
-//	temp = f[i0*_stride + 9];	f[i0*_stride + 9] = f[i0*_stride + 14];		f[i0*_stride + 14] = temp;		// f9	<-> f14
-//	temp = f[i0*_stride + 10];	f[i0*_stride + 10] = f[i0*_stride + 13];	f[i0*_stride + 13] = temp;		// f10	<-> f13
-//	temp = f[i0*_stride + 15];	f[i0*_stride + 15] = f[i0*_stride + 18];	f[i0*_stride + 18] = temp;		// f15	<-> f18
-//	temp = f[i0*_stride + 16];	f[i0*_stride + 16] = f[i0*_stride + 17];	f[i0*_stride + 17] = temp;		// f16	<-> f17
-//}
-//
-//void latticed3q19::calculateSpeedVector(int index)
-//{
-//	//calculateRo();
-//	//rovx = rovy = rovz = 0; 
-//
-//	ro[index] = rovx = rovy = rovz = 0;
-//	int i0 = 0;
-//	for (int i = 0; i<_stride; i++)
-//	{
-//		i0 = index * _stride + i;
-//		ro[index] += f[i0];
-//		rovx += f[i0] * speedDirection[i].x;
-//		rovy += f[i0] * speedDirection[i].y;
-//		rovz += f[i0] * speedDirection[i].z;
-//	}
-//
-//	// In order to check that ro is not NaN you check if it is equal to itself: if it is a Nan, the comparison is false
-//	if (ro[index] == ro[index] && ro[index] != 0.0f)
-//	{
-//		velocityVector[index].x = rovx / ro[index];
-//		velocityVector[index].y = rovy / ro[index];
-//		velocityVector[index].z = rovz / ro[index];
-//	}
-//	else
-//	{
-//		velocityVector[index].x = 0;
-//		velocityVector[index].y = 0;
-//		velocityVector[index].z = 0;
-//	}
-//}
-//
-//void latticed3q19::calculateEquilibriumFunction(float3 inVector, float inRo)
-//{
-//	float w;
-//	float eiU = 0;	// Dot product between speed direction and velocity
-//	float eiUsq = 0; // Dot product squared
-//	float uSq = dot(inVector, inVector);	//Velocity squared
-//
-//	for (int i = 0; i<_stride; i++)
-//	{
-//		w = latticeWeights[i];
-//		eiU = dot(speedDirection[i], inVector);
-//		eiUsq = eiU * eiU;
-//		//feq[i] = w * ro * ( 1.f + 3.f * (eiU) + 4.5 * (eiUsq) -1.5 * (uSq));
-//		feq[i] = w * inRo * (1.f + (eiU) / (c*c) + (eiUsq) / (2 * c * c * c * c) - (uSq) / (2 * c * c));
-//	}
-//}
-//
-//void latticed3q19::calculateInEquilibriumFunction(int index, float3 inVector, float inRo)
-//{
-//	float w;
-//	float eiU = 0;	// Dot product between speed direction and velocity
-//	float eiUsq = 0; // Dot product squared
-//	float uSq = 0;	//Velocity squared
-//
-//	uSq = dot(inVector, inVector);
-//	int iBase = 0;
-//	// For the interfase cells, an atmospheric pressure (1.0) is used as density
-//	ro[index] = inRo;
-//	//cellType[index] & (cell_types::fluid) ? inRo :
-//	//cellType[index] & (cell_types::interphase) ? FILL_OFFSET * inRo : 1.0f;
-//
-//	if (cellType[index] & (cell_types::fluid | cell_types::interphase))
-//	for (int i = 0; i<_stride; i++)
-//	{
-//		w = latticeWeights[i];
-//		eiU = dot(speedDirection[i], inVector);
-//		eiUsq = eiU * eiU;
-//
-//		iBase = index*_stride + i;
-//		//ftemp[i] = f[i] = w * ro * ( 1 + 3 * (eiU) + 4.5 * (eiUsq) -1.5 * (uSq));
-//		ftemp[iBase] = f[iBase] = w;// *ro[index] * (1.f + (eiU) / (c*c) + (eiUsq) / (2 * c * c * c * c) - (uSq) / (2 * c * c));
-//	}
-//}
-//
-//void latticed3q19::deriveQuantities(int index)
-//{
-//	int dfIndex = 0;
-//
-//	// Calculate average density
-//	ro[index] = 0;
-//	for (int l = 0; l < _stride; l++)
-//		ro[index] += f[index * _stride + l];
-//
-//	velocityVector[index] = float3{ 0, 0, 0 };
-//
-//	if (ro[index] >= 0)
-//	{
-//		for (int l = 0; l < _stride; l++)
-//		{
-//			dfIndex = index * _stride + l;
-//			velocityVector[index].x += f[dfIndex] * speedDirection[l].x;
-//			velocityVector[index].y += f[dfIndex] * speedDirection[l].y;
-//			velocityVector[index].z += f[dfIndex] * speedDirection[l].z;
-//		}
-//		velocityVector[index].x /= ro[index];
-//		velocityVector[index].y /= ro[index];
-//		velocityVector[index].z /= ro[index];
-//	}
-//
-//	float n = float3_Norm(velocityVector[index]);
-//	if (n > _vMax)
-//		velocityVector[index] = float3_ScalarMultiply(_vMax / n, velocityVector[index]);
-//}
-//
-//void latticed3q19::calculateInitialMass()
-//{
-//	float individual_cell_mass = 0.0f, fluidCells = 0;
-//
-//	for (int i = 0; i < _numberLatticeElements; i++)
-//	{
-//		if (cellType[i] & cell_types::fluid)
-//			fluidCells++;
-//	}
-//
-//	individual_cell_mass = _mass / fluidCells;
-//
-//	for (int i = 0; i < _numberLatticeElements; i++)
-//	{
-//		if (cellType[i] & cell_types::fluid)
-//		{
-//			cellMass[i] = cellMassTemp[i] = ro[i] = individual_cell_mass;
-//			epsilon[i] = cellMass[i] / ro[i];
-//		}
-//		else if (cellType[i] & cell_types::interphase)
-//		{
-//			cellMass[i] = cellMassTemp[i] = FILL_OFFSET * ro[i];
-//			epsilon[i] = cellMass[i] / ro[i];
-//		}
-//	}
-//}
-//
-//float latticed3q19::calculateEpsilon(int index)
-//{
-//	if ((cellType[index] & cell_types::fluid) || (solid[index] == 1))
-//	{
-//		epsilon[index] = 1;
-//		return 1;
-//	}
-//	else if (cellType[index] & cell_types::interphase)
-//	{
-//		if (ro[index] > 0)
-//		{
-//			float epsilon_temp = cellMass[index] / ro[index];
-//
-//			// df->mass can even be < 0 or > df->rho for interface cells to be converted to fluid or empty cells in the next step;
-//			// clamp to [0,1] range for numerical stability
-//			if (epsilon_temp > 1)
-//				epsilon_temp = 1;
-//			else if (epsilon_temp < 0)
-//				epsilon_temp = 0;
-//
-//			epsilon[index] = epsilon_temp;
-//			return epsilon_temp;
-//		}
-//		else
-//		{
-//			// return (somewhat arbitrarily) a ratio of 1/2 
-//			epsilon[index] = 0.5f;
-//			return 0.5f;
-//		}
-//	}
-//	else	// df->type & CT_EMPTY
-//	{
-//		if (cellType[index] & cell_types::gas)
-//		{
-//			epsilon[index] = 0;
-//			return 0;
-//		}
-//	}
-//	epsilon[index] = 0;
-//	return 0;
-//}
-//
-//float latticed3q19::calculateMassExchange(int currentIndex, int neighborIndex, float currentDf, float inverse_NbFi)
-//{
-//	// Table 4.1 in Nils Thuerey's PhD thesis
-//
-//	if (cellType[currentIndex] & CT_NO_FLUID_NEIGH)
-//	{
-//		if (cellType[neighborIndex] & CT_NO_FLUID_NEIGH)
-//			return inverse_NbFi - currentDf;
-//		else
-//			// neighbor is standard cell or CT_NO_EMPTY_NEIGH
-//			return -currentDf;
-//	}
-//	else if (cellType[currentIndex] & CT_NO_EMPTY_NEIGH)
-//	{
-//		if (cellType[neighborIndex] & CT_NO_EMPTY_NEIGH)
-//			return inverse_NbFi - currentDf;
-//		else
-//			// neighbor is standard cell or CT_NO_FLUID_NEIGH
-//			return inverse_NbFi;
-//	}
-//	else
-//	{
-//		// current cell is standard cell
-//		if (cellType[neighborIndex] & CT_NO_FLUID_NEIGH)
-//			return -currentDf;
-//		else if (cellType[neighborIndex] & CT_NO_EMPTY_NEIGH)
-//			return inverse_NbFi;
-//		else
-//			// neighbor is standard cell
-//			return inverse_NbFi - currentDf;
-//	}
-//}
-//
-//float3 latticed3q19::calculateNormal(int i, int j, int k)
-//{
-//	return float3
-//	{
-//	(calculateEpsilon(I3D(_width, _height, i - 1, j, k)) - calculateEpsilon(I3D(_width, _height, i + 1, j, k))) * 0.5f,
-//	(calculateEpsilon(I3D(_width, _height, i, j - 1, k)) - calculateEpsilon(I3D(_width, _height, i, j + 1, k))) * 0.5f,
-//	(calculateEpsilon(I3D(_width, _height, i, j, k - 1)) - calculateEpsilon(I3D(_width, _height, i, j, k + 1))) * 0.5f
-//};
-//}
-//
-//void latticed3q19::cellTypeAdjustment()
-//{
-//	int nb_x, nb_y, nb_z;
-//	int nb_cellIndex;
-//
-//	// set flags for filled interface cells (interface to fluid)
-//	for (float3 if_to_fluid : _filledCells)
-//	{
-//		int cellIndex = I3D(_width, _height, (int)if_to_fluid.x, (int)if_to_fluid.y, (int)if_to_fluid.z);
-//
-//		if (cellType[cellIndex] & cell_types::CT_IF_TO_FLUID)
-//		{
-//			// convert neighboring empty cells to interface cells
-//			for (int l = 0; l < _stride; l++)
-//			{
-//				nb_x = (int)(if_to_fluid.x + speedDirection[l].x);
-//				nb_y = (int)(if_to_fluid.y + speedDirection[l].y);
-//				nb_z = (int)(if_to_fluid.z + speedDirection[l].z);
-//
-//				nb_cellIndex = I3D(_width, _height, nb_x, nb_y, nb_z);
-//
-//				if (cellType[nb_cellIndex] & cell_types::gas)
-//				{
-//					cellType[nb_cellIndex] = cell_types::interphase;
-//					averageSurroundings(nb_x, nb_y, nb_z);
-//				}
-//
-//				// prevent neighboring cells from becoming empty
-//				if (cellType[nb_cellIndex] & cell_types::CT_IF_TO_EMPTY)
-//				{
-//					cellType[nb_cellIndex] = cell_types::interphase;
-//					_emptiedCells.erase(remove(_emptiedCells.begin(), _emptiedCells.end(), float3{ (float)nb_x, (float)nb_y, (float)nb_z }));
-//				}
-//			}
-//
-//			cellType[cellIndex] = cell_types::fluid;
-//		}
-//	}
-//
-//	// set flags for emptied interface cells (interface to empty)
-//	for (float3 if_to_gas : _emptiedCells)
-//	{
-//		int cellIndex = I3D(_width, _height, (int)if_to_gas.x, (int)if_to_gas.y, (int)if_to_gas.z);
-//
-//		if (cellType[cellIndex] & cell_types::CT_IF_TO_EMPTY)
-//		{
-//			for (int l = 0; l < _stride; l++)
-//			{
-//				nb_x = (int)(if_to_gas.x + speedDirection[l].x);
-//				nb_y = (int)(if_to_gas.y + speedDirection[l].y);
-//				nb_z = (int)(if_to_gas.z + speedDirection[l].z);
-//
-//				nb_cellIndex = I3D(_width, _height, nb_x, nb_y, nb_z);
-//
-//				if (cellType[nb_cellIndex] & cell_types::fluid)
-//				{
-//					cellType[nb_cellIndex] = cell_types::interphase;
-//					//for (int l1 = 0; l1 < _stride; l1++)
-//					//	f[nb_cellIndex* _stride + l1] = f[cellIndex * _stride + l1];
-//				}
-//			}
-//
-//			cellType[cellIndex] = cell_types::gas;
-//		}
-//	}
-//
-//	//Distribute excess mass for filled cells
-//	for (float3 if_to_fluid : _filledCells)
-//	{
-//		float excess_mass = 0.0f;
-//		int cellIndex = I3D(_width, _height, (int)if_to_fluid.x, (int)if_to_fluid.y, (int)if_to_fluid.z);
-//		float3 normal = calculateNormal((int)if_to_fluid.x, (int)if_to_fluid.y, (int)if_to_fluid.z);
-//		float *eta = new float[19]();
-//		float eta_total = 0;
-//		unsigned int numIF = 0;
-//
-//		excess_mass = cellMass[cellIndex] - ro[cellIndex];
-//
-//		for (int l = 0; l < _stride; l++)
-//		{
-//			nb_x = (int)(if_to_fluid.x + speedDirection[l].x);
-//			nb_y = (int)(if_to_fluid.y + speedDirection[l].y);
-//			nb_z = (int)(if_to_fluid.z + speedDirection[l].z);
-//
-//			nb_cellIndex = I3D(_width, _height, nb_x, nb_y, nb_z);
-//
-//			//if (cellType[nb_cellIndex] & cell_types::interphase)
-//			{
-//				eta[l] = dot(normal, speedDirection[l]);
-//				if (eta[l] <= 0)	eta[l] = 0;
-//				eta_total += eta[l];
-//				numIF++;
-//			}
-//		}
-//		if (cellMass[cellIndex] > ro[cellIndex])
-//			//if (eta_total > 0)
-//			//{
-//			//	float eta_frac = 1 / eta_total;
-//			//	for (int l = 0; l < _stride; l++)
-//			//	{
-//			//		nb_x = (int)(if_to_fluid.x + speedDirection[l].x);
-//			//		nb_y = (int)(if_to_fluid.y + speedDirection[l].y);
-//			//		nb_z = (int)(if_to_fluid.z + speedDirection[l].z);
-//
-//			//		nb_cellIndex = I3D(_width, _height, nb_x, nb_y, nb_z);
-//
-//			//		if (cellType[nb_cellIndex] & cell_types::interphase)
-//			//			cellMass[nb_cellIndex] += excess_mass * eta[l] * eta_frac;
-//			//	}
-//			//}
-//			//else if (numIF > 0)
-//		{
-//			excess_mass = excess_mass / numIF;
-//			for (int l = 0; l < _stride; l++)
-//			{
-//				nb_x = (int)(if_to_fluid.x + speedDirection[l].x);
-//				nb_y = (int)(if_to_fluid.y + speedDirection[l].y);
-//				nb_z = (int)(if_to_fluid.z + speedDirection[l].z);
-//
-//				nb_cellIndex = I3D(_width, _height, nb_x, nb_y, nb_z);
-//
-//				cellMass[nb_cellIndex] += cellType[nb_cellIndex] & cell_types::interphase ? excess_mass : 0;
-//			}
-//		}
-//
-//		// after excess mass has been distributed, remaining mass equals density
-//		cellMass[cellIndex] = ro[cellIndex];
-//	}
-//
-//	for (float3 if_to_gas : _emptiedCells)
-//	{
-//		float excess_mass = 0.0f;
-//		int cellIndex = I3D(_width, _height, (int)if_to_gas.x, (int)if_to_gas.y, (int)if_to_gas.z);
-//		float3 normal = calculateNormal((int)if_to_gas.x, (int)if_to_gas.y, (int)if_to_gas.z);
-//		float eta[19] = { 0 };
-//		float eta_total = 0;
-//		unsigned int numIF = 0;
-//
-//		excess_mass = -cellMass[cellIndex];
-//		float3_ScalarMultiply(-1.0f, normal);
-//
-//		for (int l = 0; l < _stride; l++)
-//		{
-//			nb_x = (int)(if_to_gas.x + speedDirection[l].x);
-//			nb_y = (int)(if_to_gas.y + speedDirection[l].y);
-//			nb_z = (int)(if_to_gas.z + speedDirection[l].z);
-//
-//			nb_cellIndex = I3D(_width, _height, nb_x, nb_y, nb_z);
-//
-//			//if (cellType[nb_cellIndex] & cell_types::interphase)
-//			{
-//				eta[l] = dot(normal, speedDirection[l]);
-//				if (eta[l] < 0)	eta[l] = 0;
-//				eta_total += eta[l];
-//				numIF++;
-//			}
-//		}
-//		if (cellMass[cellIndex]< 0)
-//			//if (eta_total > 0)
-//			//{
-//			//	float eta_frac = 1 / eta_total;
-//			//	for (int l = 0; l < _stride; l++)
-//			//	{
-//			//		nb_x = (int)(if_to_gas.x + speedDirection[l].x);
-//			//		nb_y = (int)(if_to_gas.y + speedDirection[l].y);
-//			//		nb_z = (int)(if_to_gas.z + speedDirection[l].z);
-//
-//			//		nb_cellIndex = I3D(_width, _height, nb_x, nb_y, nb_z);
-//
-//			//		if (cellType[nb_cellIndex] & cell_types::interphase)
-//			//			cellMass[nb_cellIndex] += excess_mass * eta[l] * eta_frac;
-//			//	}
-//			//}
-//			//else if (numIF > 0)
-//		{
-//			excess_mass = excess_mass / numIF;
-//			for (int l = 0; l < _stride; l++)
-//			{
-//				nb_x = (int)(if_to_gas.x + speedDirection[l].x);
-//				nb_y = (int)(if_to_gas.y + speedDirection[l].y);
-//				nb_z = (int)(if_to_gas.z + speedDirection[l].z);
-//
-//				nb_cellIndex = I3D(_width, _height, nb_x, nb_y, nb_z);
-//
-//				cellMass[nb_cellIndex] += cellType[nb_cellIndex] & cell_types::interphase ? excess_mass : 0;
-//			}
-//		}
-//
-//		// after excess mass has been distributed, remaining mass equals 0
-//		cellMass[cellIndex] = 0;
-//	}
-//
-//	_filledCells.clear();
-//	_emptiedCells.clear();
-//}
-//
-//void latticed3q19::setNeighborhoodFlags()
-//{
-//	int nb_x, nb_y, nb_z;
-//	int nb_cellIndex;
-//
-//	for (int k = 0; k<_depth; k++)
-//	for (int j = 0; j < _height; j++)
-//	for (int i = 0; i < _width; i++)
-//	{
-//		int cellIndex = I3D(_width, _height, i, j, k);
-//
-//		if (solid[cellIndex] == 1)
-//			continue;
-//
-//		cellType[cellIndex] |= (CT_NO_FLUID_NEIGH | CT_NO_EMPTY_NEIGH | CT_NO_IFACE_NEIGH);
-//
-//		for (int l = 0; l < _stride; l++)
-//		{
-//			nb_x = (int)(i + speedDirection[l].x);
-//			nb_y = (int)(j + speedDirection[l].y);
-//			nb_z = (int)(k + speedDirection[l].z);
-//
-//			nb_cellIndex = I3D(_width, _height, nb_x, nb_y, nb_z);
-//
-//			if (cellType[nb_cellIndex] & cell_types::fluid)
-//				cellType[cellIndex] &= ~CT_NO_FLUID_NEIGH;
-//
-//			if (cellType[nb_cellIndex] & cell_types::gas)
-//				cellType[cellIndex] &= ~CT_NO_EMPTY_NEIGH;
-//
-//			if (cellType[nb_cellIndex] & cell_types::interphase)
-//				cellType[cellIndex] &= ~CT_NO_IFACE_NEIGH;
-//		}
-//
-//		if (cellType[cellIndex] & CT_NO_EMPTY_NEIGH)
-//			cellType[cellIndex] &= ~CT_NO_FLUID_NEIGH;
-//	}
-//}
-//
-//
-//void latticed3q19::averageSurroundings(int i, int j, int k)
-//{
-//	int n = 0, newI = 0, newJ = 0, newK = 0;	// counter
-//	float3 nb_cell = { 0, 0, 0 };
-//	int cellIndex = I3D(_width, _height, i, j, k), neighborIndex = 0;
-//	// set mass initially to zero
-//	//cellMass[cellIndex] = 0;
-//
-//	// average density and velocity of surrounding cells
-//	ro[cellIndex] = 0;
-//	velocityVector[cellIndex] = float3{ 0, 0, 0 };
-//
-//	for (int l = 0; l < _stride; l++)
-//	{
-//		newI = (int)(i + speedDirection[l].x);
-//		newJ = (int)(j + speedDirection[l].y);
-//		newK = (int)(k + speedDirection[l].z);
-//
-//		neighborIndex = I3D(_width, _height, newI, newJ, newK);
-//
-//		// fluid or interface cells only
-//		if (cellType[neighborIndex] & (cell_types::fluid | cell_types::interphase))
-//		{
-//			ro[cellIndex] += ro[neighborIndex];
-//			velocityVector[cellIndex].x += velocityVector[neighborIndex].x;
-//			velocityVector[cellIndex].y += velocityVector[neighborIndex].y;
-//			velocityVector[cellIndex].z += velocityVector[neighborIndex].z;
-//
-//			n++;
-//		}
-//	}
-//	if (n > 0)
-//	{
-//		ro[cellIndex] /= n;
-//		velocityVector[cellIndex].x /= n;
-//		velocityVector[cellIndex].y /= n;
-//		velocityVector[cellIndex].z /= n;
-//	}
-//
-//	//applyGravity(cellIndex);
-//
-//	// calculate equilibrium distribution function
-//	calculateEquilibriumFunction(velocityVector[cellIndex], ro[cellIndex]);
-//
-//	for (int l = 0; l < _stride; l++)
-//		f[cellIndex * _stride + l] = feq[l];
-//}
-//
-//void latticed3q19::setFilledOrEmpty(int i, int j, int k)
-//{
-//	int cellIndex = I3D(_width, _height, i, j, k);
-//	//Check interfase cell mass for flag reinitialization
-//	if (cellType[cellIndex] & cell_types::interphase)
-//	{
-//		if (
-//			(cellMass[cellIndex] >((1 + FILL_OFFSET) * ro[cellIndex]))
-//			||
-//			((cellMass[cellIndex] > ((1 - LONELY_THRESH)* ro[cellIndex])) && (cellType[cellIndex] & CT_NO_FLUID_NEIGH))
-//			)
-//		{
-//			// interface to fluid cell
-//			cellType[cellIndex] = cell_types::CT_IF_TO_FLUID;
-//			_filledCells.push_back(float3{ (float)i, (float)j, (float)k });
-//		}
-//		else if (
-//			(cellMass[cellIndex] < -FILL_OFFSET * ro[cellIndex])
-//			||
-//			((cellMass[cellIndex] <= LONELY_THRESH*ro[cellIndex]) && (cellType[cellIndex] & CT_NO_FLUID_NEIGH))
-//			)	// isolated interface cell: only empty or obstacle neighbors
-//		{
-//			// interface to empty cell
-//			cellType[cellIndex] = cell_types::CT_IF_TO_EMPTY;
-//			_emptiedCells.push_back(float3{ (float)i, (float)j, (float)k });
-//		}
-//	}
-//
-//	// clear neighborhood flags (will be determined later)
-//	cellType[cellIndex] &= ~(CT_NO_FLUID_NEIGH | CT_NO_EMPTY_NEIGH | CT_NO_IFACE_NEIGH);
-//}

@@ -1,8 +1,11 @@
 #ifndef LATTICE_2D
 #define LATTICE_2D
 
-#include "Utilities.h"
+#include "Utilities_2d.h"
 #include <stdio.h>
+#include <vector>
+
+using namespace std;
 
 #define SIZE_2D_X			32					//!< x-dimension of the 2D field, must be a power of 2
 #define SIZE_2D_Y			32					//!< y-dimension of the 2D field, must be a power of 2
@@ -130,6 +133,8 @@ class d2q9_lattice
 
 		/// Parameters to guarantee stability by considering the cell and domain sizes, as well as viscosity and gravity.
 		float		cellsPerSide, cellSize, viscosity, timeStep, domainSize, gravity, latticeAcceleration;
+
+		vector<d2q9_cell*> filled_cells, emptied_cells;
 
 		/// width_				The width of the lattice
 		/// height_				The height of the lattice

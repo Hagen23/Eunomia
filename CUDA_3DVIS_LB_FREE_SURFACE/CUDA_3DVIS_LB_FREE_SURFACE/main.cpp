@@ -25,7 +25,7 @@
 #include <GL/freeglut.h>
 #endif
 
-#include "lb_src/Lattice.h"
+//#include "lb_src/Lattice.h"
 #include "Lattice_2D.h"
 
 #pragma endregion
@@ -188,8 +188,8 @@ unsigned int latticeWidth = LATTICE_DIM, latticeHeight = LATTICE_DIM, latticeDep
 float latticeViscosity = 0.1f;
 bool withSolid = false, keypressed = false, showInterfase = true, showFluid = true, simulate = false;
 
-float3 vectorIn{ 0.0f, 0.0f, 0.0f};
-latticed3q19 *lattice; 
+//float3 vectorIn{ 0.0f, 0.0f, 0.0f};
+//latticed3q19 *lattice; 
 
 d2q9_lattice *lattice_2d;
 
@@ -339,35 +339,35 @@ void idle(void)
 		lattice_2d->step();
 		//lattice->step();
 
-	if(keypressed)
-	{
-		if(withSolid)
-		{
-				// Solid inside the cube
-			for(int k = latticeDepth/4; k < latticeDepth/2.0 + latticeDepth/4; k++)
-				for(int j = latticeHeight/4; j< latticeHeight/2.0 +latticeHeight/4; j++)
-					for(int i = latticeWidth/4; i< latticeWidth/2.0 + latticeWidth/4; i++)
-					{
-						int i0 = I3D(latticeWidth, latticeHeight, i, j, k);
-						lattice->solid[i0] = 1;
-					}
+	//if(keypressed)
+	//{
+	//	if(withSolid)
+	//	{
+	//			// Solid inside the cube
+	//		for(int k = latticeDepth/4; k < latticeDepth/2.0 + latticeDepth/4; k++)
+	//			for(int j = latticeHeight/4; j< latticeHeight/2.0 +latticeHeight/4; j++)
+	//				for(int i = latticeWidth/4; i< latticeWidth/2.0 + latticeWidth/4; i++)
+	//				{
+	//					int i0 = I3D(latticeWidth, latticeHeight, i, j, k);
+	//					lattice->solid[i0] = 1;
+	//				}
 
-			keypressed = false;
-		}
-		else 
-		{
-				// Solid inside the cube
-			for(int k = latticeDepth/4; k < latticeDepth/2.0 + latticeDepth/4; k++)
-				for(int j = latticeHeight/4; j< latticeHeight/2.0 +latticeHeight/4; j++)
-					for(int i = latticeWidth/4; i< latticeWidth/2.0 + latticeWidth/4; i++)
-					{
-						int i0 = I3D(latticeWidth, latticeHeight, i, j, k);
-						lattice->solid[i0] = 0;
-					}
+	//		keypressed = false;
+	//	}
+	//	else 
+	//	{
+	//			// Solid inside the cube
+	//		for(int k = latticeDepth/4; k < latticeDepth/2.0 + latticeDepth/4; k++)
+	//			for(int j = latticeHeight/4; j< latticeHeight/2.0 +latticeHeight/4; j++)
+	//				for(int i = latticeWidth/4; i< latticeWidth/2.0 + latticeWidth/4; i++)
+	//				{
+	//					int i0 = I3D(latticeWidth, latticeHeight, i, j, k);
+	//					lattice->solid[i0] = 0;
+	//				}
 
-			keypressed = false;
-		}
-	}
+	//		keypressed = false;
+	//	}
+	//}
 	glutPostRedisplay();
 }
 
@@ -481,7 +481,7 @@ int init(void)
 
 	lattice_2d->initCells(types, 1.5f, float2{ 0.f,0.f });
 
-	lattice_2d->print_types();
+	//lattice_2d->print_types();
 
 	lattice_2d->print_fluid_amount();
 	

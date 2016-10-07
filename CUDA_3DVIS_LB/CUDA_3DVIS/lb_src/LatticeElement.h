@@ -69,7 +69,6 @@ private:
 	int _vectorVelocitiesSize;
 	double ro, rovx, rovy, rovz, v_sq_term; //v_sq_term is the 1.5 u^2 term of the equilibrium distribution function
 
-	
 	void calculateRo(void);
 
 public:

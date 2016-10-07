@@ -48,13 +48,13 @@ void d2q9_cell::deriveQuantities(float vMax_)
 
 float d2q9_cell::calculateEpsilon()
 {
-	if ((type & CT_FLUID) == cellType::CT_FLUID || (type & CT_OBSTACLE) == cellType::CT_OBSTACLE)
-		return 1.f;
+	//if ((type & CT_OBSTACLE) == cellType::CT_OBSTACLE)
+	//	return 1.f;
 
-	if ((type & CT_EMPTY) == cellType::CT_EMPTY)
-		return 0.f;
+	//if ((type & CT_EMPTY) == cellType::CT_EMPTY)
+	//	return 0.f;
 
-	if ((type & CT_INTERFACE) == cellType::CT_INTERFACE)
+	if ((type & CT_FLUID) == cellType::CT_FLUID || (type & CT_INTERFACE) == cellType::CT_INTERFACE)
 	{
 		if (rho > 0)
 		{
@@ -68,11 +68,11 @@ float d2q9_cell::calculateEpsilon()
 
 			return epsilon;
 		}
-		else
-		{
-			// return (somewhat arbitrarily) a ratio of 0.01
-			return 0.1f;
-		}
+		//else
+		//{
+		//	// return (somewhat arbitrarily) a ratio of 0.01
+		//	return 0.01f;
+		//}
 	}
 
 	return 0.f;
@@ -98,13 +98,15 @@ d2q9_lattice::d2q9_lattice(int width_, int height_, float worldViscosity_, float
 
 	/// Stability concerns, section 3.3 of the reference thesis.
 	/// Here a value of gc = 0.005 is used to keep the compressibility below half a percent.
-	timeStep = (float)(sqrtf((0.005f * cellSize) / fabs(gravity)));
+	timeStep = (float)(sqrtl((0.005f * cellSize) / fabs(gravity)));
 
 	vMax = cellSize / timeStep;
 	viscosity = worldViscosity_ * timeStep / (cellSize * cellSize);
 	tau = 3.0f * viscosity + 0.5f;
 	w = 1.0f / tau;
 	latticeAcceleration = gravity * timeStep * timeStep / cellSize;
+
+	print_fluid_amount("Startup");
 }
 
 void d2q9_lattice::step()
@@ -133,8 +135,6 @@ void d2q9_lattice::stream()
 		for (int col = 0; col < width; col++)
 		{
 			d2q9_cell* current_cell = getCellAt(col, row);
-
-			//print_fluid_amount("Before df cycle");
 
 			if ((current_cell->type & CT_OBSTACLE) != cellType::CT_OBSTACLE && (current_cell->type & CT_EMPTY) != cellType::CT_EMPTY)
 			{
@@ -234,9 +234,9 @@ void d2q9_lattice::stream()
 
 			current_cell->deriveQuantities(vMax);
 
-			if ((current_cell->type & CT_FLUID) == cellType::CT_FLUID)
-			//current_cell->mass = current_cell->rho;
-			current_cell->rho = current_cell->mass;
+			//if ((current_cell->type & CT_FLUID) == cellType::CT_FLUID)
+			//	//current_cell->mass = current_cell->rho;
+			//	current_cell->rho = current_cell->mass;
 		}
 	}
 
@@ -253,12 +253,6 @@ void d2q9_lattice::collide()
 
 			if ((current_cell->type & CT_OBSTACLE) != cellType::CT_OBSTACLE && (current_cell->type & CT_EMPTY) != cellType::CT_EMPTY)
 			{
-				//current_cell->deriveQuantities(vMax);
-
-				//if ((current_cell->type & CT_FLUID) == cellType::CT_FLUID)
-					//current_cell->mass = current_cell->rho;
-					//current_cell->rho = current_cell->mass;
-
 				float feq[9] = { 0 };
 				calculateEquilibrium(current_cell->velocity, current_cell->rho, feq);
 
@@ -334,7 +328,7 @@ void d2q9_lattice::updateCells()
 				{
 					d2q9_cell* nb_cell = getCellAt_Mod(col - vel2Di[i].x, row - vel2Di[i].y);
 
-					if ((nb_cell->type & CT_IF_TO_EMPTY) == cellType::CT_IF_TO_EMPTY)
+					if ((nb_cell->type & CT_IF_TO_EMPTY) == cellType::CT_IF_TO_EMPTY || (nb_cell->type & CT_EMPTY) == cellType::CT_EMPTY)
 						nb_cell->type = cellType::CT_INTERFACE;
 				}
 			}
@@ -411,18 +405,25 @@ void d2q9_lattice::updateCells()
 			}
 
 			// store excess mass to be distributed in mex
-			if (eta_total > 0)
+			if (eta_total != 0.f)
 			{
 				float eta_fraction = 1 / eta_total;
 				for (int i = 0; i < 9; i++)
-					current_cell->mex[i] = excess_mass * eta[i] * eta_fraction;
+				{
+					float excess = excess_mass * eta[i] * eta_fraction;
+					if (excess > 2.e-6)
+						current_cell->mex[i] = excess_mass * eta[i] * eta_fraction;
+					else
+						current_cell->mex[i] = 0.f;
+				}
+				
 			}
-			//else if (numIF > 0)
-			//{
-			//	float excess_mass_uniform = excess_mass / numIF;
-			//	for (int i = 0; i < 9; i++)
-			//		current_cell->mex[i] = isIF[i] ? excess_mass_uniform : 0.f;
-			//}
+			else if (numIF > 0)
+			{
+				float excess_mass_uniform = excess_mass / numIF;
+				for (int i = 0; i < 9; i++)
+					current_cell->mex[i] = isIF[i] ? excess_mass_uniform : 0.f;
+			}
 		}
 	}
 #pragma endregion
@@ -524,7 +525,7 @@ void d2q9_lattice::calculateEquilibrium(float2 velocity_, float rho_, float feq_
 	for (int i = 0; i < 9; i++)
 	{
 		eiU = dot(vel2Dv[i], velocity_);
-		feq_[i] = weights2D[i] * rho_*(1.f + 3.f * eiU - 1.5f * uSq + 4.5f * eiU * eiU);
+		feq_[i] = weights2D[i] * (rho_ + 3.f * eiU - 1.5f * uSq + 4.5f * eiU * eiU);
 	}
 }
 
@@ -548,7 +549,7 @@ void d2q9_lattice::initCells(int **typeArray_, float initRho_, float2 initVeloci
 			current_cell->deriveQuantities(vMax);
 
 			if ((current_cell->type & CT_FLUID) == cellType::CT_FLUID)
-				current_cell->mass = current_cell->rho;
+				current_cell->mass = initRho_; // current_cell->rho;
 
 			// (arbitrarily) assign very little mass
 			if ((current_cell->type & CT_INTERFACE) == cellType::CT_INTERFACE)
@@ -585,6 +586,7 @@ void d2q9_lattice::initCells(int **typeArray_, float initRho_, float2 initVeloci
 
 	printf("\n Initial mass %f\n f mass %f\n i mass %f\n a mass %f \n s mass %f \n\n", initial_mas, initial_fluid_mass, initial_interface_mass, 
 		initial_air_mass, initial_solid_mass);
+	printf("Initial viscosity %f\n\n", w);
 }
 
 float2 d2q9_lattice::calculateNormal(int x_, int y_)

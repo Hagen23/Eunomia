@@ -181,7 +181,7 @@ void idle(void)
 	cudaEventSynchronize(stop);
 
 	cudaEventElapsedTime(&time, start, stop);
-	//printf("Time for the kernel: %f ms\n", time);
+	printf("Time for the kernel: %f ms\n", time);
 
 	if(keypressed)
 	{
