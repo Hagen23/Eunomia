@@ -15,7 +15,7 @@
 #endif
 
 // OpenGL Graphics includes
-#include <GL/glew.h>
+// #include <GL/glew.h>
 #if defined (__APPLE__) || defined(MACOSX)
   #include <GLUT/glut.h>
   #ifndef glutCloseFunc

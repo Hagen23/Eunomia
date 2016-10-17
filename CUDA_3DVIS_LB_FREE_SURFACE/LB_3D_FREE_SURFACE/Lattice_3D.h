@@ -2,6 +2,7 @@
 #define LATTICE_3D
 
 #include "Utilities_3d.h"
+#include <string>
 #include <vector>
 #include <stdio.h>
 
@@ -129,6 +130,8 @@ static const float weights3D[19] = {
 	1.f / 36.f, 1.f / 36.f, 1.f / 36.f, 1.f / 36.f, 1.f / 36.f, 1.f / 36.f
 };
 
+static const float test = 0;
+
 #pragma endregion
 
 /// Class that contains the information of a cell
@@ -197,7 +200,7 @@ class d3q19_lattice
 		}
 
 		/// Prints the ammount of mass of the entire lattice.
-		inline void print_fluid_amount(char* message = "")
+		inline void print_fluid_amount(string message = "")
 		{
 			int counter = 0;
 
@@ -234,7 +237,7 @@ class d3q19_lattice
 			//printf("Fluid count %d; f %.2f; i %.2f; e %2.f; Total %.2f \n", counter, fluid_mass, interface_mass, air_mass, total_Mass);
 			if (total_Mass < (initial_mas) || (total_Mass) > initial_mas)
 				printf("f %.2f; i %.2f; a %2.f; o %2.f; Total %f; %s\n df %.2f; di %.2f; dTotal %f; \n",
-				fluid_mass, interface_mass, air_mass, solid_mass, total_Mass, message,
+				fluid_mass, interface_mass, air_mass, solid_mass, total_Mass, message.c_str(),
 				initial_fluid_mass - fluid_mass, initial_interface_mass - interface_mass, initial_mas - total_Mass);
 		}
 
