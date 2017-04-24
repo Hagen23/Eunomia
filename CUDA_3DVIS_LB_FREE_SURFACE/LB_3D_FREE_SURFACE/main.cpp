@@ -8,7 +8,7 @@
 #include <time.h>
 #include <iostream>
 
-#ifdef _WIN32
+#if defined(_WIN32) || defined(_WIN64)
 #  define WINDOWS_LEAN_AND_MEAN
 #  define NOMINMAX
 #  include <windows.h>
@@ -50,7 +50,11 @@ float rotate_x = 0.0, rotate_y = 0.0;
 float translate_z = -3.0;
 
 unsigned int latticeWidth = LATTICE_DIM, latticeHeight = LATTICE_DIM, latticeDepth = LATTICE_DIM, ncol;
-float latticeViscosity = 0.1f;
+
+// The lower the value, the less viscous it is. Towards 0.001 viscosity tends to 2, which in turn makes it unstable.
+// The higher it is, the lower the viscosity, but mass loss is higher....
+float latticeViscosity = 0.1f; 
+
 bool withSolid = false, keypressed = false, showInterfase = true, showFluid = true, simulate = false;
 
 //float3 vectorIn{ 0.0f, 0.0f, 0.0f};
@@ -271,6 +275,10 @@ void keys (unsigned char key, int x, int y)
 	static int toonf = 0;
 	switch (key) {
 		case 27:
+
+			printf("\nMin mass exchange %f\n", lattice_3d->minMassExchange);
+			printf("\nCounter %f\n", lattice_3d->exchange_counter);
+
             exit(0);
 			break;
 		case 'a':
@@ -306,7 +314,7 @@ void reshape (int w, int h)
 #pragma endregion
 
 #pragma region Initialization
-void initTypes(int types[SIZE_3D_Z][SIZE_3D_Y][SIZE_3D_X])
+void initTypes(int *types)
 {
 	for (int slice = 0; slice < SIZE_3D_Z; slice++)
 	{
@@ -314,32 +322,28 @@ void initTypes(int types[SIZE_3D_Z][SIZE_3D_Y][SIZE_3D_X])
 		{
 			for (int col = 0; col < SIZE_3D_X; col++)
 			{
-				if (row <= 6 || ((slice <= 19 && slice >= 13) && (row <= 26 && row >= 20) && (col <= 19 && col >= 13)))
-					types[slice][row][col] = cellType::CT_FLUID;
-				else
-				//if ((slice <= 19 && slice >= 13) && (row <= 26 && row >= 20) && (col <= 19 && col >= 13))
-				//	types[slice][row][col] = cellType::CT_FLUID;
+				//if (((slice <= 19 && slice >= 11) && (row <= 26 && row >= 18) && (col <= 19 && col >= 11)))
+				//	types[I3D(SIZE_3D_X, SIZE_3D_Y, col, row, slice)] = cellType::CT_FLUID;
+				//else if (
+				//	(
+				//	((slice == 20 || slice == 10) && (row <= 27 && row >= 17) && (col <= 20 && col >= 10)) ||
+				//	((slice <= 20 && slice >= 10) && (row == 27 || row == 17) && (col <= 20 && col >= 10)) ||
+				//	((slice <= 20 && slice >= 10) && (row <= 27 && row >= 17) && (col == 20 || col == 10))
+				//	)
+				//	)
+				//	types[I3D(SIZE_3D_X, SIZE_3D_Y, col, row, slice)] = cellType::CT_INTERFACE;
+				//else
+				//	types[I3D(SIZE_3D_X, SIZE_3D_Y, col, row, slice)] = cellType::CT_EMPTY;
 
-				if (row == 7 ||
-					(
-					((slice == 20 || slice == 12) && (row <= 27 && row >= 19) && (col <= 20 && col >= 12)) ||
-					((slice <= 20 && slice >= 12) && (row == 27 || row == 19) && (col <= 20 && col >= 12)) ||
-					((slice <= 20 && slice >= 12) && (row <= 27 && row >= 19) && (col == 20 || col == 12))
-					)
-					)
-					types[slice][row][col] = cellType::CT_INTERFACE;
+				if (slice <= 5)
+					types[I3D(SIZE_3D_X, SIZE_3D_Y, col, row, slice)] = cellType::CT_FLUID;
+				else if (slice == 6)
+					types[I3D(SIZE_3D_X, SIZE_3D_Y, col, row, slice)] = cellType::CT_INTERFACE;
 				else
-					types[slice][row][col] = cellType::CT_EMPTY;
+					types[I3D(SIZE_3D_X, SIZE_3D_Y, col, row, slice)] = cellType::CT_EMPTY;
 
 				if ((slice == 0 || slice == SIZE_3D_Z - 1) || (row == 0 || row == SIZE_3D_Y - 1) || (col == 0 || col == SIZE_3D_X - 1))
-					types[slice][row][col] = cellType::CT_OBSTACLE;
-
-				//if (
-				//	((slice == 20 || slice == 12)  && (row <= 27 && row >= 19) && (col <= 20 && col >= 12)) ||
-				//	((slice <= 20 && slice >= 12) && (row == 27 || row == 19) && (col <= 20 && col >= 12)) ||
-				//	((slice <= 20 && slice >= 12) && (row <= 27 && row >= 19) && (col == 20 || col == 12))
-				//	)
-				//	types[slice][row][col] = cellType::CT_INTERFACE;
+					types[I3D(SIZE_3D_X, SIZE_3D_Y, col, row, slice)] = cellType::CT_OBSTACLE;
 			}
 		}
 	}
@@ -354,14 +358,14 @@ void initGL ()
 	cout << "Status: Using GLEW " << glewGetString(GLEW_VERSION) << endl;*/
 	const GLubyte* renderer;
 	const GLubyte* version;
-	const GLubyte* glslVersion;
+	//const GLubyte* glslVersion;
 
 	renderer = glGetString(GL_RENDERER); /* get renderer string */
 	version = glGetString(GL_VERSION); /* version as a string */
-	glslVersion = glGetString(GL_SHADING_LANGUAGE_VERSION);
+	//glslVersion = glGetString(GL_SHADING_LANGUAGE_VERSION);
 	printf("Renderer: %s\n", renderer);
 	printf("OpenGL version supported %s\n", version);
-	printf("GLSL version supported %s\n", glslVersion);
+	//printf("GLSL version supported %s\n", glslVersion);
 
 	glEnable(GL_DEPTH_TEST);
 }
@@ -371,7 +375,7 @@ int init(void)
 	int dimension = 16;
 	int fluidWidth = dimension, fluidHeight = dimension, fluidDepth = dimension;
 	
-	int types[SIZE_3D_Z][SIZE_3D_Y][SIZE_3D_X] = { 0 };
+	int *types = new int[SIZE_3D_Z * SIZE_3D_Y * SIZE_3D_X]();
 	//types = new int**[SIZE_3D_Z];
 	//for (int slice = 0; slice < SIZE_3D_Z; slice++)
 	//{
@@ -391,7 +395,7 @@ int init(void)
 
 	lattice_3d = new d3q19_lattice(SIZE_3D_X, SIZE_3D_Y, SIZE_3D_Z, latticeViscosity, SIZE_3D_X, 1.0f);
 
-	lattice_3d->initCells(types, 1.5f, float3{ 0.f,0.f,0.f });
+	lattice_3d->initCells(types, 1.f, float3{ 0.f,0.f,0.f });
 
 	//lattice_3d->print_types();
 
@@ -471,12 +475,13 @@ int main( int argc, const char **argv ) {
 	glutKeyboardFunc (keys);
 	glutMouseFunc(mouse);
 	glutMotionFunc(motion);
-	
+
 	initGL ();
 	init();
 
 	glutDisplayFunc(display); 
 	glutIdleFunc (idle);
     glutMainLoop();
+
 	return 0;   /* ANSI C requires main to return int. */
 }

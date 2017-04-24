@@ -100,8 +100,9 @@ class d2q9_cell
 		int		type;						/// Type of the cell; the types are defined in the enum cellType
 		float	f[9], ftemp[9], mex[9];		/// Distribution functions and excess mass
 		float	rho;						/// Cell density
-		float	mass;
+		float	mass;						/// Mass is in the range of 0 (empty cell) and rho (completely filled with fluid)
 		float2	velocity;					/// Macroscopic velocity
+		float	epsilon;					/// The fluid fraction of the cell.
 
 		d2q9_cell();
 
@@ -123,7 +124,7 @@ class d2q9_cell
 class d2q9_lattice
 {
 	public:
-		d2q9_cell	cells[SIZE_2D_X][SIZE_2D_Y];
+		d2q9_cell	cells[SIZE_2D_Y][SIZE_2D_X];
 		float		tau, c, w, vMax;				/// Single relaxation time, speed of sound, relaxation time, max fluid velocity
 		int			width, height, stride;
 
@@ -131,11 +132,13 @@ class d2q9_lattice
 		float		total_Mass = 0.f, fluid_mass = 0.f, interface_mass = 0.f, air_mass = 0.f, solid_mass = 0.f,
 			initial_mas = 0.f, initial_fluid_mass = 0.f, initial_interface_mass = 0.f, initial_air_mass = 0.f, initial_solid_mass = 0.f;
 
+		int			current_fluid_cells = 0, initial_fluid_cells = 0, 
+					current_interface_cells = 0, initial_interface_cells = 0,
+					current_air_cells = 0, initial_air_cells = 0;
+
 		/// Parameters to guarantee stability by considering the cell and domain sizes, as well as viscosity and gravity.
 		float		cellsPerSide, cellSize, viscosity, timeStep, domainSize, gravity, latticeAcceleration;
-
-		vector<d2q9_cell*> filled_cells, emptied_cells;
-
+		
 		/// width_				The width of the lattice
 		/// height_				The height of the lattice
 		/// worldViscosity_		The viscosity of the fluid, m^2/s
@@ -163,6 +166,7 @@ class d2q9_lattice
 			int counter = 0;
 
 			total_Mass = fluid_mass = interface_mass = air_mass = 0.f;
+			current_air_cells = current_fluid_cells = current_interface_cells = 0;
 
 			for (int row = 0; row < height; row++)
 			{
@@ -173,14 +177,17 @@ class d2q9_lattice
 					{
 						counter++;
 						fluid_mass += current_cell->mass;
+						current_fluid_cells++;
 					}
 					else if ((current_cell->type & CT_INTERFACE)== cellType::CT_INTERFACE)
 					{
 						interface_mass += current_cell->mass;
+						current_interface_cells++;
 					}
 					else if ((current_cell->type & CT_EMPTY) == cellType::CT_EMPTY)
 					{
 						air_mass += current_cell->mass;
+						current_air_cells++;
 					}
 					else if ((current_cell->type & CT_OBSTACLE) == cellType::CT_OBSTACLE)
 					{
@@ -191,9 +198,13 @@ class d2q9_lattice
 			total_Mass = fluid_mass + interface_mass + air_mass +  solid_mass;
 			//printf("Fluid count %d; f %.2f; i %.2f; e %2.f; Total %.2f \n", counter, fluid_mass, interface_mass, air_mass, total_Mass);
 			if (total_Mass < (initial_mas) || (total_Mass) > initial_mas)
-				printf("f %.2f; i %.2f; a %2.f; o %2.f; Total %f; %s\n df %.2f; di %.2f; dTotal %f; \n",
-				fluid_mass, interface_mass, air_mass, solid_mass, total_Mass, message,
-				initial_fluid_mass - fluid_mass, initial_interface_mass - interface_mass, initial_mas - total_Mass);
+			{
+				printf("f %.4f; i %.4f; a %2.f; o %2.f; Total %f; %s\n df %.4f; di %.4f; dTotal %f; \n",
+					fluid_mass, interface_mass, air_mass, solid_mass, total_Mass, message,
+					initial_fluid_mass - fluid_mass, initial_interface_mass - interface_mass, initial_mas - total_Mass);
+				printf("Current cels. F %d I %d A %d\n", initial_fluid_cells - current_fluid_cells, 
+					initial_interface_cells - current_interface_cells, initial_air_cells - current_air_cells);
+			}
 		}
 
 		inline void print_types()
@@ -214,6 +225,13 @@ class d2q9_lattice
 
 		void stream(void);
 		void collide(void);
+		
+		/// Not sure if this one is needed, as the mass transfer can be done during streaming.
+		void transferMass(void); 
+		/// Change the states of filled and emptied interface cells.
+		void relabelCells(void); 
+		/// Distribute excess mass among neighbors.
+		void distributeExcessMass(void); 
 
 		// Updates the cells' type and 'moves' the fluid
 		void updateCells();

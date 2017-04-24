@@ -29,22 +29,16 @@ void d2q9_cell::deriveQuantities(float vMax_)
 	velocity = float2{ 0.0f, 0.0f };
 
 	for (int i = 0; i < 9; i++)
-	{
 		rho += f[i];
-		velocity += float2_ScalarMultiply(f[i], vel2Dv[i]);
-	}
 
+	/// rho * v = sum(fi * ei)
 	if (rho > 0.0f)
-		epsilon = mass / rho;
+	{
+		for (int i = 0; i < 9; i++)
+			velocity += float2_ScalarMultiply(f[i], vel2Dv[i]);
 
-	///// rho * v = sum(fi * ei)
-	//if (rho > 0.0f)
-	//{
-	//	for (int i = 0; i < 9; i++)
-	//		velocity += float2_ScalarMultiply(f[i], vel2Dv[i]);
-
-	//	//velocity = float2_ScalarMultiply(1.0f / rho, velocity);
-	//}
+		//velocity = float2_ScalarMultiply(1.0f / rho, velocity);
+	}
 
 	/// Rescale in case maximum velocity is exceeded
 	//float norm = float2_Norm(velocity);
@@ -122,30 +116,25 @@ void d2q9_lattice::step()
 	//updateCells();
 	//print_fluid_amount();
 
-	print_fluid_amount("Before stream");
-	stream();
-	print_fluid_amount("Before collide");
-	collide();
-	print_fluid_amount("Before update");
-	updateCells();
-	print_fluid_amount("After update");
-	printf("\n\n");
-
+	//print_fluid_amount("Before stream");
+	//stream();
 	//print_fluid_amount("Before collide");
 	//collide();
-	//print_fluid_amount("After collide");
-	//stream();
-	//print_fluid_amount("After stream");
+	//print_fluid_amount("Before update");
 	//updateCells();
 	//print_fluid_amount("After update");
 	//printf("\n\n");
 
+	print_fluid_amount("Before collide");
+	collide();
+	print_fluid_amount("After collide");
+	stream();
+	print_fluid_amount("After stream");
+	updateCells();
+	print_fluid_amount("After update");
+	printf("\n\n");
+
 	//print_types();
-}
-
-void d2q9_lattice::transferMass()
-{
-
 }
 
 void d2q9_lattice::stream()
@@ -162,21 +151,24 @@ void d2q9_lattice::stream()
 				{
 					for (int i = 0; i < 9; i++)
 					{
-						int inv = invVel2D[i];
 						// f'i(x, t+dt) = fi(x+eî, t), pull scheme
-						d2q9_cell* nb_cell = getCellAt_Mod(col + vel2Di[inv].x, row + vel2Di[inv].y);
+						d2q9_cell* nb_cell = getCellAt_Mod(col + vel2Di[invVel2D[i]].x, row + vel2Di[invVel2D[i]].y);
 
 						/// Normal streaming, no mass exchange is needed -- or is it? Mass transfer only needs to happen
 						/// from a fluid to an interface cell, not from an interface to a fluid.
-						if ((nb_cell->type & CT_FLUID) == cellType::CT_FLUID ||
-							(nb_cell->type & CT_INTERFACE) == cellType::CT_INTERFACE)
+						if ((nb_cell->type & CT_FLUID) == cellType::CT_FLUID)
+						{
+							//current_cell->mass += nb_cell->f[i] - current_cell->f[invVel2D[i]];
+							current_cell->ftemp[i] = nb_cell->f[i];
+						}
+						else if ((nb_cell->type & CT_INTERFACE) == cellType::CT_INTERFACE)
 						{
 							//current_cell->mass += nb_cell->f[i] - current_cell->f[invVel2D[i]];
 							current_cell->ftemp[i] = nb_cell->f[i];
 						}
 						else if ((nb_cell->type & CT_OBSTACLE) == cellType::CT_OBSTACLE)
 						{
-							current_cell->ftemp[i] = current_cell->f[inv];
+							current_cell->ftemp[i] = current_cell->f[invVel2D[i]];
 						}
 					}
 					//print_fluid_amount("After fluid df cycle");
@@ -184,8 +176,7 @@ void d2q9_lattice::stream()
 				else if ((current_cell->type & CT_INTERFACE) == cellType::CT_INTERFACE)
 				{
 					//print_fluid_amount("Before interface df cycle");
-					//const float current_epsilon = current_cell->calculateEpsilon();
-					const float current_epsilon = current_cell->epsilon;
+					const float current_epsilon = current_cell->calculateEpsilon();
 					float f_atm_eq[9] = { 0 };
 
 					/// Equilibrium calculated with air density, and the velocity of the current cell. Used to 
@@ -195,27 +186,25 @@ void d2q9_lattice::stream()
 					for (int i = 0; i < 9; i++)
 					{
 						// f'i(x, t+dt) = fi(x+eî, t)
-						int inv = invVel2D[i];
-						d2q9_cell* nb_cell = getCellAt_Mod(col + vel2Di[inv].x, row + vel2Di[inv].y);
+						d2q9_cell* nb_cell = getCellAt_Mod(col + vel2Di[invVel2D[i]].x, row + vel2Di[invVel2D[i]].y);
 
 						if ((nb_cell->type & CT_FLUID) == cellType::CT_FLUID)
 						{
 							// dmi(x, t + dt) = fî(x+ei,t) - fi(x, t)
 							// fî(x+ei,t) -> mass incoming from fluid;  fi(x, t) -> mass outgoing from interface.
-							current_cell->mass += nb_cell->f[i] - current_cell->f[inv];
+							current_cell->mass += nb_cell->f[i] - current_cell->f[invVel2D[i]];
 
 							/// Normal streaming
 							current_cell->ftemp[i] = nb_cell->f[i];
 						}
 						else if ((nb_cell->type & CT_INTERFACE) == cellType::CT_INTERFACE)
 						{
-							//const float nb_epsilon = nb_cell->calculateEpsilon();
-							const float nb_epsilon = nb_cell->epsilon;
+							const float nb_epsilon = nb_cell->calculateEpsilon();
 
 							/// Eq. 4.3
 							//current_cell->mass += (nb_cell->f[i] - current_cell->f[invVel2D[i]]) * 0.5f * (current_epsilon + nb_epsilon);
 							current_cell->mass +=
-								calculateMassExchange(current_cell->type, nb_cell->type, nb_cell->f[i], current_cell->f[inv]) *
+								calculateMassExchange(current_cell->type, nb_cell->type, nb_cell->f[i], current_cell->f[invVel2D[i]]) *
 								0.5f * (current_epsilon + nb_epsilon);
 
 							current_cell->ftemp[i] = nb_cell->f[i];
@@ -225,11 +214,11 @@ void d2q9_lattice::stream()
 							/// no mass exchange from or to empty cell
 							/// DFs that would come out of the empty cells need to be reconstructed from the boundary conditions
 							/// at the free surface. Eq. 4.5
-							current_cell->ftemp[i] = f_atm_eq[i] + f_atm_eq[inv] - current_cell->f[inv];
+							current_cell->ftemp[i] = f_atm_eq[i] + f_atm_eq[invVel2D[i]] - current_cell->f[invVel2D[i]];
 						}
 						else if ((nb_cell->type & CT_OBSTACLE) == cellType::CT_OBSTACLE)
 						{
-							current_cell->ftemp[i] = current_cell->f[inv];
+							current_cell->ftemp[i] = current_cell->f[invVel2D[i]];
 						}
 					}
 
@@ -239,9 +228,8 @@ void d2q9_lattice::stream()
 					float2 normal = calculateNormal(col, row);
 					for (int i = 0; i < 9; i++)
 					{
-						int inv = invVel2D[i];
-						if (dot(normal, vel2Dv[inv]) > 0.f)
-							current_cell->ftemp[i] = f_atm_eq[i] + f_atm_eq[inv] - current_cell->f[inv];
+						if (dot(normal, vel2Dv[invVel2D[i]]) > 0.f)
+							current_cell->ftemp[i] = f_atm_eq[i] + f_atm_eq[invVel2D[i]] - current_cell->f[i];
 					}
 				}
 			}
@@ -250,24 +238,24 @@ void d2q9_lattice::stream()
 
 	//print_fluid_amount("After stream cycle");
 
-	//float k = 0.001f;
+	float k = 0.001f;
 
-	//for (int row = 0; row < height; row++)
-	//{
-	//	for (int col = 0; col < width; col++)
-	//	{
-	//		d2q9_cell* current_cell = getCellAt(col, row);
+	for (int row = 0; row < height; row++)
+	{
+		for (int col = 0; col < width; col++)
+		{
+			d2q9_cell* current_cell = getCellAt(col, row);
 
-	//		for (int l = 0; l < 9; l++)
-	//			current_cell->f[l] = current_cell->ftemp[l];
+			for (int l = 0; l < 9; l++)
+				current_cell->f[l] = current_cell->ftemp[l];
 
-	//		current_cell->deriveQuantities(vMax);
+			current_cell->deriveQuantities(vMax);
 
-	//		//if ((current_cell->type & CT_FLUID) == cellType::CT_FLUID)
-	//		//	//current_cell->mass = current_cell->rho;
-	//		//	current_cell->rho = current_cell->mass;
-	//	}
-	//}
+			//if ((current_cell->type & CT_FLUID) == cellType::CT_FLUID)
+			//	//current_cell->mass = current_cell->rho;
+			//	current_cell->rho = current_cell->mass;
+		}
+	}
 
 	//printf("Finished stream\n\n");
 }
@@ -283,8 +271,6 @@ void d2q9_lattice::collide()
 			if ((current_cell->type & CT_OBSTACLE) != cellType::CT_OBSTACLE && (current_cell->type & CT_EMPTY) != cellType::CT_EMPTY)
 			{
 				float feq[9] = { 0 };
-
-				current_cell->deriveQuantities(vMax);
 				//To include gravity, or any additional forces:
 				current_cell->velocity += float2_ScalarMultiply(1.0f, float2{ 0.f, -latticeAcceleration, 0.f });
 				//current_cell->velocity += float2{ latticeAcceleration, 0.f, 0.f };
@@ -294,7 +280,9 @@ void d2q9_lattice::collide()
 				/// Collision
 				for (int i = 0; i < 9; i++)
 				{
-					current_cell->f[i] = (1.0f - w) * current_cell->ftemp[i] + w * feq[i];
+					current_cell->f[i] = (1.0f - w) * current_cell->f[i] + w * feq[i];
+
+					//current_cell->f[i] += current_cell->rho * weights2D[i] * dot(vel2Dv[i], float2{ 0, -latticeAcceleration });
 				}
 			}
 		}
@@ -620,6 +608,7 @@ void d2q9_lattice::initCells(int **typeArray_, float initRho_, float2 initVeloci
 {
 	float feq[9] = { 0 };
 	d2q9_cell *current_cell;
+	calculateEquilibrium(initVelocity_, initRho_, feq);
 
 	for (int row = 0; row < height; row++)
 	for (int col = 0; col < width; col++)
@@ -630,20 +619,21 @@ void d2q9_lattice::initCells(int **typeArray_, float initRho_, float2 initVeloci
 		if ((current_cell->type & CT_FLUID) == cellType::CT_FLUID || (current_cell->type & CT_INTERFACE) == cellType::CT_INTERFACE)
 		{
 			for (int l = 0; l < 9; l++)
-				current_cell->f[l] = current_cell->ftemp[l] = weights2D[l];
-			
+				current_cell->f[l] = current_cell->ftemp[l] = feq[l];
+
+			current_cell->deriveQuantities(vMax);
+
 			if ((current_cell->type & CT_FLUID) == cellType::CT_FLUID)
-				current_cell->mass = 1.0f;
+				current_cell->mass = current_cell->rho;
 
 			// (arbitrarily) assign very little mass
 			if ((current_cell->type & CT_INTERFACE) == cellType::CT_INTERFACE)
-				current_cell->mass = 0.1f;
-
-			current_cell->deriveQuantities(vMax);
+				current_cell->mass = 0.9f * current_cell->rho;
 		}
 	}
 
-	/// Stores the initial mass for each type of cell; for debugging purposes.
+
+	/// Stores the initial mass for each type of cell
 	for (int row = 0; row < height; row++)
 	{
 		for (int col = 0; col < width; col++)
@@ -652,17 +642,14 @@ void d2q9_lattice::initCells(int **typeArray_, float initRho_, float2 initVeloci
 			if ((current_cell->type & CT_FLUID) == cellType::CT_FLUID)
 			{
 				initial_fluid_mass += current_cell->mass;
-				initial_fluid_cells++;
 			}
 			else if ((current_cell->type & CT_INTERFACE) == cellType::CT_INTERFACE)
 			{
 				initial_interface_mass += current_cell->mass;
-				initial_interface_cells++;
 			}
 			else if ((current_cell->type & CT_EMPTY) == cellType::CT_EMPTY)
 			{
 				initial_air_mass += current_cell->mass;
-				initial_air_cells++;
 			}
 			else if ((current_cell->type & CT_OBSTACLE) == cellType::CT_OBSTACLE)
 			{
@@ -674,20 +661,14 @@ void d2q9_lattice::initCells(int **typeArray_, float initRho_, float2 initVeloci
 
 	printf("\n Initial mass %f\n f mass %f\n i mass %f\n a mass %f \n s mass %f \n\n", initial_mas, initial_fluid_mass, initial_interface_mass,
 		initial_air_mass, initial_solid_mass);
-	printf("\n Initial cells. F %d I %d A %d\n", initial_fluid_cells, initial_interface_cells, initial_air_cells);
 	printf("Initial viscosity %f\n\n", w);
 }
 
 float2 d2q9_lattice::calculateNormal(int x_, int y_)
 {
-	//float2 normal;
-	//normal.x = 0.5f * (getCellAt_Mod(x_ - 1, y_)->calculateEpsilon() - getCellAt_Mod(x_ + 1, y_)->calculateEpsilon());
-	//normal.y = 0.5f * (getCellAt_Mod(x_, y_ - 1)->calculateEpsilon() - getCellAt_Mod(x_, y_ + 1)->calculateEpsilon());
-	//return normal;
-
 	float2 normal;
-	normal.x = 0.5f * (getCellAt_Mod(x_ - 1, y_)->epsilon - getCellAt_Mod(x_ + 1, y_)->epsilon);
-	normal.y = 0.5f * (getCellAt_Mod(x_, y_ - 1)->epsilon - getCellAt_Mod(x_, y_ + 1)->epsilon);
+	normal.x = 0.5f * (getCellAt_Mod(x_ - 1, y_)->calculateEpsilon() - getCellAt_Mod(x_ + 1, y_)->calculateEpsilon());
+	normal.y = 0.5f * (getCellAt_Mod(x_, y_ - 1)->calculateEpsilon() - getCellAt_Mod(x_, y_ + 1)->calculateEpsilon());
 	return normal;
 }
 

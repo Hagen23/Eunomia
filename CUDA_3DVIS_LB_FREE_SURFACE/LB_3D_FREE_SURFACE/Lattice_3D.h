@@ -1,9 +1,18 @@
+/*
+TODO:
+- Make the sizes and  masks dynamically
+- Implement the lists of emptied and filled cells in order to remove loops
+- Linearize arrays
+- 
+*/
+
 #ifndef LATTICE_3D
 #define LATTICE_3D
 
 #include "Utilities_3d.h"
 #include <string>
 #include <vector>
+#include <algorithm>
 #include <stdio.h>
 
 using namespace std;
@@ -14,6 +23,9 @@ using namespace std;
 #define MASK_3D_X			(SIZE_3D_X - 1)		//!< bit mask for fast modulo 'SIZE_3D_X' operation
 #define MASK_3D_Y			(SIZE_3D_Y - 1)		//!< bit mask for fast modulo 'SIZE_3D_Y' operation
 #define MASK_3D_Z			(SIZE_3D_Z - 1)		//!< bit mask for fast modulo 'SIZE_3D_Z' operation
+
+//#define I3D(width, height, stride, i,j,k,l)	(width*(j+height*k)+i)*stride+l
+#define I3D(width, height, col,row,slice)	(width*(row+height*slice)+col)
 
 #pragma region Lattice_constants
 
@@ -145,6 +157,9 @@ class d3q19_cell
 		float	mass;
 		float3	velocity;					/// Macroscopic velocity
 
+		// Temporary
+		int3	position;
+
 		d3q19_cell();
 
 		/// f_			Initial distribution function for a cell -- Typically the equilibrium
@@ -165,7 +180,8 @@ class d3q19_cell
 class d3q19_lattice
 {
 	public:
-		d3q19_cell	cells[SIZE_3D_Z][SIZE_3D_Y][SIZE_3D_X];
+		//d3q19_cell	cells[SIZE_3D_Z][SIZE_3D_Y][SIZE_3D_X];
+		d3q19_cell	*cells;
 		float		tau, c, w, vMax;				/// Single relaxation time, speed of sound, relaxation time, max fluid velocity
 		int			width, height, depth, stride;
 
@@ -176,7 +192,10 @@ class d3q19_lattice
 		/// Parameters to guarantee stability by considering the cell and domain sizes, as well as viscosity and gravity.
 		float		cellsPerSide, cellSize, viscosity, timeStep, domainSize, gravity, latticeAcceleration;
 
-		vector<d3q19_cell*> filled_cells, emptied_cells;
+		float		minMassExchange, exchange_counter;
+
+		// Used to check for filled or emptied cells, and avoid unecessary loops.
+		vector<int3>		filled_cells, emptied_cells;
 
 		/// width_				The width of the lattice
 		/// height_				The height of the lattice
@@ -189,7 +208,13 @@ class d3q19_lattice
 		inline d3q19_cell* getCellAt(const int x_, const int y_, const int z_)
 		{
 			//printf("X:%d, Y:%d\n", x_, y_);
-			return &cells[z_][y_][x_];	
+			return &cells[I3D(width, height, x_, y_, z_)];
+		}
+
+		inline d3q19_cell* getCellAt(int3 current_position_)
+		{
+			//printf("X:%d, Y:%d\n", x_, y_);
+			return &cells[I3D(width, height, current_position_.x, current_position_.y, current_position_.z)];
 		}
 
 		/// Returns a cell at column x_ and row y_. The mod operations prevents accessing a value not in the array.
@@ -197,6 +222,12 @@ class d3q19_lattice
 		{
 			//printf("Mod X:%d, Y:%d\n", x_, y_);
 			return getCellAt(x_ & MASK_3D_X, y_ & MASK_3D_Y, z_ & MASK_3D_Z);
+		}
+
+		inline d3q19_cell* getCellAt_Mod(const int3 current_position_)
+		{
+			//printf("Mod X:%d, Y:%d\n", x_, y_);
+			return getCellAt(current_position_.x & MASK_3D_X, current_position_.y & MASK_3D_Y, current_position_.z & MASK_3D_Z);
 		}
 
 		/// Prints the ammount of mass of the entire lattice.
@@ -218,7 +249,9 @@ class d3q19_lattice
 							counter++;
 							fluid_mass += current_cell->mass;
 						}
-						else if ((current_cell->type & CT_INTERFACE) == cellType::CT_INTERFACE)
+						else if ((current_cell->type & CT_INTERFACE) == cellType::CT_INTERFACE || 
+							(current_cell->type & CT_IF_TO_EMPTY) == cellType::CT_IF_TO_EMPTY ||
+							(current_cell->type & CT_IF_TO_FLUID) == cellType::CT_IF_TO_FLUID)
 						{
 							interface_mass += current_cell->mass;
 						}
@@ -236,9 +269,11 @@ class d3q19_lattice
 			total_Mass = fluid_mass + interface_mass + air_mass +  solid_mass;
 			//printf("Fluid count %d; f %.2f; i %.2f; e %2.f; Total %.2f \n", counter, fluid_mass, interface_mass, air_mass, total_Mass);
 			if (total_Mass < (initial_mas) || (total_Mass) > initial_mas)
-				printf("f %.2f; i %.2f; a %2.f; o %2.f; Total %f; %s\n df %.2f; di %.2f; dTotal %f; \n",
+				printf("f %f; i % f; a %2.f; o %2.f; Total %f; %s\n\n df %f; di %f; dTotal %f; \n\n",
 				fluid_mass, interface_mass, air_mass, solid_mass, total_Mass, message.c_str(),
 				initial_fluid_mass - fluid_mass, initial_interface_mass - interface_mass, initial_mas - total_Mass);
+			else
+				printf("NO difference\n");
 		}
 
 		inline void print_types()
@@ -263,6 +298,9 @@ class d3q19_lattice
 		void stream(void);
 		void collide(void);
 
+		/// All the external forces, including gravity, are applied here.
+		void externalForces(void);
+
 		// Updates the cells' type and 'moves' the fluid
 		void updateCells();
 
@@ -283,6 +321,6 @@ class d3q19_lattice
 		void averageSurroundings(d3q19_cell* cell_, int x_, int y_, int z_);
 
 		/// Initializes de lattice based on a predefined array of types, as well as a density and velocity for the fluid.
-		void initCells(int typeArray_[SIZE_3D_Z][SIZE_3D_Y][SIZE_3D_X], float initRho_, float3 initVelocity_);
+		void initCells(int *typeArray_, float initRho_, float3 initVelocity_);
 };
 #endif

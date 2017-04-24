@@ -2,7 +2,7 @@
 #include "Lattice_3D.h"
 #include <memory>
 
-d3q19_cell::d3q19_cell() : mass(0.0f), type(cellType::CT_EMPTY), rho(0.0f), velocity(float3{ 0.0f, 0.0f, 0.0f})
+d3q19_cell::d3q19_cell() : mass(0.0f), type(cellType::CT_EMPTY), rho(0.0f), velocity(float3{ 0.0f, 0.0f, 0.0f })
 {
 	for (int i = 0; i < 19; i++)
 		f[i] = ftemp[i] = mex[i] = 0.f;
@@ -15,7 +15,7 @@ d3q19_cell::d3q19_cell(float *f_, float mass_ = 0.0f, float rho_ = 0.0f,
 	{
 		f[i] = ftemp[i] = f_[i];
 		mex[i] = 0.f;
-	} 
+	}
 
 	type = type_;
 	rho = rho_;
@@ -86,9 +86,7 @@ d3q19_lattice::d3q19_lattice(int width_, int height_, int depth_, float worldVis
 	stride = 19;
 
 	// The cells are initiated statically with the predefined size. This initialization step would be needed with dynamic pointer
-	//cells = new d3q19_cell*[width];
-	//for (int i = 0; i < width; i++)
-	//	cells[i] = new d3q19_cell[height];
+	cells = new d3q19_cell[width*height*depth]();
 
 	// Values for stability and to integrate gravity
 	c = (float)(1.0 / sqrt(3.0));
@@ -106,6 +104,9 @@ d3q19_lattice::d3q19_lattice(int width_, int height_, int depth_, float worldVis
 	tau = 3.0f * viscosity + 0.5f;
 	w = 1.0f / tau;
 	latticeAcceleration = gravity * timeStep * timeStep / cellSize;
+
+	minMassExchange = 10;
+	exchange_counter = 0;
 }
 
 void d3q19_lattice::step()
@@ -115,11 +116,11 @@ void d3q19_lattice::step()
 	//updateCells();
 	//print_fluid_amount();
 
-	print_fluid_amount("Before collide");
-	collide();
-	print_fluid_amount("After collide");
+	print_fluid_amount("Before stream");
 	stream();
 	print_fluid_amount("After stream");
+	collide(); 
+	print_fluid_amount("After collide");
 	updateCells();
 	print_fluid_amount("After update");
 	printf("\n\n");
@@ -149,9 +150,13 @@ void d3q19_lattice::stream()
 							d3q19_cell* nb_cell = getCellAt_Mod(col - vel3Di[i].x, row - vel3Di[i].y, slice - vel3Di[i].z);
 
 							/// Normal streaming, no mass exchange is needed -- or is it?
-							if ((nb_cell->type & CT_FLUID) == cellType::CT_FLUID || (nb_cell->type & CT_INTERFACE) == cellType::CT_INTERFACE)
+							if ((nb_cell->type & CT_FLUID) == cellType::CT_FLUID)// || (nb_cell->type & CT_INTERFACE) == cellType::CT_INTERFACE)
 							{
-								current_cell->mass += nb_cell->f[i] - current_cell->f[invVel3D[i]];
+								//float test = nb_cell->f[i] - current_cell->f[invVel3D[i]];
+
+								//if (abs(test) > 0.000001)
+								//	current_cell->mass += nb_cell->f[i] - current_cell->f[invVel3D[i]];
+
 								current_cell->ftemp[i] = nb_cell->f[i];
 							}
 							else if ((nb_cell->type & CT_OBSTACLE) == cellType::CT_OBSTACLE)
@@ -180,7 +185,14 @@ void d3q19_lattice::stream()
 							{
 								// dmi(x, t + dt) = fi(x+eî,t) - fî(x, t)
 								// fi(x+eî,t) -> mass incoming from fluid;  fî(x, t) -> mass outgoing from interfase
-								current_cell->mass += nb_cell->f[i] - current_cell->f[invVel3D[i]];
+								//current_cell->mass += nb_cell->f[i] - current_cell->f[invVel3D[i]];
+
+								float test = (nb_cell->f[i] - current_cell->f[invVel3D[i]]);
+								
+								if (abs(test) > 0.000001)
+								{
+									current_cell->mass += nb_cell->f[i] - current_cell->f[invVel3D[i]];
+								}
 
 								/// Normal streaming
 								current_cell->ftemp[i] = nb_cell->f[i];
@@ -191,10 +203,19 @@ void d3q19_lattice::stream()
 
 								/// Eq. 4.3
 								//current_cell->mass += (nb_cell->f[i] - current_cell->f[invVel3D[i]]) * 0.5f * (current_epsilon + nb_epsilon);
-								current_cell->mass +=
-									calculateMassExchange(current_cell->type, nb_cell->type, nb_cell->f[i], current_cell->f[invVel3D[i]]) *
+								//current_cell->mass +=
+									//calculateMassExchange(current_cell->type, nb_cell->type, nb_cell->f[i], current_cell->f[invVel3D[i]]) *
+									//0.5f * (current_epsilon + nb_epsilon);
+
+								float test = calculateMassExchange(current_cell->type, nb_cell->type, nb_cell->f[i], current_cell->f[invVel3D[i]]) *
 									0.5f * (current_epsilon + nb_epsilon);
 
+								if (abs(test) > 0.000001)
+								{
+									current_cell->mass +=
+										calculateMassExchange(current_cell->type, nb_cell->type, nb_cell->f[i], current_cell->f[invVel3D[i]]) *
+										0.5f * (current_epsilon + nb_epsilon);
+								}
 								current_cell->ftemp[i] = nb_cell->f[i];
 							}
 							else if ((nb_cell->type & CT_EMPTY) == cellType::CT_EMPTY)
@@ -263,6 +284,8 @@ void d3q19_lattice::collide()
 				if ((current_cell->type & CT_OBSTACLE) != cellType::CT_OBSTACLE && (current_cell->type & CT_EMPTY) != cellType::CT_EMPTY)
 				{
 					float feq[19] = { 0 };
+					current_cell->velocity += float3{ 0.f, -latticeAcceleration, 0.f };
+					//current_cell->velocity += float3{ 0.f, -latticeAcceleration * tau / current_cell->rho, 0.f };
 					calculateEquilibrium(current_cell->velocity, current_cell->rho, feq);
 
 					/// Collision
@@ -270,7 +293,7 @@ void d3q19_lattice::collide()
 					{
 						current_cell->f[i] = (1.0f - w) * current_cell->f[i] + w * feq[i];
 						//To include gravity
-						current_cell->f[i] += current_cell->rho * weights3D[i] * dot(vel3Dv[i], float3{ 0.f, -latticeAcceleration, 0.f });
+						//current_cell->f[i] += current_cell->rho * weights3D[i] * dot(vel3Dv[i], float3{ 0.f, -latticeAcceleration, 0.f });
 					}
 				}
 			}
@@ -298,6 +321,7 @@ void d3q19_lattice::updateCells()
 						((current_cell->mass >= (1 - lonely_thresh) * current_cell->rho) &&
 						(current_cell->type & CT_NO_EMPTY_NEIGH) == CT_NO_EMPTY_NEIGH))
 					{
+						filled_cells.push_back(int3{ col, row, slice });
 						current_cell->type = cellType::CT_IF_TO_FLUID;
 					}
 					else if ((current_cell->mass < ((0.f - k) * current_cell->rho)) ||
@@ -305,7 +329,10 @@ void d3q19_lattice::updateCells()
 						((current_cell->type & CT_NO_FLUID_NEIGH) == CT_NO_FLUID_NEIGH) ||
 						((current_cell->type & CT_NO_IFACE_NEIGH) == CT_NO_IFACE_NEIGH && (current_cell->type & CT_NO_FLUID_NEIGH) == CT_NO_FLUID_NEIGH)
 						)
+					{
+						emptied_cells.push_back(int3{ col, row, slice });
 						current_cell->type = cellType::CT_IF_TO_EMPTY;
+					}
 				}
 
 				current_cell->type &= ~(CT_NO_FLUID_NEIGH | CT_NO_EMPTY_NEIGH | CT_NO_IFACE_NEIGH);
@@ -313,135 +340,222 @@ void d3q19_lattice::updateCells()
 		}
 	}
 #pragma endregion
+	print_fluid_amount("After checking for filled or emptied");
 
 #pragma region	// set flags for filled interface cells (interface to fluid)
-	for (int slice = 0; slice < depth; slice++)
+	for (int3 current_position : filled_cells)
 	{
-		for (int row = 0; row < height; row++)
+		d3q19_cell* current_cell = getCellAt(current_position);
+
+		for (int i = 0; i < 19; i++)
 		{
-			for (int col = 0; col < width; col++)
+			d3q19_cell* nb_cell = getCellAt_Mod(current_position.x - vel3Di[i].x, 
+				current_position.y - vel3Di[i].y, current_position.z -vel3Di[i].z);
+
+			if ((nb_cell->type & CT_EMPTY) == cellType::CT_EMPTY)
 			{
-				d3q19_cell* current_cell = getCellAt(col, row, slice);
-
-				// Initialize values for empty cells
-				if ((current_cell->type & CT_IF_TO_FLUID) == cellType::CT_IF_TO_FLUID)
-				{
-					for (int i = 0; i < 19; i++)
-					{
-						d3q19_cell* nb_cell = getCellAt_Mod(col - vel3Di[i].x, row - vel3Di[i].y, slice - vel3Di[i].z);
-
-						if ((nb_cell->type & CT_EMPTY) == cellType::CT_EMPTY)
-						{
-							nb_cell->type = cellType::CT_INTERFACE;
-							//averageSurroundings(nb_cell, col, row);
-							averageSurroundings(nb_cell, col - vel3Di[i].x, row - vel3Di[i].y, slice - vel3Di[i].z);
-						}
-					}
-
-					// prevent neighboring cells from becoming empty
-					for (int i = 0; i < 19; i++)
-					{
-						d3q19_cell* nb_cell = getCellAt_Mod(col - vel3Di[i].x, row - vel3Di[i].y, slice - vel3Di[i].z);
-
-						if ((nb_cell->type & CT_IF_TO_EMPTY) == cellType::CT_IF_TO_EMPTY || (nb_cell->type & CT_EMPTY) == cellType::CT_EMPTY)
-							nb_cell->type = cellType::CT_INTERFACE;
-					}
-				}
+				nb_cell->type = cellType::CT_INTERFACE;
+				//averageSurroundings(nb_cell, col, row);
+				averageSurroundings(nb_cell, current_position.x - vel3Di[i].x,
+					current_position.y - vel3Di[i].y, current_position.z - vel3Di[i].z);
 			}
 		}
+
+		// prevent neighboring cells from becoming empty
+		for (int i = 0; i < 19; i++)
+		{
+			d3q19_cell* nb_cell = getCellAt_Mod(current_position.x - vel3Di[i].x,
+				current_position.y - vel3Di[i].y, current_position.z - vel3Di[i].z);
+
+			if ((nb_cell->type & CT_INTERFACE) == cellType::CT_INTERFACE)
+			{
+				vector<int3>::iterator element = find(emptied_cells.begin(), emptied_cells.end(), int3{ current_position.x - vel3Di[i].x,
+					current_position.y - vel3Di[i].y, current_position.z - vel3Di[i].z });
+				
+				if (element != emptied_cells.end())
+					emptied_cells.erase(element);
+			}
+		}
+
+		current_cell->type = CT_FLUID;
 	}
+	//for (int slice = 0; slice < depth; slice++)
+	//{
+	//	for (int row = 0; row < height; row++)
+	//	{
+	//		for (int col = 0; col < width; col++)
+	//		{
+	//			d3q19_cell* current_cell = getCellAt(col, row, slice);
+
+	//			// Initialize values for empty cells
+	//			if ((current_cell->type & CT_IF_TO_FLUID) == cellType::CT_IF_TO_FLUID)
+	//			{
+	//				for (int i = 0; i < 19; i++)
+	//				{
+	//					d3q19_cell* nb_cell = getCellAt_Mod(col - vel3Di[i].x, row - vel3Di[i].y, slice - vel3Di[i].z);
+
+	//					if ((nb_cell->type & CT_EMPTY) == cellType::CT_EMPTY)
+	//					{
+	//						nb_cell->type = cellType::CT_INTERFACE;
+	//						//averageSurroundings(nb_cell, col, row);
+	//						averageSurroundings(nb_cell, col - vel3Di[i].x, row - vel3Di[i].y, slice - vel3Di[i].z);
+	//					}
+	//				}
+
+	//				// prevent neighboring cells from becoming empty
+	//				for (int i = 0; i < 19; i++)
+	//				{
+	//					d3q19_cell* nb_cell = getCellAt_Mod(col - vel3Di[i].x, row - vel3Di[i].y, slice - vel3Di[i].z);
+
+	//					if ((nb_cell->type & CT_IF_TO_EMPTY) == cellType::CT_IF_TO_EMPTY || (nb_cell->type & CT_EMPTY) == cellType::CT_EMPTY)
+	//						nb_cell->type = cellType::CT_INTERFACE;
+	//				}
+	//			}
+	//		}
+	//	}
+	//}
 #pragma endregion
+	print_fluid_amount("After flags for interface to fluid");
 
 #pragma region	// set flags for emptied interface cells (interface to empty)
-	for (int slice = 0; slice < depth; slice++)
+	for (int3 current_position : emptied_cells)
 	{
-		for (int row = 0; row < height; row++)
+		d3q19_cell* current_cell = getCellAt(current_position);
+
+		// convert neighboring fluid cells to interface cells
+		for (int i = 0; i < 19; i++)
 		{
-			for (int col = 0; col < width; col++)
-			{
-				d3q19_cell* current_cell = getCellAt(col, row, slice);
+			d3q19_cell* nb_cell = getCellAt_Mod(current_position.x - vel3Di[i].x,
+				current_position.y - vel3Di[i].y, current_position.z - vel3Di[i].z);
 
-				// convert neighboring fluid cells to interface cells
-				if ((current_cell->type & CT_IF_TO_EMPTY) == cellType::CT_IF_TO_EMPTY)
-				{
-					for (int i = 0; i < 19; i++)
-					{
-						d3q19_cell* nb_cell = getCellAt_Mod(col - vel3Di[i].x, row - vel3Di[i].y, slice - vel3Di[i].z);
-
-						if ((nb_cell->type & CT_FLUID) == cellType::CT_FLUID)
-							nb_cell->type = cellType::CT_INTERFACE;
-					}
-				}
-			}
+			if ((nb_cell->type & CT_FLUID) == cellType::CT_FLUID)
+				nb_cell->type = cellType::CT_INTERFACE;
 		}
+
+		current_cell->type = CT_EMPTY;
 	}
+	//for (int slice = 0; slice < depth; slice++)
+	//{
+	//	for (int row = 0; row < height; row++)
+	//	{
+	//		for (int col = 0; col < width; col++)
+	//		{
+	//			d3q19_cell* current_cell = getCellAt(col, row, slice);
+
+	//			// convert neighboring fluid cells to interface cells
+	//			if ((current_cell->type & CT_IF_TO_EMPTY) == cellType::CT_IF_TO_EMPTY)
+	//			{
+	//				for (int i = 0; i < 19; i++)
+	//				{
+	//					d3q19_cell* nb_cell = getCellAt_Mod(col - vel3Di[i].x, row - vel3Di[i].y, slice - vel3Di[i].z);
+
+	//					if ((nb_cell->type & CT_FLUID) == cellType::CT_FLUID)
+	//						nb_cell->type = cellType::CT_INTERFACE;
+	//				}
+	//			}
+	//		}
+	//	}
+	//}
 #pragma endregion
 
-/// In a second pass, the excess mass mex is distributed among the surrounding interface cells for each emptied and filled cell.
+	print_fluid_amount("After flags for interface to empty");
+	/// In a second pass, the excess mass mex is distributed among the surrounding interface cells for each emptied and filled cell.
 #pragma region // distribute excess mass
-	for (int slice = 0; slice < depth; slice++)
+	for (int3 current_position : filled_cells)
 	{
-		for (int row = 0; row < height; row++)
+		float excess_mass = 0.f, excess = 0.f;
+
+		d3q19_cell* current_cell = getCellAt(current_position);
+
+		excess = current_cell->mass - current_cell->rho;
+
+		// Fluid moved beyond the current cell during the last time step
+		if ((excess > 0.f) && (excess > current_cell->rho))
 		{
-			for (int col = 0; col < width; col++)
+			float3 normal = calculateNormal(current_position.x, current_position.y, current_position.z);
+
+			float eta[19] = { 0.f };
+			float eta_total = 0.f;
+
+			for (int i = 0; i < 19; i++)
 			{
-				d3q19_cell* current_cell = getCellAt(col, row, slice);
-				float3 normal = calculateNormal(col, row, slice);
-				float excess_mass = 0.f;
-
-				if ((current_cell->type & CT_IF_TO_FLUID) == cellType::CT_IF_TO_FLUID)
-				{
-					excess_mass = current_cell->mass - current_cell->rho;
-					current_cell->mass = current_cell->rho;
-				}
-				else if ((current_cell->type & CT_IF_TO_EMPTY) == cellType::CT_IF_TO_EMPTY)
-				{
-					excess_mass = current_cell->mass;
-					normal = float3_ScalarMultiply(-1.f, normal);
-					current_cell->mass = 0.f;
-				}
-				else
-				{
-					continue;
-				}
-
-				float eta[19] = { 0.f };
-				float eta_total = 0.f;
-				unsigned int isIF[19] = { 0 };
-				unsigned int numIF = 0;	// number of interface cell neighbors
-
-				for (int i = 0; i < 19; i++)
-				{
-					// neighbor cell in the direction of velocity vector
-					d3q19_cell* nb_cell = getCellAt_Mod(col + vel3Di[i].x, row + vel3Di[i].y, slice + vel3Di[i].z);
-					if ((nb_cell->type & CT_INTERFACE) == cellType::CT_INTERFACE)
-					{
-						eta[i] = dot(vel3Di[i], normal);
-						if (eta[i] < 0) eta[i] = 0;
-
-						eta_total += eta[i];
-						isIF[i] = 1;
-						numIF++;
-					}
-				}
-
-				// store excess mass to be distributed in mex
-				if (eta_total > 0)
-				{
-					float eta_fraction = 1 / eta_total;
-					for (int i = 0; i < 19; i++)
-						current_cell->mex[i] = excess_mass * eta[i] * eta_fraction;
-				}
-				//else if (numIF > 0)
-				//{
-				//	float excess_mass_uniform = excess_mass / numIF;
-				//	for (int i = 0; i < 9; i++)
-				//		current_cell->mex[i] = isIF[i] ? excess_mass_uniform : 0.f;
-				//}
+				float nei = dot(normal, vel3Dv[i]);
+				eta[i] = nei > 0.f ? nei : 0.f;
+				eta_total += eta[i];
 			}
 		}
 	}
+	//for (int slice = 0; slice < depth; slice++)
+	//{
+	//	for (int row = 0; row < height; row++)
+	//	{
+	//		for (int col = 0; col < width; col++)
+	//		{
+	//			d3q19_cell* current_cell = getCellAt(col, row, slice);
+	//			float3 normal = calculateNormal(col, row, slice);
+	//			float excess_mass = 0.f;
+
+	//			if ((current_cell->type & CT_IF_TO_FLUID) == cellType::CT_IF_TO_FLUID)
+	//			{
+	//				float excess = current_cell->mass - current_cell->rho;
+	//				
+	//				if (abs(excess) > 0.000001f)
+	//					excess = 0.000001f;
+
+	//				excess_mass = excess; // current_cell->mass - current_cell->rho;
+	//				current_cell->mass = current_cell->rho;
+	//				//current_cell->mass = 1.f;
+	//			}
+	//			else if ((current_cell->type & CT_IF_TO_EMPTY) == cellType::CT_IF_TO_EMPTY)
+	//			{
+	//				excess_mass = current_cell->mass;
+	//				normal = float3_ScalarMultiply(-1.f, normal);
+	//				current_cell->mass = 0.f;
+	//			}
+	//			else
+	//			{
+	//				continue;
+	//			}
+
+	//			float eta[19] = { 0.f };
+	//			float eta_total = 0.f;
+	//			unsigned int isIF[19] = { 0 };
+	//			unsigned int numIF = 0;	// number of interface cell neighbors
+
+	//			for (int i = 0; i < 19; i++)
+	//			{
+	//				// neighbor cell in the direction of velocity vector
+	//				d3q19_cell* nb_cell = getCellAt_Mod(col + vel3Di[i].x, row + vel3Di[i].y, slice + vel3Di[i].z);
+	//				if ((nb_cell->type & CT_INTERFACE) == cellType::CT_INTERFACE)
+	//				{
+	//					eta[i] = dot(vel3Di[i], normal);
+	//					if (eta[i] < 0) eta[i] = 0;
+
+	//					eta_total += eta[i];
+	//					isIF[i] = 1;
+	//					numIF++;
+	//				}
+	//			}
+
+	//			// store excess mass to be distributed in mex
+	//			if (eta_total > 0)
+	//			{
+	//				float eta_fraction = 1 / eta_total;
+	//				for (int i = 0; i < 19; i++)
+	//					current_cell->mex[i] = excess_mass * eta[i] * eta_fraction;
+	//			}
+	//			//else if (numIF > 0)
+	//			//{
+	//			//	float excess_mass_uniform = excess_mass / numIF;
+	//			//	for (int i = 0; i < 9; i++)
+	//			//		current_cell->mex[i] = isIF[i] ? excess_mass_uniform : 0.f;
+	//			//}
+	//		}
+	//	}
+	//}
 #pragma endregion
+
+	print_fluid_amount("After excess mass calculation");
 
 #pragma region // collect distributed mass and finalize cell flags
 	for (int slice = 0; slice < depth; slice++)
@@ -461,7 +575,8 @@ void d3q19_lattice::updateCells()
 
 						if ((nb_cell->type & CT_INTERFACE) == cellType::CT_INTERFACE)
 						{
-							nb_cell->mass += current_cell->mex[i];
+							if (nb_cell->mass < 1.f)
+								nb_cell->mass += current_cell->mex[i];
 							current_cell->mex[i] = 0.f;
 						}
 					}
@@ -475,6 +590,8 @@ void d3q19_lattice::updateCells()
 		}
 	}
 #pragma endregion
+
+	print_fluid_amount("After excess mass distribution");
 
 #pragma region // set neighborhood flags
 	for (int slice = 0; slice < depth; slice++)
@@ -546,22 +663,23 @@ void d3q19_lattice::calculateEquilibrium(float3 velocity_, float rho_, float feq
 	for (int i = 0; i < 19; i++)
 	{
 		eiU = dot(vel3Dv[i], velocity_);
-		feq_[i] = weights3D[i] * (rho_ + 3.f * eiU - 1.5f * uSq + 4.5f * eiU * eiU);
+		//feq_[i] = weights3D[i] * (rho_ + 3.f * eiU - 1.5f * uSq + 4.5f * eiU * eiU);
+		feq_[i] = weights3D[i] * rho_ * (1.f + 3.f * eiU - 1.5f * uSq + 4.5f * eiU * eiU);
 	}
 }
 
-void d3q19_lattice::initCells(int typeArray_[SIZE_3D_Z][SIZE_3D_Y][SIZE_3D_X], float initRho_, float3 initVelocity_)
+void d3q19_lattice::initCells(int *typeArray_, float initRho_, float3 initVelocity_)
 {
 	float feq[19] = { 0 };
 	d3q19_cell *current_cell;
 	calculateEquilibrium(initVelocity_, initRho_, feq);
-	
+
 	for (int slice = 0; slice < depth; slice++)
 	for (int row = 0; row < height; row++)
 	for (int col = 0; col < width; col++)
 	{
 		current_cell = getCellAt(col, row, slice);
-		current_cell->type = typeArray_[slice][row][col];
+		current_cell->type = typeArray_[I3D(width, height, col, row, slice)];
 
 		if ((current_cell->type & CT_FLUID) == cellType::CT_FLUID || (current_cell->type & CT_INTERFACE) == cellType::CT_INTERFACE)
 		{
@@ -571,14 +689,16 @@ void d3q19_lattice::initCells(int typeArray_[SIZE_3D_Z][SIZE_3D_Y][SIZE_3D_X], f
 			current_cell->deriveQuantities(vMax);
 
 			if ((current_cell->type & CT_FLUID) == cellType::CT_FLUID)
-				current_cell->mass = current_cell->rho;
+				//current_cell->mass = current_cell->rho;
+				current_cell->mass = 1.f;
 
 			// (arbitrarily) assign very little mass
 			if ((current_cell->type & CT_INTERFACE) == cellType::CT_INTERFACE)
-				current_cell->mass = 1.f / 5.f;//0.1f * current_cell->rho;
+				//current_cell->mass = 1.f / 5.f;//0.1f * current_cell->rho;
+				current_cell->mass = 1.f;
 		}
 	}
-	
+
 	/// Stores the initial mass for each type of cell
 	for (int slice = 0; slice < depth; slice++)
 	{
@@ -610,7 +730,7 @@ void d3q19_lattice::initCells(int typeArray_[SIZE_3D_Z][SIZE_3D_Y][SIZE_3D_X], f
 	initial_mas = initial_fluid_mass + initial_interface_mass + initial_air_mass + initial_solid_mass;
 
 	printf("\n Viscosity %f\n", w);
-	printf("\n Initial mass %f\n f mass %f\n i mass %f\n a mass %f \n s mass %f \n\n", initial_mas, initial_fluid_mass, initial_interface_mass, 
+	printf("\n Initial mass %f\n f mass %f\n i mass %f\n a mass %f \n s mass %f \n\n", initial_mas, initial_fluid_mass, initial_interface_mass,
 		initial_air_mass, initial_solid_mass);
 }
 

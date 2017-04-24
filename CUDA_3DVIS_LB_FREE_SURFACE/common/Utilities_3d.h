@@ -82,9 +82,16 @@ struct float3
 
 	inline float3& operator -=(const float3& rh)
 	{
-		x -= rh.x;
-		y -= rh.y;
-		z -= rh.z;
+		float temp_x, temp_y, temp_z;
+		
+		temp_x = x - rh.x;
+		temp_y = y - rh.y;
+		temp_z = z - rh.z;
+
+		x = abs(temp_x) > 0.000001f ? temp_x : temp_x > 0 ? 0.000001f : -0.000001f;
+		y = abs(temp_y) > 0.000001f ? temp_y : temp_y > 0 ? 0.000001f : -0.000001f;
+		z = abs(temp_z) > 0.000001f ? temp_z : temp_z > 0 ? 0.000001f : -0.000001f;
+		
 		return *this;
 	}
 

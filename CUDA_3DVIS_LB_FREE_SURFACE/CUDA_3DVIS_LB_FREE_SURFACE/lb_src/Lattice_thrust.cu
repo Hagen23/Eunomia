@@ -130,7 +130,7 @@ void latticed3q19::stream()
 				latticeIndexes_dk.begin(),
 				latticeIndexes_dw.begin()
 			)
-		),
+		), 
 		thrust::make_zip_iterator(
 			thrust::make_tuple(
 				latticeIndexes_di.end(),
