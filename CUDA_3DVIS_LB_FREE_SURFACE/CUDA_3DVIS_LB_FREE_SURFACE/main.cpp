@@ -218,8 +218,9 @@ int mouse_buttons = 0;
 float rotate_x = 0.0, rotate_y = 0.0;
 float translate_z = -3.0;
 
+int steps = 0;
 unsigned int latticeWidth = LATTICE_DIM, latticeHeight = LATTICE_DIM, latticeDepth = LATTICE_DIM, ncol;
-float latticeViscosity = 0.2f;
+float latticeViscosity = 0.5f;
 bool withSolid = false, keypressed = false, showInterfase = true, showFluid = true, simulate = false;
 
 //float3 vectorIn{ 0.0f, 0.0f, 0.0f};
@@ -372,7 +373,8 @@ void idle(void)
 	if (simulate)
 	{
 		lattice_2d->step();
-		simulate = !simulate;
+		steps++;
+		//simulate = !simulate;
 	}
 		//lattice->step();
 
@@ -457,6 +459,7 @@ void keys (unsigned char key, int x, int y)
 		case 32:
 			simulate = !simulate;
 			cout << "Streaming: " << simulate << endl;
+			cout << "Steps: " << steps << endl;
 			break;
 	}
 }

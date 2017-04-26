@@ -235,7 +235,13 @@ void d2q9_lattice::stream()
 
 					//print_fluid_amount("After interface df cycle");
 
-					// Reconstruct atmospheric dfs for directions along the surface normal, Eq. 4.6
+					// Reconstruct atmospheric dfs for directions along the surface normal, Eq. 4.5-4.6
+					/// TO DO: Check if this equation is correct. It works differently (and looks better) with a 
+					/// reconstruction from an inverse fi: current_cell->ftemp[i] = f_atm_eq[i] + f_atm_eq[inv] - current_cell->f[inv]
+					/// In the previous reconstruction part, finv is used because the point of reference is the nb_cell,
+					/// In this case, the reference is the normal, so it should be fi...
+					/// Also, in the references it only mentions that f should be updated, not ftemp; but it make more sense to 
+					/// update ftemp...
 					float2 normal = calculateNormal(col, row);
 					for (int i = 0; i < 9; i++)
 					{
@@ -287,7 +293,8 @@ void d2q9_lattice::collide()
 				current_cell->deriveQuantities(vMax);
 				//To include gravity, or any additional forces:
 				current_cell->velocity += float2_ScalarMultiply(1.0f, float2{ 0.f, -latticeAcceleration, 0.f });
-				//current_cell->velocity += float2{ latticeAcceleration, 0.f, 0.f };
+				current_cell->velocity += float2{ latticeAcceleration, 0.f, 0.f };
+				//current_cell->velocity += float2{ 0.f, 0.f,0.f};
 
 				calculateEquilibrium(current_cell->velocity, current_cell->rho, feq);
 
@@ -295,6 +302,7 @@ void d2q9_lattice::collide()
 				for (int i = 0; i < 9; i++)
 				{
 					current_cell->f[i] = (1.0f - w) * current_cell->ftemp[i] + w * feq[i];
+					//current_cell->f[i] += current_cell->rho * weights2D[i] * dot(vel2Dv[i], float2{ 0.f, -latticeAcceleration, 0.f });
 				}
 			}
 		}
@@ -343,18 +351,22 @@ void d2q9_lattice::updateCells()
 					||
 					(
 					(current_cell->mass >= (1 - lonely_thresh) * current_cell->rho) &&
-					((current_cell->type & CT_NO_FLUID_NEIGH) == CT_NO_FLUID_NEIGH)
+					//((current_cell->type & CT_NO_FLUID_NEIGH) == CT_NO_FLUID_NEIGH)
+					((current_cell->type & CT_NO_EMPTY_NEIGH) == CT_NO_EMPTY_NEIGH)
 					)
 					)
 				{
 					current_cell->type |= cellType::CT_IF_TO_FLUID;
 				}
 				else if (
-					(current_cell->mass < ((0.f - k) * current_cell->rho))
+					(current_cell->mass < ((- k) * current_cell->rho))
 					||
 					(
 					(current_cell->mass <= lonely_thresh * current_cell->rho) &&
 					((current_cell->type & CT_NO_FLUID_NEIGH) == CT_NO_FLUID_NEIGH)
+					|| ((current_cell->type & CT_NO_IFACE_NEIGH) == CT_NO_IFACE_NEIGH &&
+						(current_cell->type & CT_NO_FLUID_NEIGH) == CT_NO_FLUID_NEIGH
+						)
 					)
 					)
 				{
@@ -384,7 +396,6 @@ void d2q9_lattice::updateCells()
 					if ((nb_cell->type & CT_EMPTY) == cellType::CT_EMPTY)
 					{
 						nb_cell->type = cellType::CT_INTERFACE;
-						//averageSurroundings(nb_cell, col, row);
 						averageSurroundings(nb_cell, col + vel2Di[i].x, row + vel2Di[i].y);
 					}
 
@@ -394,7 +405,7 @@ void d2q9_lattice::updateCells()
 				}
 
 				//// prevent neighboring cells from becoming empty
-				//for (int i = 0; i < 9; i++)
+				//for (int i = 1; i < 9; i++)
 				//{
 				//	d2q9_cell* nb_cell = getCellAt_Mod(col + vel2Di[i].x, row + vel2Di[i].y);
 
@@ -435,21 +446,21 @@ void d2q9_lattice::updateCells()
 		for (int col = 0; col < width; col++)
 		{
 			d2q9_cell* current_cell = getCellAt(col, row);
-			float2 normal = calculateNormal(col, row);
+			//float2 normal = calculateNormal(col, row);
 			float excess_mass = 0.f;
 
 			if ((current_cell->type & CT_IF_TO_FLUID) == cellType::CT_IF_TO_FLUID)
 			{
 				excess_mass = current_cell->mass - current_cell->rho;
-				if (excess_mass < 0.f)
-					int test = 0;
-				//current_cell->mass = current_cell->rho;
+				//if (current_cell->mass > 1.0)
+				//	int test = 0;
+				//current_cell->mass = 1.0f;// current_cell->rho;
 			}
 			else if ((current_cell->type & CT_IF_TO_EMPTY) == cellType::CT_IF_TO_EMPTY)
 			{
 				excess_mass = current_cell->mass;
-				if (excess_mass > 0.f)
-					int test = 0;
+				//if (excess_mass > 0.f)
+				//	int test = 0;
 				//normal = float2_ScalarMultiply(-1.f, normal);
 				//current_cell->mass = 0.f;
 			}
@@ -467,6 +478,7 @@ void d2q9_lattice::updateCells()
 				d2q9_cell* nb_cell = getCellAt_Mod(col + vel2Di[invVel2D[i]].x, row + vel2Di[invVel2D[i]].y);
 				if ((nb_cell->type & CT_INTERFACE) == cellType::CT_INTERFACE)
 				{
+					float2 normal = calculateNormal(col + vel2Di[invVel2D[i]].x, row + vel2Di[invVel2D[i]].y);
 					if ((current_cell->type & CT_IF_TO_FLUID) == cellType::CT_IF_TO_FLUID)
 					{
 						eta[i] = dot(vel2Di[i], normal);
@@ -489,20 +501,26 @@ void d2q9_lattice::updateCells()
 				}
 			}
 
+			/// TODO
 			// store excess mass to be distributed in mex
-			if (eta_total != 0.f)
-			{
-				float eta_fraction = 1.f / eta_total;
-				for (int i = 0; i < 9; i++)
+			if ((current_cell->type & CT_IF_TO_FLUID) == cellType::CT_IF_TO_FLUID ||
+				(current_cell->type & CT_IF_TO_EMPTY) == cellType::CT_IF_TO_EMPTY)
+				if (eta_total > 1.e-6 || eta_total < -1.e-6)
 				{
-					float excess = excess_mass * eta[i] * eta_fraction;
-					if (excess > 2.e-6)
-						current_cell->mex[i] = excess_mass * eta[i] * eta_fraction;
-					else
-						current_cell->mex[i] = 0.f;
-				}
+					float eta_fraction = 1.f / eta_total;
+					for (int i = 0; i < 9; i++)
+					{
+						float excess = excess_mass * eta[i] * eta_fraction;
 
-			}
+						if (excess > 1.e-6)
+							current_cell->mex[i] = excess;
+						/*else if (excess < -1.e-6)
+							current_cell->mex[i] = excess;*/
+						else
+							current_cell->mex[i] = 0.f;
+					}
+
+				}
 		}
 	}
 #pragma endregion
@@ -534,7 +552,7 @@ void d2q9_lattice::updateCells()
 			if ((current_cell->type & CT_IF_TO_FLUID) == cellType::CT_IF_TO_FLUID)
 			{
 				current_cell->type = cellType::CT_FLUID;
-				current_cell->mass = current_cell->rho;
+				current_cell->mass = current_cell->rho = 1.0f;
 			}
 			else if ((current_cell->type & CT_IF_TO_EMPTY) == cellType::CT_IF_TO_EMPTY)
 			{

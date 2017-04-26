@@ -195,6 +195,7 @@ class d2q9_lattice
 					}
 				}
 			}
+			
 			total_Mass = fluid_mass + interface_mass + air_mass +  solid_mass;
 			//printf("Fluid count %d; f %.2f; i %.2f; e %2.f; Total %.2f \n", counter, fluid_mass, interface_mass, air_mass, total_Mass);
 			if (total_Mass < (initial_mas) || (total_Mass) > initial_mas)
